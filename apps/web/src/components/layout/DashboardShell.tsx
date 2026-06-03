@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useOnboardingStore } from '../../store/useOnboardingStore';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../api/client';
 
@@ -11,6 +12,9 @@ import {
   X,
   Mail,
   Loader2,
+  ChevronRight,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 
 import {
@@ -18,7 +22,7 @@ import {
   AnimatePresence,
 } from 'framer-motion';
 
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 interface DashboardSummary {
   msgCount?: number;
@@ -28,6 +32,58 @@ interface DashboardSummary {
 interface DashboardShellProps {
   children: React.ReactNode;
 }
+
+const ONBOARDING_STEPS = [
+  { id: 'wallet', label: 'Fund Wallet', desc: 'Add funds to activate your account features.' },
+  { id: 'profile', label: 'Business Profile', desc: 'Complete your professional identity details.' },
+  { id: 'service', label: 'Add Service', desc: 'List at least one professional service you offer.' },
+  { id: 'product', label: 'Add Product', desc: 'Upload a product to the marketplace.' },
+  { id: 'tour', label: 'Dashboard Tour', desc: 'Take a quick tour of your new command center.' }
+];
+
+const OnboardingProgress = ({ currentStep }: { currentStep: string }) => {
+  if (currentStep === 'done') return null;
+
+  const currentIndex = ONBOARDING_STEPS.findIndex(s => s.id === currentStep);
+  const currentDetails = ONBOARDING_STEPS[currentIndex] || ONBOARDING_STEPS[0];
+
+  return (
+    <div className="bg-primary/10 border border-primary/20 rounded-3xl p-6 mb-8 mt-2 mx-3 sm:mx-4 md:mx-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <AlertCircle size={18} className="text-primary" />
+            <h3 className="font-black text-primary text-sm uppercase tracking-widest">Account Setup Incomplete</h3>
+          </div>
+          <p className="text-muted-foreground text-sm font-medium">
+            <strong className="text-foreground">Current Step: {currentDetails.label}</strong> — {currentDetails.desc}
+          </p>
+        </div>
+        <div className="flex-1 w-full max-w-xl">
+          <div className="flex items-center justify-between mb-2">
+            {ONBOARDING_STEPS.map((step, idx) => (
+              <div key={step.id} className="flex flex-col items-center gap-2 flex-1 relative">
+                {idx !== 0 && (
+                  <div className={`absolute top-3 right-1/2 w-full h-[2px] -z-10 transition-colors duration-500 ${idx <= currentIndex ? 'bg-primary' : 'bg-border'}`} />
+                )}
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black transition-colors duration-500 z-10 ${
+                  idx < currentIndex ? 'bg-primary text-brand-navy' : 
+                  idx === currentIndex ? 'bg-background border-2 border-primary text-primary' : 
+                  'bg-muted text-muted-foreground border border-border'
+                }`}>
+                  {idx < currentIndex ? <CheckCircle2 size={12} /> : idx + 1}
+                </div>
+                <span className={`text-[9px] font-black uppercase tracking-widest hidden sm:block ${idx <= currentIndex ? 'text-foreground' : 'text-muted-foreground'}`}>
+                  {step.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const DashboardShell = ({
   children,
@@ -42,6 +98,29 @@ export const DashboardShell = ({
 
   const [showMobileSearch, setShowMobileSearch] =
     useState(false);
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { getStep } = useOnboardingStore();
+  const currentStep = user?.id ? getStep(user.id) : 'done';
+  
+  // FORCE ONBOARDING REDIRECT
+  useEffect(() => {
+    if (user?.role !== 'owner' || currentStep === 'done') return;
+    
+    const stepPaths: Record<string, string> = {
+      wallet: '/dashboard/wallet',
+      profile: '/dashboard/settings/business',
+      service: '/dashboard/services',
+      product: '/dashboard/marketplace',
+      tour: '/dashboard'
+    };
+
+    const expectedPath = stepPaths[currentStep];
+    if (expectedPath && location.pathname !== expectedPath && !location.pathname.includes('/admin')) {
+      navigate(expectedPath, { replace: true });
+    }
+  }, [user, location.pathname, navigate, getStep]);
 
   // FETCH DASHBOARD SUMMARY
   const {
@@ -354,6 +433,9 @@ export const DashboardShell = ({
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* ONBOARDING PROGRESS BANNER */}
+        {user?.role === 'owner' && <OnboardingProgress currentStep={currentStep} />}
 
         {/* PAGE CONTENT */}
         <section className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-8 custom-scrollbar">

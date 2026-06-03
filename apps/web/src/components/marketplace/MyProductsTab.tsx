@@ -3,9 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Plus, Upload, Loader2, CheckCircle2, Edit2, Trash2, Eye, EyeOff, LayoutGrid } from 'lucide-react';
 import apiClient from '../../api/client';
+import { useAuthStore } from '../../store/useAuthStore';
+import { useOnboardingStore } from '../../store/useOnboardingStore';
 
 export const MyProductsTab = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+  const { getStep, advance } = useOnboardingStore();
   const [viewMode, setViewMode] = useState<'list' | 'form'>('list');
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
 
@@ -111,6 +115,9 @@ export const MyProductsTab = () => {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         setSuccessMessage('Product successfully uploaded to the marketplace!');
+        if (user?.id && getStep(user.id) === 'product') {
+          advance(user.id);
+        }
       }
 
       resetForm();

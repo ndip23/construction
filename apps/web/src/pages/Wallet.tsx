@@ -12,13 +12,15 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { useCurrencyStore, SUPPORTED_CURRENCIES } from '../store/useCurrencyStore';
+import { useAuthStore } from '../store/useAuthStore';
+import { useOnboardingStore } from '../store/useOnboardingStore';
 import apiClient from '../api/client';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Wallet as WalletIcon, Plus, ArrowUpCircle, ArrowDownCircle,
   Loader2, CheckCircle2, AlertCircle, DollarSign, RefreshCw,
-  ExternalLink, X, Clock, TrendingUp,
+  ExternalLink, X, Clock, TrendingUp, Lock
 } from 'lucide-react';
 
 // ─── Country options that Swychr supports ────────────────────────
@@ -40,6 +42,8 @@ const QUICK_USD = [5, 10, 20, 50, 100, 200];
 // ─── VerifyBanner ─────────────────────────────────────────────────
 const VerifyBanner = ({ txId, onSuccess }: { txId: string; onSuccess: () => void }) => {
   const qc = useQueryClient();
+  const { user } = useAuthStore();
+  const { getStep, advance } = useOnboardingStore();
   const [attempts, setAttempts] = useState(0);
   const MAX = 20;
 
@@ -62,6 +66,9 @@ const VerifyBanner = ({ txId, onSuccess }: { txId: string; onSuccess: () => void
       toast.success('Wallet topped up successfully!');
       qc.invalidateQueries({ queryKey: ['wallet-balance'] });
       qc.invalidateQueries({ queryKey: ['wallet-history'] });
+      if (user?.id && getStep(user.id) === 'wallet') {
+        advance(user.id);
+      }
       onSuccess();
     }
     setAttempts((a) => a + 1);
@@ -94,10 +101,10 @@ const VerifyBanner = ({ txId, onSuccess }: { txId: string; onSuccess: () => void
 };
 
 // ─── TopUp Modal ──────────────────────────────────────────────────
-const TopUpModal = ({ onClose }: { onClose: () => void }) => {
+const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose: () => void, initialCountryCode?: string, isCurrencyLocked: boolean }) => {
   const { setCurrency } = useCurrencyStore();
   const [usdAmount, setUsdAmount] = useState('');
-  const [countryCode, setCountryCode] = useState('CM');
+  const [countryCode, setCountryCode] = useState(initialCountryCode || 'CM');
   const [ratePreview, setRatePreview] = useState<{ localAmount: number; currency: string } | null>(null);
   const [loadingRate, setLoadingRate] = useState(false);
 
@@ -172,18 +179,23 @@ const TopUpModal = ({ onClose }: { onClose: () => void }) => {
 
         {/* Country selector */}
         <div className="mb-5">
-          <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1.5 block">
+          <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1.5 flex items-center gap-2">
             Your Payment Country
+            {isCurrencyLocked && <Lock size={12} className="text-white/30" />}
           </label>
           <select
             value={countryCode}
+            disabled={isCurrencyLocked}
             onChange={(e) => setCountryCode(e.target.value)}
-            className="w-full px-4 py-3.5 bg-white/5 rounded-2xl text-sm font-medium text-white border border-white/5 outline-none focus:ring-2 focus:ring-primary/30 appearance-none"
+            className="w-full px-4 py-3.5 bg-white/5 rounded-2xl text-sm font-medium text-white border border-white/5 outline-none focus:ring-2 focus:ring-primary/30 appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {COUNTRIES.map((c) => (
               <option key={c.code} value={c.code} className="bg-[#0a1628]">{c.label}</option>
             ))}
           </select>
+          {isCurrencyLocked && (
+            <p className="text-[10px] text-white/30 mt-1">Currency is locked permanently after your first deposit.</p>
+          )}
         </div>
 
         {/* Quick amounts */}
@@ -285,11 +297,12 @@ const Wallet = () => {
 
   const balance = balanceData?.balance ?? 0;
   const currency = balanceData?.currency ?? 'USD';
+  const isCurrencyLocked = (history ?? []).length > 0;
 
   return (
     <DashboardShell>
       <AnimatePresence>
-        {showTopUp && <TopUpModal onClose={() => setShowTopUp(false)} />}
+        {showTopUp && <TopUpModal onClose={() => setShowTopUp(false)} initialCountryCode={balanceData?.countryCode} isCurrencyLocked={isCurrencyLocked} />}
       </AnimatePresence>
 
       <div className="max-w-5xl mx-auto pb-20">

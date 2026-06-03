@@ -63,12 +63,9 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
   const { getStep } = useOnboardingStore();
   const role = user?.role;
 
-  // --- BYPASS LOGIC START ---
-  // We set these to true/false manually so the sidebar "Works" immediately
-  const onboarded = true;
-  const navLocked = false;
   const onboardingStep = user?.id ? getStep(user.id) : 'done';
-  // --- BYPASS LOGIC END ---
+  const onboarded = onboardingStep === 'done';
+  const navLocked = !onboarded;
 
   const { data: pendingQueue } = useQuery({
     queryKey: ['admin-pending-count'],
@@ -109,6 +106,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             {onboardingStep === 'wallet' && 'Top up wallet to continue →'}
             {onboardingStep === 'profile' && 'Complete business profile →'}
             {onboardingStep === 'service' && 'Add your first service →'}
+            {onboardingStep === 'product' && 'Upload a product →'}
             {onboardingStep === 'tour' && 'Taking the tour →'}
           </p>
         </div>

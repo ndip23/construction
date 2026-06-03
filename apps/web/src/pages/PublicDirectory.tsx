@@ -68,6 +68,9 @@ const CompanyCard = ({ company }: { company: any }) => {
           </button>
           <Link
             to={`/company/${company.slug}`}
+            onClick={() => {
+              apiClient.post('/explore/track', { action: 'click', targetCompanyId: company._id }).catch(() => {});
+            }}
             className="flex-1 bg-muted text-foreground py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-border flex items-center justify-center gap-2 hover:bg-background hover:border-primary/20 transition-all"
           >
             <UserCircle size={16} /> View Profile
