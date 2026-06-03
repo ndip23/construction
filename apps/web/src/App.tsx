@@ -68,12 +68,9 @@ import PublicMarketplace from './pages/PublicMarketPlace';
 import MarketplaceProduct from './pages/MarketPlaceProduct';
 import PublicPostTender from './pages/PublicPostTender';
 
-// Wrapper: every owner dashboard route goes through OnboardingGate
 const OwnerRoute = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute allowedRoles={['owner']}>
-    {/* <OnboardingGate> */}
-      {children}
-    {/* </OnboardingGate> */}
+    {children}
   </ProtectedRoute>
 );
 function App() {

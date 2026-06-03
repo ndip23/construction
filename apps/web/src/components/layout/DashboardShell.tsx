@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useCurrencyStore, SUPPORTED_CURRENCIES } from '../../store/useCurrencyStore';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../api/client';
 
@@ -69,6 +70,14 @@ export const DashboardShell = ({
     enabled: !!user,
     staleTime: 1000 * 60 * 5,
   });
+
+  const { setCurrency } = useCurrencyStore();
+
+  useEffect(() => {
+    if (!companyProfile?.currency) return;
+    const match = SUPPORTED_CURRENCIES.find((c) => c.code === companyProfile.currency);
+    if (match) setCurrency(match);
+  }, [companyProfile?.currency, setCurrency]);
 
   // LOCK BODY SCROLL WHEN MOBILE MENU OPEN
   useEffect(() => {

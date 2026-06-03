@@ -17,6 +17,8 @@ export interface ICompany extends Document {
   status: 'pending' | 'verified' | 'rejected';
   owner: mongoose.Types.ObjectId;
   plan: 'basic' | 'pro' | 'enterprise';
+  currency?: string;
+  countryCode?: string;
   walletBalance?: number;
   walletHistory?: Array<{
     type: 'credit' | 'debit';

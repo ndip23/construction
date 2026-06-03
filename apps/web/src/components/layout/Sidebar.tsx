@@ -1,8 +1,7 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../api/client';
 import { useAuthStore } from '../../store/useAuthStore';
-import { useOnboardingStore } from '../../store/useOnboardingStore';
 import {
   LayoutDashboard, Building2, Briefcase, Store,
   ClipboardList, FileText, Calculator, Landmark,
@@ -15,7 +14,7 @@ interface NavItemProps {
   label: string;
   path: string;
   badge?: number | null;
-  onNavigate?: () => void;
+  onNavigate?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
   locked?: boolean;
 }
 
@@ -60,15 +59,8 @@ const NavItem = ({ icon: Icon, label, path, badge, onNavigate, locked }: NavItem
 
 export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
   const { user, logout } = useAuthStore();
-  const { getStep } = useOnboardingStore();
+  const navigate = useNavigate();
   const role = user?.role;
-
-  // --- BYPASS LOGIC START ---
-  // We set these to true/false manually so the sidebar "Works" immediately
-  const onboarded = true;
-  const navLocked = false;
-  const onboardingStep = user?.id ? getStep(user.id) : 'done';
-  // --- BYPASS LOGIC END ---
 
   const { data: pendingQueue } = useQuery({
     queryKey: ['admin-pending-count'],
@@ -83,7 +75,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
   const { data: summary } = useQuery({
     queryKey: ['dashboard-summary'],
     queryFn: async () => (await apiClient.get('/auth/company/summary')).data,
-    enabled: role === 'owner' && onboarded,
+    enabled: role === 'owner',
   });
 
   const { data: walletData } = useQuery({
@@ -102,17 +94,6 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
       </div>
 
       {/* Setup banner is hidden when navLocked is false */}
-      {navLocked && (
-        <div className="mb-4 mx-1 px-4 py-3 bg-primary/10 border border-primary/20 rounded-2xl">
-          <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-0.5">Setup in progress</p>
-          <p className="text-[11px] text-muted-foreground font-medium">
-            {onboardingStep === 'wallet' && 'Top up wallet to continue →'}
-            {onboardingStep === 'profile' && 'Complete business profile →'}
-            {onboardingStep === 'service' && 'Add your first service →'}
-            {onboardingStep === 'tour' && 'Taking the tour →'}
-          </p>
-        </div>
-      )}
 
       <nav className="flex-1">
         {/* ADMIN */}
@@ -134,21 +115,21 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" onNavigate={onNavigate} />
             <NavItem icon={Briefcase} label="Projects" path="/dashboard/projects" onNavigate={onNavigate} />
             <NavItem icon={Wallet} label="Wallet" path="/dashboard/wallet" onNavigate={onNavigate} />
-            <NavItem icon={Building2} label="Business Profile" path="/dashboard/settings/business" onNavigate={onNavigate} locked={navLocked} />
-            <NavItem icon={Wrench} label="My Services" path="/dashboard/services" onNavigate={onNavigate} locked={navLocked} />
-            <NavItem icon={Inbox} label="Inquiries" path="/dashboard/inquiries" onNavigate={onNavigate} badge={summary?.msgCount} locked={navLocked} />
-            <NavItem icon={Store} label="Marketplace" path="/dashboard/marketplace" onNavigate={onNavigate} badge={summary?.orderCount} locked={navLocked} />
-            <NavItem icon={ClipboardList} label="Tenders & Jobs" path="/dashboard/tenders" onNavigate={onNavigate} badge={summary?.tenderCount} locked={navLocked} />
+            <NavItem icon={Building2} label="Business Profile" path="/dashboard/settings/business" onNavigate={onNavigate} />
+            <NavItem icon={Wrench} label="My Services" path="/dashboard/services" onNavigate={onNavigate} />
+            <NavItem icon={Inbox} label="Inquiries" path="/dashboard/inquiries" onNavigate={onNavigate} badge={summary?.msgCount} />
+            <NavItem icon={Store} label="Marketplace" path="/dashboard/marketplace" onNavigate={onNavigate} badge={summary?.orderCount} />
+            <NavItem icon={ClipboardList} label="Tenders & Jobs" path="/dashboard/tenders" onNavigate={onNavigate} badge={summary?.tenderCount} />
             <NavItem icon={Radar} label="Tenders" path="/dashboard/opportunities" onNavigate={onNavigate} />
-            <NavItem icon={Landmark} label="Finance & Reports" path="/dashboard/finance" onNavigate={onNavigate} locked={navLocked} />
-            <NavItem icon={FileText} label="Invoices" path="/dashboard/invoices" onNavigate={onNavigate} locked={navLocked} />
-            <NavItem icon={Receipt} label="Smart Receipts" path="/dashboard/receipts" onNavigate={onNavigate} locked={navLocked} />
-            <NavItem icon={Users} label="Workers & Team" path="/dashboard/workforce" onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={Landmark} label="Finance & Reports" path="/dashboard/finance" onNavigate={onNavigate} />
+            <NavItem icon={FileText} label="Invoices" path="/dashboard/invoices" onNavigate={onNavigate} />
+            <NavItem icon={Receipt} label="Smart Receipts" path="/dashboard/receipts" onNavigate={onNavigate} />
+            <NavItem icon={Users} label="Workers & Team" path="/dashboard/workforce" onNavigate={onNavigate} />
             <NavItem icon={Clock} label="Attendance" path="/dashboard/attendance" onNavigate={onNavigate} />
             <NavItem icon={CalendarClock} label="Timesheets" path="/dashboard/timesheets" onNavigate={onNavigate} />
             <NavItem icon={Banknote} label="Payroll" path="/dashboard/payroll" onNavigate={onNavigate} />
             <NavItem icon={ListChecks} label="Tasks" path="/dashboard/tasks" onNavigate={onNavigate} />
-            <NavItem icon={Calculator} label="BOQ Tools" path="/dashboard/boq" onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={Calculator} label="BOQ Tools" path="/dashboard/boq" onNavigate={onNavigate} />
             <NavItem icon={BarChart3} label="Analytics" path="/dashboard/analytics" onNavigate={onNavigate} />
             <NavItem icon={Sparkles} label="AI Hub" path="/dashboard/ai" onNavigate={onNavigate} />
             <NavItem icon={Settings} label="User Profile" path="/dashboard/settings/profile" onNavigate={onNavigate} />
@@ -177,6 +158,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
           </button>
         </div>
       </nav>
+
 
       {/* IDENTITY CARD */}
       <div className="mt-auto pt-4 space-y-3 shrink-0">
@@ -217,8 +199,8 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
               </div>
               <p className="text-sm font-bold text-foreground truncate">{user?.name}</p>
               {role === 'owner' && (
-                <div className={`mt-2 py-1.5 px-3 rounded-lg text-[10px] font-black text-center ${onboarded ? 'bg-primary/10 text-primary' : 'bg-rose-500/10 text-rose-400'}`}>
-                  {onboarded ? 'Active' : 'Setup required'}
+                <div className="mt-2 py-1.5 px-3 rounded-lg text-[10px] font-black text-center bg-primary/10 text-primary">
+                  Active
                 </div>
               )}
             </>
