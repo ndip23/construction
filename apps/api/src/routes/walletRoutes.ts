@@ -54,7 +54,7 @@ router.get('/balance', protect, async (req: any, res) => {
     const company = await getCompany(req.user.id);
     res.json({
       balance: company.walletBalance ?? 0,
-      currency: company.currency ?? 'XAF',
+      currency: 'USD',
       countryCode: company.countryCode ?? 'CM',
     });
   } catch (e: any) {
@@ -123,8 +123,8 @@ router.post('/topup-initiate', protect, async (req: any, res) => {
       localAmount = Math.ceil(parsedUSD * (FALLBACK[currency] ?? 600));
     }
 
-    // Persist countryCode & currency choice on the company
-    await Company.findByIdAndUpdate(company._id, { countryCode, currency: localCurrency });
+    // Persist only the payment country; keep the company currency field for profile settings.
+    await Company.findByIdAndUpdate(company._id, { countryCode });
 
     const usdCents = Math.round(parsedUSD * 100);
     const txId = buildTxId(company._id.toString(), usdCents);
@@ -190,25 +190,25 @@ router.get('/topup-verify/:txId', protect, async (req: any, res) => {
       return res.json({ status: 'pending' });
     }
 
-    // --- LOGIC UPDATE: CONVERSION ---
     const parts = txId.split('-');
     const usdCents = Number(parts[3]) || 0;
     const usdAmount = usdCents / 100; // e.g. 10.00
-    
-    // Convert to local currency (XAF)
-    const rate = 600; 
-    const creditAmount = Math.floor(usdAmount * rate); // 10 * 600 = 6000
+
+    const { amount: localAmount, currency: localCurrency } = await convertToLocal(
+      company.countryCode ?? 'CM',
+      usdAmount
+    );
 
     const updated = await Company.findByIdAndUpdate(
       company._id,
       {
-        $inc: { walletBalance: creditAmount }, // Increments by 6000 XAF
+        $inc: { walletBalance: usdAmount },
         $push: {
           walletHistory: {
             type: 'credit',
-            amount: creditAmount,   // Stores 6000
-            amountUSD: usdAmount,   // Stores 10.00 (FOR THE FRONTEND WIDGET)
-            currency: 'XAF',
+            amount: localAmount,
+            amountUSD: usdAmount,
+            currency: localCurrency,
             note: `Swychr top-up ($${usdAmount} USD)`,
             transactionId: txId,
             date: new Date(),
@@ -248,27 +248,32 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req: a
       const usdAmount = usdCents / 100;
 
       const company = await Company.findById(companyId);
-      if (company) {
-        // --- LOGIC UPDATE: CONVERSION ---
-        const rate = 600;
-        const creditAmount = Math.floor(usdAmount * rate);
+      if (!company) return res.status(404).send('Company not found.');
 
-        // Idempotency: skip if already credited
-        const alreadyCredited = (company.walletHistory ?? []).some((h: any) => h.transactionId === txId);
-        if (!alreadyCredited) {
-          company.walletBalance = (company.walletBalance ?? 0) + creditAmount;
-          (company.walletHistory as any[]).push({
-            type: 'credit',
-            amount: creditAmount,   // 6000
-            amountUSD: usdAmount,   // 10.00
-            currency: 'XAF',
-            note: `Swychr payment — $${usdAmount} USD`,
-            transactionId: txId,
-            date: new Date(),
-          });
-          await company.save();
-        }
+      const alreadyCredited = (company.walletHistory ?? []).find((h: any) => h.transactionId === txId);
+      if (alreadyCredited) {
+        return res.status(200).send('Already processed');
       }
+
+      const { amount: localAmount, currency: localCurrency } = await convertToLocal(
+        company.countryCode ?? 'CM',
+        usdAmount
+      );
+
+      company.walletBalance = (company.walletBalance ?? 0) + usdAmount;
+      company.walletHistory = [
+        ...(company.walletHistory ?? []),
+        {
+          type: 'credit',
+          amount: localAmount,
+          amountUSD: usdAmount,
+          currency: localCurrency,
+          note: `Swychr top-up ($${usdAmount} USD)`,
+          transactionId: txId,
+          date: new Date(),
+        },
+      ];
+      await company.save();
     }
 
     res.status(200).send('OK');

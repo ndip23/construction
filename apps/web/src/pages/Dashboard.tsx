@@ -123,7 +123,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* LIVE KPI ROW */}
+        {/* LIVE KPI ROW 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           <KpiCard
             icon={Wallet}
@@ -153,7 +153,7 @@ const Dashboard = () => {
             sub={budget ? money(budget.spent) : ' '}
             tint="bg-amber-500/10 text-amber-400"
           />
-        </div>
+        </div>*/}
 
         {/* GRID LAYOUT */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">

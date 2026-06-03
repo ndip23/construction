@@ -293,7 +293,7 @@ export const updateMyCompanyProfile = async (req: any, res: Response) => {
     const companyId = req.user?.companyId;
     if (!companyId) return res.status(403).json({ message: 'No company linked to this account.' });
 
-    const allowed = ['phone', 'website', 'sector', 'address', 'city', 'country', 'email'];
+    const allowed = ['phone', 'website', 'sector', 'address', 'city', 'country', 'countryCode', 'currency', 'email'];
     const update: Record<string, any> = {};
     allowed.forEach(field => { if (req.body[field] !== undefined) update[field] = req.body[field]; });
 
