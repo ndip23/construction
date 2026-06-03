@@ -1,27 +1,23 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 import apiClient from '../api/client';
 import { ShieldCheck, MapPin, Star, Phone, Mail, Globe, CheckCircle2, Loader2, ArrowLeft, MessageSquare, Award, Image as ImageIcon, Wrench, DollarSign } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { t } from '../theme';
+import { ContactModal } from '../components/directory/ContactModal';
 
 const PublicCompanyProfile = () => {
   const { id: slug } = useParams();
   const navigate = useNavigate();
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   const { data: company, isLoading, isError } = useQuery({
     queryKey: ['public-company', slug],
     queryFn: async () => (await apiClient.get(`/explore/company/${slug}`)).data,
     enabled: !!slug,
   });
-
-  const handleWhatsApp = () => {
-    if (!company?.phone) { alert("This company hasn't provided a contact number yet."); return; }
-    const clean = company.phone.replace(/[^0-9]/g, '');
-    const msg = encodeURIComponent(`Hello ${company.name}, I found your profile on BuildHub Africa and I'm interested in hiring your services.`);
-    window.open(`https://wa.me/${clean}?text=${msg}`, '_blank');
-  };
 
   if (isLoading) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
@@ -83,7 +79,7 @@ const PublicCompanyProfile = () => {
               </div>
             </div>
             <div className="pb-4 w-full md:w-auto">
-              <button onClick={handleWhatsApp} className={t.btnPrimary + ' w-full md:w-auto px-12 py-5 text-sm'}>
+              <button onClick={() => setIsContactModalOpen(true)} className={t.btnPrimary + ' w-full md:w-auto px-12 py-5 text-sm'}>
                 Hire This Company
               </button>
             </div>
@@ -214,7 +210,7 @@ const PublicCompanyProfile = () => {
             </div>
             <div className="pt-10 border-t border-border">
               <button
-                onClick={handleWhatsApp}
+                onClick={() => setIsContactModalOpen(true)}
                 className="w-full py-5 bg-background border border-border text-foreground rounded-[2rem] font-black text-xs uppercase tracking-widest hover:bg-muted transition-all flex items-center justify-center gap-3"
               >
                 <MessageSquare size={20} /> Open Direct Chat
@@ -232,6 +228,8 @@ const PublicCompanyProfile = () => {
           </motion.div>
         </aside>
       </main>
+
+      <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} company={company} />
     </div>
   );
 };

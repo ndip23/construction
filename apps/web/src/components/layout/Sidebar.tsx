@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Building2, Briefcase, Store,
   ClipboardList, FileText, Calculator, Landmark,
   Users, Sparkles, Files, Settings, Crown, HardHat, ShieldCheck, BarChart3, LogOut,
-  Inbox, Wrench, Lock, Wallet, Radar, Receipt
+  Inbox, Wrench, Lock, Wallet, Radar, Receipt, MessageSquare
 } from 'lucide-react';
 
 interface NavItemProps {
@@ -147,6 +147,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={Calculator} label="BOQ Tools" path="/dashboard/boq" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={BarChart3} label="Analytics" path="/dashboard/analytics" onNavigate={onNavigate} />
             <NavItem icon={Sparkles} label="AI Hub" path="/dashboard/ai" onNavigate={onNavigate} />
+            <NavItem icon={MessageSquare} label="Community Forum" path="/dashboard/community" onNavigate={onNavigate} />
             <NavItem icon={Settings} label="User Profile" path="/dashboard/settings/profile" onNavigate={onNavigate} />
           </>
         )}
@@ -159,6 +160,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={Briefcase} label="My Assignments" path="/staff/projects" onNavigate={onNavigate} />
             <NavItem icon={Sparkles} label="Engineering AI" path="/staff/ai" onNavigate={onNavigate} />
             <NavItem icon={Files} label="Site Documents" path="/staff/documents" onNavigate={onNavigate} />
+            <NavItem icon={MessageSquare} label="Community Forum" path="/dashboard/community" onNavigate={onNavigate} />
             <NavItem icon={Settings} label="My Settings" path="/staff/settings" onNavigate={onNavigate} />
           </>
         )}

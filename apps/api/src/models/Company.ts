@@ -17,6 +17,16 @@ export interface ICompany extends Document {
   status: 'pending' | 'verified' | 'rejected';
   owner: mongoose.Types.ObjectId;
   plan: 'basic' | 'pro' | 'enterprise';
+  receiptSettings?: {
+    letterhead?: string;
+    whatsappNumber?: string;
+    taxId?: string;
+    defaultTaxRate?: number;
+    themeColor?: string;
+    signature?: string;
+    defaultPaymentTerms?: string;
+    format?: 'standard' | 'modern' | 'minimal';
+  };
   walletBalance?: number;
   walletHistory?: Array<{
     type: 'credit' | 'debit';
@@ -45,6 +55,20 @@ const CompanySchema = new Schema({
   status: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
   owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   plan: { type: String, enum: ['basic', 'pro', 'enterprise'], default: 'pro' },
+  receiptSettings: {
+    letterhead: String,
+    whatsappNumber: String,
+    taxId: String,
+    defaultTaxRate: { type: Number, default: 0 },
+    themeColor: { type: String, default: '#000000' },
+    signature: String,
+    defaultPaymentTerms: String,
+    format: {
+      type: String,
+      enum: ['standard', 'modern', 'minimal'],
+      default: 'standard'
+    }
+  },
   currency: { type: String, default: 'XAF' },
   countryCode: { type: String, default: 'CM' },
   walletBalance: { type: Number, default: 0 },

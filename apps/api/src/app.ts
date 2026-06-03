@@ -22,6 +22,9 @@ import walletRoutes from './routes/walletRoutes';
 import fxRoutes from './routes/fxRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
 import opportunityRoutes from './routes/opportunityRoutes';
+import receiptRoutes from './routes/receiptRoutes';
+import inquiryRoutes from './routes/inquiryRoutes';
+import communityRoutes from './routes/communityRoutes';
 
 import { errorHandler } from './middleware/errorMiddleware';
 
@@ -77,6 +80,9 @@ app.use('/api/v1/wallet', walletRoutes);
 app.use('/api/v1/fx', fxRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/opportunities', opportunityRoutes);
+app.use('/api/v1/receipts', receiptRoutes);
+app.use('/api/v1/inquiries', inquiryRoutes);
+app.use('/api/v1/community', communityRoutes);
 
 // 4. HEALTH CHECK ROUTE
 app.get('/health', (req, res) => {
