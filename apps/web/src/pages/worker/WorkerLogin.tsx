@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../api/client';
 import { Loader2, AlertCircle, HardHat, Phone, Lock } from 'lucide-react';
+import { InstallPWA } from '../../components/InstallPWA';
 
 const WorkerLogin = () => {
   const navigate = useNavigate();
@@ -124,7 +125,11 @@ const WorkerLogin = () => {
           </button>
         </form>
 
-        <p className="mt-8 text-center text-xs text-white/30 font-bold uppercase tracking-widest">
+        <div className="mt-6 flex justify-center">
+          <InstallPWA className="inline-flex items-center justify-center gap-2 bg-white/10 border border-white/20 text-white px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/15 transition-all" />
+        </div>
+
+        <p className="mt-6 text-center text-xs text-white/30 font-bold uppercase tracking-widest">
           BuildHub Worker Portal
         </p>
       </motion.div>
