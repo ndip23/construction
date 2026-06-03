@@ -5,17 +5,11 @@ import { useDebounce } from '../hooks/useDebounce';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 import { PublicFooter } from '../components/layout/PublicFooter';
 import apiClient from '../api/client';
-import { ShieldCheck, MapPin, Star, Search, Loader2, Inbox, UserCircle } from 'lucide-react';
+import { ShieldCheck, MapPin, Star, Search, Loader2, Inbox, UserCircle, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { t } from '../theme';
 
 const CompanyCard = ({ company }: { company: any }) => {
-  const handleContact = () => {
-    if (!company?.phone) return alert('Contact number not available.');
-    const clean = company.phone.replace(/[^0-9]/g, '');
-    window.open(`https://wa.me/${clean}`, '_blank');
-  };
-
   return (
     <motion.div
       layout
@@ -49,13 +43,13 @@ const CompanyCard = ({ company }: { company: any }) => {
           <MapPin size={14} className="text-primary" />
           <span className="capitalize">{company.city}, {company.country}</span>
         </div>
-        <div className="mt-auto pt-6 border-t border-border flex items-center justify-between gap-3">
+<div className="mt-auto pt-6 border-t border-border flex items-center justify-between gap-3">
           <button
             onClick={handleContact}
-            className="flex-1 bg-primary text-brand-navy py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all"
+            className="flex-1 bg-primary text-brand-navy py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all flex items-center justify-center gap-2"
           >
-            Contact
-          </button>
+            <MessageSquare size={16} /> Message
+          </Link>
           <Link
             to={`/company/${company.slug}`}
             className="flex-1 bg-muted text-foreground py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-border flex items-center justify-center gap-2 hover:bg-background hover:border-primary/20 transition-all"
