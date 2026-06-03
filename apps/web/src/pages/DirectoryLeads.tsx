@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import apiClient from '../api/client';
 import {
@@ -9,13 +9,10 @@ import {
   Loader2,
   Inbox,
   Search,
-  Phone,
   Clock3,
-  ArrowUpRight,
   Filter,
   CheckCheck,
   BadgeAlert,
-  XCircle,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { t, statusBadge } from '../theme';
@@ -37,28 +34,13 @@ const openWhatsApp = (phone: string) => {
   window.open(`https://wa.me/${clean}`, '_blank', 'noopener,noreferrer');
 };
 
-const formatInquiryTime = (value: string | Date) =>
-  new Date(value).toLocaleString([], {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-
 const DirectoryLeads = () => {
-  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState<InquiryStatus>('all');
 
   const { data: leads, isLoading } = useQuery({
     queryKey: ['inquiries'],
     queryFn: async () => (await apiClient.get('/inquiries')).data,
-  });
-
-  const statusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: 'new' | 'contacted' | 'closed' }) =>
-      apiClient.put(`/inquiries/${id}/status`, { status }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['inquiries'] }),
   });
 
   const inquiryList = Array.isArray(leads) ? leads : [];

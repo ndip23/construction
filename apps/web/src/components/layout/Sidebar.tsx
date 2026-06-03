@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../api/client';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -59,7 +59,6 @@ const NavItem = ({ icon: Icon, label, path, badge, onNavigate, locked }: NavItem
 
 export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
   const { user, logout } = useAuthStore();
-  const navigate = useNavigate();
   const role = user?.role;
 
   const { data: pendingQueue } = useQuery({

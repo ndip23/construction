@@ -80,6 +80,15 @@ const PublicCompanyProfile = () => {
     setSearchParams({}, { replace: true });
   };
 
+  const handleWhatsApp = () => {
+    const phone = cleanPhone(company?.phone || '');
+    if (phone) {
+      window.open(`https://wa.me/${phone}`, '_blank', 'noopener,noreferrer');
+    } else {
+      openInquiryModal();
+    }
+  };
+
   const handleInquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 

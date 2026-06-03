@@ -10,6 +10,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { t } from '../theme';
 
 const CompanyCard = ({ company }: { company: any }) => {
+  const handleContact = () => {
+    const phone = String(company.phone || company.whatsappNumber || '').replace(/[^0-9]/g, '');
+    if (phone) {
+      window.open(`https://wa.me/${phone}`, '_blank', 'noopener,noreferrer');
+    } else {
+      window.location.href = `/company/${company.slug}`;
+    }
+  };
+
   return (
     <motion.div
       layout
