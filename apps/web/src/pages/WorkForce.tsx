@@ -119,7 +119,9 @@ const Workforce = () => {
           <div className="bg-card border border-border p-8 rounded-[3rem] shadow-sm flex items-center justify-between">
             <div>
               <p className={t.label + ' mb-1'}>Team Efficiency</p>
-              <h3 className="text-4xl font-black text-foreground italic">94%</h3>
+              <h3 className="text-4xl font-black text-foreground italic">
+                {isLoading ? '...' : `${workers?.length > 0 ? Math.round((workers.filter((w: any) => w.status === 'Active').length / workers.length) * 100) : 0}%`}
+              </h3>
             </div>
             <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-400">
               <Briefcase size={24} />

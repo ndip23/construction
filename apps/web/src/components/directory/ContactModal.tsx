@@ -16,7 +16,7 @@ interface ContactModalProps {
 }
 
 export const ContactModal = ({ isOpen, onClose, company }: ContactModalProps) => {
-  const [mode, setMode] = useState<'choice' | 'whatsapp' | 'inquiry' | 'success'>('choice');
+  const [mode, setMode] = useState<'inquiry' | 'success'>('inquiry');
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState({
     clientName: '',
@@ -26,26 +26,7 @@ export const ContactModal = ({ isOpen, onClose, company }: ContactModalProps) =>
     message: ''
   });
 
-  const handleWhatsApp = async () => {
-    if (!company?.phone) {
-      toast.error('Contact number not available.');
-      return;
-    }
-    setMode('whatsapp');
-    try {
-      await apiClient.post('/explore/track', { 
-        action: 'whatsapp_click', 
-        targetCompanyId: company._id 
-      });
-    } catch (error) {
-      console.error('Click track failed', error);
-    }
-    const clean = company.phone.replace(/[^0-9]/g, '');
-    const message = encodeURIComponent(`Hello ${company.name}, I found your profile on BuildHub Africa and I would like to get more information about your services.`);
-    window.open(`https://wa.me/${clean}?text=${message}`, '_blank');
-    onClose();
-    setTimeout(() => setMode('choice'), 500);
-  };
+
 
   const handleSubmitInquiry = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +36,19 @@ export const ContactModal = ({ isOpen, onClose, company }: ContactModalProps) =>
     try {
       await apiClient.post('/inquiries/submit', { ...form, companyId: company._id });
       setMode('success');
+      
+      if (company.phone) {
+        const clean = company.phone.replace(/[^0-9]/g, '');
+        let text = `Hello ${company.name}, I found your profile on BuildHub Africa.\n\n`;
+        text += `*New Inquiry:*\n`;
+        text += `Name: ${form.clientName}\n`;
+        if (form.phone) text += `Phone: ${form.phone}\n`;
+        if (form.location) text += `Location: ${form.location}\n`;
+        text += `\nMessage: ${form.message}`;
+        
+        window.open(`https://wa.me/${clean}?text=${encodeURIComponent(text)}`, '_blank');
+      }
+      
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to send inquiry");
     } finally {
@@ -74,52 +68,18 @@ export const ContactModal = ({ isOpen, onClose, company }: ContactModalProps) =>
           className="bg-card w-full max-w-lg rounded-[2.5rem] border border-border shadow-2xl overflow-hidden relative"
         >
           <button
-            onClick={() => { onClose(); setTimeout(() => setMode('choice'), 500); }}
+            onClick={() => { onClose(); setTimeout(() => setMode('inquiry'), 500); }}
             className="absolute top-6 right-6 p-2 rounded-full bg-muted text-muted-foreground hover:bg-foreground hover:text-background transition-all z-10"
           >
             <X size={20} />
           </button>
 
           <div className="p-8 md:p-10">
-            {mode === 'choice' && (
-              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-                <h2 className="text-3xl font-black tracking-tight mb-2">Contact {company.name}</h2>
-                <p className="text-muted-foreground mb-8">Choose how you would like to reach out to this professional.</p>
-                
-                <div className="space-y-4">
-                  <button
-                    onClick={handleWhatsApp}
-                    className="w-full flex items-center gap-4 p-6 rounded-2xl border-2 border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500 hover:text-white transition-all group text-left"
-                  >
-                    <div className="w-14 h-14 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
-                      <MessageSquare size={24} />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-black group-hover:text-white text-emerald-500">Chat on WhatsApp</h3>
-                      <p className="text-xs font-medium opacity-80 mt-1">Instant messaging directly to their phone</p>
-                    </div>
-                  </button>
 
-                  <button
-                    onClick={() => setMode('inquiry')}
-                    className="w-full flex items-center gap-4 p-6 rounded-2xl border-2 border-primary/20 bg-primary/5 hover:bg-primary hover:text-brand-navy transition-all group text-left"
-                  >
-                    <div className="w-14 h-14 rounded-full bg-primary text-brand-navy flex items-center justify-center shrink-0">
-                      <Send size={24} />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-black group-hover:text-brand-navy text-primary">Send an Inquiry</h3>
-                      <p className="text-xs font-medium opacity-80 mt-1 text-foreground/60 group-hover:text-brand-navy/80">Submit a detailed project request</p>
-                    </div>
-                  </button>
-                </div>
-              </motion.div>
-            )}
 
             {mode === 'inquiry' && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                 <div className="flex items-center gap-3 mb-6">
-                  <button onClick={() => setMode('choice')} className="p-2 -ml-2 rounded-full hover:bg-muted"><X size={20} className="rotate-45" /></button>
                   <h2 className="text-2xl font-black tracking-tight">Project Inquiry</h2>
                 </div>
                 
@@ -200,7 +160,7 @@ export const ContactModal = ({ isOpen, onClose, company }: ContactModalProps) =>
                   {company.name} has received your request and will get back to you shortly.
                 </p>
                 <button
-                  onClick={() => { onClose(); setTimeout(() => setMode('choice'), 500); }}
+                  onClick={() => { onClose(); setTimeout(() => setMode('inquiry'), 500); }}
                   className="px-8 py-3 bg-muted hover:bg-foreground hover:text-background rounded-2xl font-black text-sm transition-all"
                 >
                   Close Window

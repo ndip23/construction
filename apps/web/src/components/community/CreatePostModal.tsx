@@ -11,8 +11,10 @@ export const CreatePostModal = ({ isOpen, onClose }: { isOpen: boolean, onClose:
     category: '',
     location: '',
     urgency: 'Medium',
-    description: ''
+    description: '',
+    budget: ''
   });
+  const [images, setImages] = useState<FileList | null>(null);
 
   const categories = [
     'Structural Engineering', 'Electrical Systems', 'Plumbing & Water', 
@@ -20,13 +22,25 @@ export const CreatePostModal = ({ isOpen, onClose }: { isOpen: boolean, onClose:
   ];
 
   const createMutation = useMutation({
-    mutationFn: (data: any) => apiClient.post('/community/posts', data),
+    mutationFn: (data: FormData) => apiClient.post('/community/posts', data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['community-posts'] });
       onClose();
-      setFormData({ title: '', category: '', location: '', urgency: 'Medium', description: '' });
+      setFormData({ title: '', category: '', location: '', urgency: 'Medium', description: '', budget: '' });
+      setImages(null);
     }
   });
+
+  const handleSubmit = () => {
+    const fd = new FormData();
+    Object.entries(formData).forEach(([key, val]) => fd.append(key, val));
+    if (images) {
+      Array.from(images).forEach(file => fd.append('images', file));
+    }
+    createMutation.mutate(fd);
+  };
 
   if (!isOpen) return null;
 
@@ -114,6 +128,29 @@ export const CreatePostModal = ({ isOpen, onClose }: { isOpen: boolean, onClose:
                 ))}
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Budget (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="E.g. $500 or 250,000 XAF"
+                  className="w-full bg-background border border-border rounded-xl px-4 py-3 font-bold text-foreground focus:outline-none focus:border-primary/50"
+                  value={formData.budget}
+                  onChange={e => setFormData({ ...formData, budget: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Attach Images (Optional)</label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  className="w-full bg-background border border-border rounded-xl px-4 py-2.5 font-bold text-foreground focus:outline-none focus:border-primary/50 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all"
+                  onChange={e => setImages(e.target.files)}
+                />
+              </div>
+            </div>
           </div>
 
           <div className="p-6 border-t border-border bg-muted/20 flex justify-end gap-3">
@@ -121,7 +158,7 @@ export const CreatePostModal = ({ isOpen, onClose }: { isOpen: boolean, onClose:
               Cancel
             </button>
             <button
-              onClick={() => createMutation.mutate(formData)}
+              onClick={handleSubmit}
               disabled={createMutation.isPending || !formData.title || !formData.description || !formData.category}
               className="bg-foreground text-background px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-primary hover:text-brand-navy transition-all disabled:opacity-50"
             >

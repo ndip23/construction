@@ -163,22 +163,22 @@ const TopUpModal = ({ onClose }: { onClose: () => void }) => {
             <div className="w-10 h-10 bg-primary/15 rounded-2xl flex items-center justify-center">
               <WalletIcon size={20} className="text-primary" />
             </div>
-            <h2 className="text-xl font-black text-foreground">Top Up Wallet</h2>
+            <h2 className="text-xl font-black text-white">Top Up Wallet</h2>
           </div>
-          <button onClick={onClose} className="text-foreground/30 hover:text-foreground transition-colors">
+          <button onClick={onClose} className="text-white/30 hover:text-white transition-colors">
             <X size={20} />
           </button>
         </div>
 
         {/* Country selector */}
         <div className="mb-5">
-          <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 mb-1.5 block">
+          <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1.5 block">
             Your Payment Country
           </label>
           <select
             value={countryCode}
             onChange={(e) => setCountryCode(e.target.value)}
-            className="w-full px-4 py-3.5 bg-white/5 rounded-2xl text-sm font-medium text-foreground border border-white/5 outline-none focus:ring-2 focus:ring-primary/30 appearance-none"
+            className="w-full px-4 py-3.5 bg-white/5 rounded-2xl text-sm font-medium text-white border border-white/5 outline-none focus:ring-2 focus:ring-primary/30 appearance-none"
           >
             {COUNTRIES.map((c) => (
               <option key={c.code} value={c.code} className="bg-[#0a1628]">{c.label}</option>
@@ -188,14 +188,14 @@ const TopUpModal = ({ onClose }: { onClose: () => void }) => {
 
         {/* Quick amounts */}
         <div className="mb-5">
-          <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 mb-1.5 block">Quick Select (USD)</label>
+          <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1.5 block">Quick Select (USD)</label>
           <div className="grid grid-cols-3 gap-2">
             {QUICK_USD.map((a) => (
               <button
                 key={a}
                 type="button"
                 onClick={() => setUsdAmount(String(a))}
-                className={`py-3 rounded-xl font-black text-sm transition-all ${String(a) === usdAmount ? 'bg-primary text-brand-navy' : 'bg-white/5 text-foreground/60 hover:bg-white/10 border border-white/5'}`}
+                className={`py-3 rounded-xl font-black text-sm transition-all ${String(a) === usdAmount ? 'bg-primary text-brand-navy' : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/5'}`}
               >
                 ${a}
               </button>
@@ -205,16 +205,16 @@ const TopUpModal = ({ onClose }: { onClose: () => void }) => {
 
         {/* Custom amount */}
         <div className="mb-5">
-          <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 mb-1.5 block">Custom Amount (USD)</label>
+          <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1.5 block">Custom Amount (USD)</label>
           <div className="relative">
-            <DollarSign size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-foreground/30" />
+            <DollarSign size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" />
             <input
               type="number"
               min="1"
               placeholder="Enter amount in USD"
               value={usdAmount}
               onChange={(e) => setUsdAmount(e.target.value)}
-              className="w-full pl-10 pr-4 py-3.5 bg-white/5 rounded-2xl text-sm font-medium text-foreground placeholder-white/25 border border-white/5 outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full pl-10 pr-4 py-3.5 bg-white/5 rounded-2xl text-sm font-medium text-white placeholder-white/25 border border-white/5 outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
         </div>
@@ -228,7 +228,7 @@ const TopUpModal = ({ onClose }: { onClose: () => void }) => {
               exit={{ opacity: 0 }}
               className="bg-primary/10 border border-primary/20 rounded-2xl px-5 py-4 mb-5 flex items-center justify-between"
             >
-              <span className="text-sm text-foreground/60 font-medium">${Number(usdAmount).toLocaleString()} USD =</span>
+              <span className="text-sm text-white/60 font-medium">${Number(usdAmount).toLocaleString()} USD =</span>
               {loadingRate
                 ? <Loader2 size={16} className="text-primary animate-spin" />
                 : <span className="text-lg font-black text-primary">
@@ -251,7 +251,7 @@ const TopUpModal = ({ onClose }: { onClose: () => void }) => {
           }
         </button>
 
-        <p className="text-center text-[11px] text-foreground/30 mt-4">
+        <p className="text-center text-[11px] text-white/30 mt-4">
           Secured by Swychr · You will be redirected to complete payment
         </p>
       </motion.div>

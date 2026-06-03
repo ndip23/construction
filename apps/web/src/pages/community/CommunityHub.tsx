@@ -13,14 +13,25 @@ const CommunityHub = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
+  const [country, setCountry] = useState('');
+  const [city, setCity] = useState('');
+  const [sortBy, setSortBy] = useState('recent');
   
   const debouncedSearch = useDebounce(search, 500);
+  const debouncedCity = useDebounce(city, 500);
+  const debouncedCountry = useDebounce(country, 500);
 
   const { data: posts, isLoading } = useQuery({
-    queryKey: ['community-posts', debouncedSearch, category],
+    queryKey: ['community-posts', debouncedSearch, category, debouncedCity, debouncedCountry, sortBy],
     queryFn: async () => {
       const { data } = await apiClient.get('/community/posts', {
-        params: { search: debouncedSearch, category }
+        params: { 
+          search: debouncedSearch, 
+          category,
+          city: debouncedCity,
+          country: debouncedCountry,
+          sortBy
+        }
       });
       return data;
     }
@@ -54,24 +65,50 @@ const CommunityHub = () => {
         </header>
 
         {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="flex-1 relative">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+        <div className="flex flex-col gap-4 mb-8">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+              <input 
+                type="text"
+                placeholder="Search problems, solutions, or topics..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full bg-card border border-border rounded-2xl pl-12 pr-6 py-4 font-bold text-foreground focus:outline-none focus:border-primary/50 shadow-sm"
+              />
+            </div>
+            <select
+              value={category}
+              onChange={e => setCategory(e.target.value === 'All' ? '' : e.target.value)}
+              className="bg-card border border-border rounded-2xl px-6 py-4 font-bold text-foreground focus:outline-none focus:border-primary/50 shadow-sm"
+            >
+              {categories.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div className="flex flex-col md:flex-row gap-4">
             <input 
               type="text"
-              placeholder="Search problems, solutions, or topics..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full bg-card border border-border rounded-2xl pl-12 pr-6 py-4 font-bold text-foreground focus:outline-none focus:border-primary/50 shadow-sm"
+              placeholder="Filter by Country..."
+              value={country}
+              onChange={e => setCountry(e.target.value)}
+              className="flex-1 bg-card border border-border rounded-2xl px-6 py-4 font-bold text-foreground focus:outline-none focus:border-primary/50 shadow-sm"
             />
+            <input 
+              type="text"
+              placeholder="Filter by City..."
+              value={city}
+              onChange={e => setCity(e.target.value)}
+              className="flex-1 bg-card border border-border rounded-2xl px-6 py-4 font-bold text-foreground focus:outline-none focus:border-primary/50 shadow-sm"
+            />
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              className="bg-card border border-border rounded-2xl px-6 py-4 font-bold text-foreground focus:outline-none focus:border-primary/50 shadow-sm"
+            >
+              <option value="recent">Sort by: Most Recent</option>
+              <option value="helpful">Sort by: Most Helpful</option>
+            </select>
           </div>
-          <select
-            value={category}
-            onChange={e => setCategory(e.target.value === 'All' ? '' : e.target.value)}
-            className="bg-card border border-border rounded-2xl px-6 py-4 font-bold text-foreground focus:outline-none focus:border-primary/50 shadow-sm"
-          >
-            {categories.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
         </div>
 
         {/* Posts Feed */}
