@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../../api/client';
+import workerClient from '../../api/workerClient';
 import { useCurrencyStore } from '../../store/useCurrencyStore';
 import {
   HardHat,
@@ -88,9 +88,7 @@ const WorkerHome = () => {
   }, [navigate]);
 
   const signOut = () => {
-    localStorage.removeItem('workerToken');
-    localStorage.removeItem('token');
-    localStorage.removeItem('workerProfile');
+    localStorage.removeItem('workerToken');    localStorage.removeItem('workerProfile');
     navigate('/worker/login');
   };
 
@@ -100,27 +98,27 @@ const WorkerHome = () => {
     const opts = { skipErrorToast: true } as any;
     const today = todayISO();
 
-    const loadProfile = apiClient
+    const loadProfile = workerClient
       .get('/worker/me', opts)
       .then((r) => setProfile((p) => ({ ...p, ...r.data })))
       .catch(() => {});
 
-    const loadTasks = apiClient
+    const loadTasks = workerClient
       .get('/tasks/mine', opts)
       .then((r) => setTasks(Array.isArray(r.data) ? r.data : []))
       .catch(() => setTasks([]));
 
-    const loadWeek = apiClient
+    const loadWeek = workerClient
       .get('/attendance/timesheet', opts)
       .then((r) => setWeekSheet(r.data))
       .catch(() => setWeekSheet(null));
 
-    const loadToday = apiClient
+    const loadToday = workerClient
       .get(`/attendance/timesheet?from=${today}&to=${today}`, opts)
       .then((r) => setTodaySheet(r.data))
       .catch(() => setTodaySheet(null));
 
-    const loadPay = apiClient
+    const loadPay = workerClient
       .get('/payroll', opts)
       .then((r) => {
         const data = r.data;
@@ -138,13 +136,13 @@ const WorkerHome = () => {
     setClockLoading(true);
     try {
       if (!clockedIn) {
-        await apiClient.post('/attendance/clock-in', {});
+        await workerClient.post('/attendance/clock-in', {});
         setClockedIn(true);
       } else {
-        await apiClient.post('/attendance/clock-out', {});
+        await workerClient.post('/attendance/clock-out', {});
         setClockedIn(false);
         // Refresh today's hours after clocking out
-        apiClient
+        workerClient
           .get(`/attendance/timesheet?from=${todayISO()}&to=${todayISO()}`, { skipErrorToast: true } as any)
           .then((r) => setTodaySheet(r.data))
           .catch(() => {});

@@ -25,10 +25,8 @@ const WorkerLogin = () => {
       const res = await apiClient.post('/worker/login', { phone: phone.trim(), pin });
       const { token, worker } = res.data;
 
-      // Worker portal token. apiClient reads localStorage 'token', so we set
-      // both keys — 'workerToken' for clarity, 'token' so requests are signed.
+      // Worker portal token ONLY — never touch the manager session's 'token'.
       localStorage.setItem('workerToken', token);
-      localStorage.setItem('token', token);
       localStorage.setItem('workerProfile', JSON.stringify(worker || {}));
 
       navigate('/worker/home');
