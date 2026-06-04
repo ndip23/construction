@@ -90,6 +90,7 @@ export const submitInquiry = async (req: Request, res: Response) => {
     await inquiry.save();
 
     res.status(201).json({ success: true, message: "Inquiry sent successfully" });
+  } catch (error) {
     res.status(500).json({ message: "Error submitting inquiry" });
   }
 };

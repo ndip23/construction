@@ -1,5 +1,12 @@
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 
+export interface ReferencePrice {
+  name: string;
+  price: number;
+  unit: string;
+  supplier?: string;
+}
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '');
 
 export const suggestBOQRate = async (description: string, category: string) => {
@@ -21,6 +28,16 @@ export const suggestBOQRate = async (description: string, category: string) => {
     required: ["rate", "unit", "justification"]
   };
 
+  const result = await model.generateContent({
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: responseSchema as any
+    }
+  });
+
+  return JSON.parse(result.response.text() || '{}');
+};
 
 export const parseReceiptPrompt = async (promptText: string) => {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
@@ -152,8 +169,16 @@ export const analyzeBOQ = async (
           "item": { "description": string, "unit": string, "qty": number, "rate": number }
         }
       ]
-
     }
+  `;
+
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+    generationConfig: { responseMimeType: "application/json" }
+  });
+
+  const result = await model.generateContent({
+    contents: [{ role: 'user', parts: [{ text: prompt }] }]
   });
 
   return JSON.parse(result.response.text() || '{}');
@@ -234,7 +259,9 @@ export const generateBOQ = async (
     generationConfig: { responseMimeType: "application/json" },
   });
 
-  const result = await generateWithRetry(model, prompt);
+  const result = await model.generateContent({
+    contents: [{ role: 'user', parts: [{ text: prompt }] }]
+  });
   const parsed = JSON.parse(result.response.text() || "{}");
   const raw = Array.isArray(parsed.items) ? parsed.items : [];
 
@@ -257,57 +284,6 @@ export const generateBOQ = async (
 };
 
 /* ---- Marketplace Intelligence (teammate) ---- */
->>>>>>> main
-=======
-export const parseReceiptPrompt = async (promptText: string) => {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-  const prompt = `
-    Act as an AI receipt generation assistant.
-    Analyze the following user request and extract the necessary details to build a receipt.
-    If some details are missing, use reasonable generic defaults (e.g. status: 'draft', quantity: 1) or leave them empty.
-
-    USER REQUEST:
-    "${promptText}"
-  `;
-
-  const responseSchema = {
-    type: SchemaType.OBJECT,
-    properties: {
-      clientName: { type: SchemaType.STRING },
-      clientEmail: { type: SchemaType.STRING },
-      clientPhone: { type: SchemaType.STRING },
-      clientAddress: { type: SchemaType.STRING },
-      status: { type: SchemaType.STRING, description: "draft, pending, or paid" },
-      notes: { type: SchemaType.STRING },
-      items: {
-        type: SchemaType.ARRAY,
-        items: {
-          type: SchemaType.OBJECT,
-          properties: {
-            description: { type: SchemaType.STRING },
-            quantity: { type: SchemaType.NUMBER },
-            rate: { type: SchemaType.NUMBER }
-          },
-          required: ["description", "quantity", "rate"]
-        }
-      }
-    },
-    required: ["clientName", "items"]
-  };
-
-  const result = await model.generateContent({
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    generationConfig: {
-      responseMimeType: "application/json",
-      responseSchema: responseSchema as any
-    }
-  });
-
-  return JSON.parse(result.response.text() || '{}');
-};
-
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
 export const analyzeSupplierData = async (aggregatedData: any) => {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 

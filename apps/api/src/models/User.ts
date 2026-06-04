@@ -16,7 +16,7 @@ const UserSchema = new Schema({
     default: 'New Member'
   },
   isVerifiedExpert: { type: Boolean, default: false },
-  expertTypes: [{ type: String }] // e.g., 'Licensed Engineer', 'Certified Contractor'
+  expertTypes: [{ type: String }], // e.g., 'Licensed Engineer', 'Certified Contractor'
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date }
 
