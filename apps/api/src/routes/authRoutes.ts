@@ -3,6 +3,7 @@ import express from 'express';
 import { register, login, getSummary, getCompanyBySlug, getMyCompanyProfile, updateCompanyBySlug,
 updateCompanyPortfolio, updateCompanyLogo, deleteCompanyPortfolioImage, updateMyCompanyProfile, forgotPassword, resetPassword, updateCompanyLetterhead } from '../controllers/authController';
 import { protect } from '../middleware/auth';
+import { authRateLimiter } from '../middleware/authRateLimit';
 import { upload } from '../middleware/upload';
 import { handleUpload } from '../middleware/handleUpload';
 
@@ -13,28 +14,28 @@ const router = express.Router();
  * @desc    Atomic registration (Creates Owner + Company Profile)
  * @access  Public
  */
-router.post('/register', register);
+router.post('/register', authRateLimiter, register);
 
 /**
  * @route   POST /api/v1/auth/login
  * @desc    Login and return JWT token + User/Company metadata
  * @access  Public
  */
-router.post('/login', login);
+router.post('/login', authRateLimiter, login);
 
 /**
  * @route   POST /api/v1/auth/forgotpassword
  * @desc    Issue a password reset token
  * @access  Public
  */
-router.post('/forgotpassword', forgotPassword);
+router.post('/forgotpassword', authRateLimiter, forgotPassword);
 
 /**
  * @route   PUT /api/v1/auth/resetpassword/:token
  * @desc    Reset password using a valid token
  * @access  Public
  */
-router.put('/resetpassword/:token', resetPassword);
+router.put('/resetpassword/:token', authRateLimiter, resetPassword);
 
 /**
  * @route   GET /api/v1/auth/company/summary

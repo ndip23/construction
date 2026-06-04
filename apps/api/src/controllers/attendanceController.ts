@@ -1,15 +1,23 @@
 import { Response } from 'express';
 import Attendance from '../models/Attendance';
+import Worker from '../models/Worker';
 
 const todayStr = () => new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
-const resolveWorker = (req: any, fromBody?: any) =>
-  req.user.role === 'worker' ? req.user.workerId : fromBody;
+// A worker token can only ever act on itself. A manager supplies a workerId in
+// the body — but SECURITY: we must confirm that worker belongs to the caller's
+// company, otherwise an owner could forge attendance for any worker _id.
+const resolveWorker = async (req: any, fromBody?: any): Promise<string | null> => {
+  if (req.user.role === 'worker') return req.user.workerId;
+  if (!fromBody) return null;
+  const owned = await Worker.exists({ _id: fromBody, company: req.user.companyId });
+  return owned ? fromBody : null;
+};
 
 export const clockIn = async (req: any, res: Response) => {
   try {
-    const worker = resolveWorker(req, req.body.workerId);
-    if (!worker) return res.status(400).json({ message: 'workerId is required' });
+    const worker = await resolveWorker(req, req.body.workerId);
+    if (!worker) return res.status(400).json({ message: 'A valid workerId for your company is required' });
 
     const date = todayStr();
     const existing = await Attendance.findOne({
@@ -39,8 +47,8 @@ export const clockIn = async (req: any, res: Response) => {
 
 export const clockOut = async (req: any, res: Response) => {
   try {
-    const worker = resolveWorker(req, req.body.workerId);
-    if (!worker) return res.status(400).json({ message: 'workerId is required' });
+    const worker = await resolveWorker(req, req.body.workerId);
+    if (!worker) return res.status(400).json({ message: 'A valid workerId for your company is required' });
 
     const date = todayStr();
     const attendance = await Attendance.findOne({

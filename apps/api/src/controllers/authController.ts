@@ -14,13 +14,16 @@ import crypto from 'crypto';
 // @desc    Register + Auto-generate Slug
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, companyName, city, country, role } = req.body;
+    const { name, email, password, companyName, city, country } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: "Email already in use." });
 
     const hashedPassword = await bcrypt.hash(password, 12);
-    const user = new User({ name, email, password: hashedPassword, role: role || 'owner' });
+    // SECURITY: never trust a client-supplied role. Public registration can
+    // ONLY ever create a tenant 'owner'. Platform roles (admin/superadmin) are
+    // provisioned out-of-band via the seed script — never through this endpoint.
+    const user = new User({ name, email, password: hashedPassword, role: 'owner' });
     await user.save();
 
     const company = new Company({ 
@@ -131,7 +134,14 @@ export const updateCompanyBySlug = async (req: any, res: Response) => {
       return res.status(403).json({ message: "Unauthorized update attempt." });
     }
 
-    const updated = await Company.findOneAndUpdate({ slug }, req.body, { new: true });
+    // SECURITY: whitelist editable fields. Never spread req.body — that let an
+    // owner set status:'verified' (self-approve), walletBalance, owner, slug, etc.
+    const allowed = ['name', 'phone', 'website', 'sector', 'address', 'city',
+      'country', 'countryCode', 'currency', 'email', 'logo', 'portfolio', 'receiptSettings'];
+    const update: Record<string, any> = {};
+    allowed.forEach(field => { if (req.body[field] !== undefined) update[field] = req.body[field]; });
+
+    const updated = await Company.findOneAndUpdate({ slug }, update, { new: true });
     res.status(200).json({ message: "Business profile secured and updated", company: updated });
   } catch (error) {
     res.status(500).json({ message: "Update failed." });

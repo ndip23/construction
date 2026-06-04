@@ -40,6 +40,14 @@ export const sendMessage = async (req: any, res: Response) => {
   try {
     const { conversationId, text, attachments } = req.body;
 
+    // SECURITY: only a participant may post into a conversation (mirrors getMessages).
+    // Without this, any authenticated user could inject messages into another
+    // company's chat by passing its conversationId.
+    const convo = await Conversation.findById(conversationId);
+    if (!convo?.participants.includes(req.user.id)) {
+      return res.status(403).json({ message: "Access denied to this conversation" });
+    }
+
     const newMessage = new Message({
       conversationId,
       sender: req.user.id,

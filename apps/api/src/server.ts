@@ -18,6 +18,13 @@ const io = new Server(server, {
   }
 });
 
+// 1b. Fail closed if the JWT secret is missing/weak — otherwise tokens are
+// signed/verified with an undefined or guessable key (silent auth bypass).
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 16) {
+  console.error("❌ JWT_SECRET missing or too weak (need ≥16 chars) in .env");
+  process.exit(1);
+}
+
 // 2. Database Connection
 const dbUri = process.env.MONGO_URI;
 if (!dbUri) {
