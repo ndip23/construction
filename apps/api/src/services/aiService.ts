@@ -581,3 +581,52 @@ export const analyzeGlobalMarketplaceData = async (globalData: any) => {
 
   return JSON.parse(result.response.text() || '{}');
 };
+
+/* ---- Receipt AI parsing (from samdav) ---- */
+export const parseReceiptPrompt = async (promptText: string) => {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+  const prompt = `
+    Act as an AI receipt generation assistant.
+    Analyze the following user request and extract the necessary details to build a receipt.
+    If some details are missing, use reasonable generic defaults (e.g. status: 'draft', quantity: 1) or leave them empty.
+
+    USER REQUEST:
+    "${promptText}"
+  `;
+
+  const responseSchema = {
+    type: SchemaType.OBJECT,
+    properties: {
+      clientName: { type: SchemaType.STRING },
+      clientEmail: { type: SchemaType.STRING },
+      clientPhone: { type: SchemaType.STRING },
+      clientAddress: { type: SchemaType.STRING },
+      status: { type: SchemaType.STRING, description: "draft, pending, or paid" },
+      notes: { type: SchemaType.STRING },
+      items: {
+        type: SchemaType.ARRAY,
+        items: {
+          type: SchemaType.OBJECT,
+          properties: {
+            description: { type: SchemaType.STRING },
+            quantity: { type: SchemaType.NUMBER },
+            rate: { type: SchemaType.NUMBER }
+          },
+          required: ["description", "quantity", "rate"]
+        }
+      }
+    },
+    required: ["clientName", "items"]
+  };
+
+  const result = await model.generateContent({
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: responseSchema as any
+    }
+  });
+
+  return JSON.parse(result.response.text() || '{}');
+};

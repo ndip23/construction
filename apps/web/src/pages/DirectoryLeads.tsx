@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import apiClient from '../api/client';
 import {
@@ -9,13 +9,10 @@ import {
   Loader2,
   Inbox,
   Search,
-  Phone,
   Clock3,
-  ArrowUpRight,
   Filter,
   CheckCheck,
   BadgeAlert,
-  XCircle,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { t, statusBadge } from '../theme';
@@ -37,28 +34,13 @@ const openWhatsApp = (phone: string) => {
   window.open(`https://wa.me/${clean}`, '_blank', 'noopener,noreferrer');
 };
 
-const formatInquiryTime = (value: string | Date) =>
-  new Date(value).toLocaleString([], {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-
 const DirectoryLeads = () => {
-  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState<InquiryStatus>('all');
 
   const { data: leads, isLoading } = useQuery({
     queryKey: ['inquiries'],
     queryFn: async () => (await apiClient.get('/inquiries')).data,
-  });
-
-  const statusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: 'new' | 'contacted' | 'closed' }) =>
-      apiClient.put(`/inquiries/${id}/status`, { status }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['inquiries'] }),
   });
 
   const inquiryList = Array.isArray(leads) ? leads : [];
@@ -149,9 +131,8 @@ const DirectoryLeads = () => {
         </header>
 
         {isLoading ? (
-<div className="h-64 flex items-center justify-center text-foreground/35 font-bold animate-pulse">
+          <div className="h-64 flex items-center justify-center text-foreground/35 font-bold animate-pulse">
             <Loader2 className="animate-spin mr-2" /> Syncing with Directory...
-          </div>
           </div>
         ) : filteredLeads.length === 0 ? (
           <div className={t.emptyState}>
@@ -185,38 +166,21 @@ const DirectoryLeads = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-6 mt-4 md:mt-0">
+                <div className="flex items-center gap-4 mt-4 md:mt-0">
+                  <span className={statusBadge(lead.status) + ' px-3 py-1'}>
+                    {lead.status || 'new'}
+                  </span>
                   <div className="text-right hidden md:block">
                     <p className={t.label + ' mb-0.5'}>Received</p>
                     <p className="text-xs font-bold text-muted-foreground">{new Date(lead.createdAt).toLocaleDateString()}</p>
                   </div>
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-lg font-black text-white group-hover:text-brand-yellow transition-colors">
-                            {lead.clientName || 'Unnamed Lead'}
-                          </h3>
-                          <span className={statusBadge(lead.status) + ' px-3 py-1'}>
-                            {lead.status || 'new'}
-                          </span>
-                        </div>
-
-<div className="flex flex-col sm:flex-row xl:flex-col items-stretch sm:items-end gap-3 shrink-0">
-                    <div className="text-right hidden md:block">
-                      <p className={t.label + ' mb-0.5'}>Received</p>
-                      <p className="text-xs font-bold text-muted-foreground">{new Date(lead.createdAt).toLocaleDateString()}</p>
-                    </div>
-                    
-                    <div className="flex flex-wrap justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openWhatsApp(lead.clientPhone)}
-                        className="p-4 bg-muted border border-border rounded-2xl text-muted-foreground group-hover:bg-background group-hover:text-foreground transition-all"
-                      >
-                        <MessageSquare size={20} />
-                      </button>
-                    </div>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => openWhatsApp(lead.clientPhone)}
+                    className="p-4 bg-muted border border-border rounded-2xl text-muted-foreground group-hover:bg-background group-hover:text-foreground transition-all"
+                  >
+                    <MessageSquare size={20} />
+                  </button>
                 </div>
               </motion.div>
             ))}

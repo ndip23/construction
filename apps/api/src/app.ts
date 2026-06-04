@@ -23,6 +23,11 @@ import walletRoutes from './routes/walletRoutes';
 import fxRoutes from './routes/fxRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
 import opportunityRoutes from './routes/opportunityRoutes';
+import attendanceRoutes from './routes/attendanceRoutes';
+import payrollRoutes from './routes/payrollRoutes';
+import taskRoutes from './routes/taskRoutes';
+import workerAuthRoutes from './routes/workerAuthRoutes';
+import receiptRoutes from './routes/receiptRoutes';
 
 import { errorHandler } from './middleware/errorMiddleware';
 
@@ -79,6 +84,11 @@ app.use('/api/v1/wallet', walletRoutes);
 app.use('/api/v1/fx', fxRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/opportunities', opportunityRoutes);
+app.use('/api/v1/attendance', attendanceRoutes);
+app.use('/api/v1/payroll', payrollRoutes);
+app.use('/api/v1/tasks', taskRoutes);
+app.use('/api/v1/worker', workerAuthRoutes);
+app.use('/api/v1/receipts', receiptRoutes);
 
 // 4. HEALTH CHECK ROUTE
 app.get('/health', (req, res) => {

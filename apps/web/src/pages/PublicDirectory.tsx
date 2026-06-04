@@ -10,6 +10,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { t } from '../theme';
 
 const CompanyCard = ({ company }: { company: any }) => {
+  const handleContact = () => {
+    const phone = String(company.phone || company.whatsappNumber || '').replace(/[^0-9]/g, '');
+    if (phone) {
+      window.open(`https://wa.me/${phone}`, '_blank', 'noopener,noreferrer');
+    } else {
+      window.location.href = `/company/${company.slug}`;
+    }
+  };
+
   return (
     <motion.div
       layout
@@ -49,7 +58,7 @@ const CompanyCard = ({ company }: { company: any }) => {
             className="flex-1 bg-primary text-brand-navy py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all flex items-center justify-center gap-2"
           >
             <MessageSquare size={16} /> Message
-          </Link>
+          </button>
           <Link
             to={`/company/${company.slug}`}
             className="flex-1 bg-muted text-foreground py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-border flex items-center justify-center gap-2 hover:bg-background hover:border-primary/20 transition-all"
