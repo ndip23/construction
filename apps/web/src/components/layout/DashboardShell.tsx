@@ -67,8 +67,8 @@ const OnboardingProgress = ({ currentStep }: { currentStep: string }) => {
                   <div className={`absolute top-3 right-1/2 w-full h-[2px] -z-10 transition-colors duration-500 ${idx <= currentIndex ? 'bg-primary' : 'bg-border'}`} />
                 )}
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black transition-colors duration-500 z-10 ${
-                  idx < currentIndex ? 'bg-primary text-brand-navy' : 
-                  idx === currentIndex ? 'bg-background border-2 border-primary text-primary' : 
+                  idx < currentIndex ? 'bg-primary text-brand-navy' :
+                  idx === currentIndex ? 'bg-background border-2 border-primary text-primary' :
                   'bg-muted text-muted-foreground border border-border'
                 }`}>
                   {idx < currentIndex ? <CheckCircle2 size={12} /> : idx + 1}
@@ -103,11 +103,11 @@ export const DashboardShell = ({
   const navigate = useNavigate();
   const { getStep } = useOnboardingStore();
   const currentStep = user?.id ? getStep(user.id) : 'done';
-  
+
   // FORCE ONBOARDING REDIRECT
   useEffect(() => {
     if (user?.role !== 'owner' || currentStep === 'done') return;
-    
+
     const stepPaths: Record<string, string> = {
       wallet: '/dashboard/wallet',
       profile: '/dashboard/settings/business',
@@ -148,6 +148,14 @@ export const DashboardShell = ({
     enabled: !!user,
     staleTime: 1000 * 60 * 5,
   });
+
+  const { setCurrency } = useCurrencyStore();
+
+  useEffect(() => {
+    if (!companyProfile?.currency) return;
+    const match = SUPPORTED_CURRENCIES.find((c) => c.code === companyProfile.currency);
+    if (match) setCurrency(match);
+  }, [companyProfile?.currency, setCurrency]);
 
   // LOCK BODY SCROLL WHEN MOBILE MENU OPEN
   useEffect(() => {

@@ -33,13 +33,13 @@ export const createReceipt = async (req: Request, res: Response) => {
     if (!company) return res.status(404).json({ message: 'Company not found' });
 
     const receiptNumber = await generateReceiptNumber();
-    
+
     // Calculate totals
     const subtotal = items.reduce((sum: number, item: any) => sum + (item.quantity * item.rate), 0);
     const taxRate = company.receiptSettings?.defaultTaxRate || 0;
     const taxAmount = (subtotal * taxRate) / 100;
     const totalAmount = subtotal + taxAmount;
-    
+
     const qrCodeData = `${process.env.FRONTEND_URL}/verify/receipt/${receiptNumber}`;
 
     const receipt = new Receipt({
@@ -82,10 +82,10 @@ export const getReceiptById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const companyId = req.user?.companyId;
-    
+
     const receipt = await Receipt.findById(id).populate('company');
     if (!receipt) return res.status(404).json({ message: 'Receipt not found' });
-    
+
     if (receipt.company._id.toString() !== companyId) {
        return res.status(403).json({ message: 'Unauthorized access to this receipt' });
     }
@@ -100,10 +100,10 @@ export const deleteReceipt = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const companyId = req.user?.companyId;
-    
+
     const receipt = await Receipt.findById(id);
     if (!receipt) return res.status(404).json({ message: 'Receipt not found' });
-    
+
     if (receipt.company.toString() !== companyId) {
        return res.status(403).json({ message: 'Unauthorized' });
     }
@@ -157,7 +157,7 @@ export const sendReceiptEmail = async (req: Request, res: Response) => {
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px; border: 1px solid #e5e7eb; background: #ffffff;">
         ${settings.letterheadUrl ? `<img src="${settings.letterheadUrl}" alt="Letterhead" style="width: 100%; height: auto; margin-bottom: 30px;" />` : ''}
-        
+
         <table style="width: 100%; border-bottom: 2px solid ${themeColor}; padding-bottom: 30px; margin-bottom: 30px;">
           <tr>
             <td style="vertical-align: top;">
@@ -229,8 +229,8 @@ export const sendReceiptEmail = async (req: Request, res: Response) => {
               ` : ''}
             </td>
             <td style="vertical-align: bottom; text-align: right;">
-              ${settings.signatureImage ? `<img src="${settings.signatureImage}" alt="Signature" style="height: 64px; object-fit: contain; margin-bottom: 8px;" />` : 
-                settings.signatureText ? `<div style="font-size: 24px; font-family: Georgia, serif; font-style: italic; color: #1f2937; border-bottom: 1px solid #d1d5db; padding-bottom: 8px; margin-bottom: 8px; display: inline-block;">${settings.signatureText}</div>` : 
+              ${settings.signatureImage ? `<img src="${settings.signatureImage}" alt="Signature" style="height: 64px; object-fit: contain; margin-bottom: 8px;" />` :
+                settings.signatureText ? `<div style="font-size: 24px; font-family: Georgia, serif; font-style: italic; color: #1f2937; border-bottom: 1px solid #d1d5db; padding-bottom: 8px; margin-bottom: 8px; display: inline-block;">${settings.signatureText}</div>` :
                 `<div style="width: 192px; border-bottom: 2px solid #d1d5db; margin-bottom: 8px; display: inline-block;"></div>`
               }
               <p style="font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #9ca3af; margin: 0;">Authorized Signature</p>
@@ -259,7 +259,7 @@ export const parseReceiptAI = async (req: Request, res: Response) => {
     if (!prompt) return res.status(400).json({ message: 'Prompt is required' });
 
     const aiResult = await parseReceiptPrompt(prompt);
-    
+
     // Add total to each item since the AI doesn't calculate it
     if (aiResult.items && Array.isArray(aiResult.items)) {
       aiResult.items = aiResult.items.map((item: any) => ({

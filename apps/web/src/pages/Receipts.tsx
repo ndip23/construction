@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { useAuthStore } from '../store/useAuthStore';
 import apiClient from '../api/client';
-import { Plus, Receipt, Search, Download, Eye, MessageCircle, MoreVertical, Filter, ArrowRight } from 'lucide-react';
+import { Plus, Receipt, Search, Download, MessageCircle, Filter, ArrowRight } from 'lucide-react';
 import { t, statusBadge } from '../theme';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';

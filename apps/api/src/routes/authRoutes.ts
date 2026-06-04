@@ -33,6 +33,20 @@ router.post('/register', authLimiter, register);
 router.post('/login', authLimiter, login);
 
 /**
+ * @route   POST /api/v1/auth/forgotpassword
+ * @desc    Issue a password reset token
+ * @access  Public
+ */
+router.post('/forgotpassword', forgotPassword);
+
+/**
+ * @route   PUT /api/v1/auth/resetpassword/:token
+ * @desc    Reset password using a valid token
+ * @access  Public
+ */
+router.put('/resetpassword/:token', resetPassword);
+
+/**
  * @route   GET /api/v1/auth/company/summary
  * @desc    Get dashboard summary stats for the company
  * @access  Private

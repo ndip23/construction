@@ -8,7 +8,18 @@ const apiClient = axios.create({
 
 // 1. REQUEST INTERCEPTOR: Inject Token
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  let token = localStorage.getItem('token');
+  // Self-heal: a worker-portal token must NEVER be used in the manager app.
+  // (If one leaked into 'token', drop it so the user is re-authenticated cleanly.)
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload?.role === 'worker') {
+        localStorage.removeItem('token');
+        token = null;
+      }
+    } catch { /* not a decodable JWT — leave as-is */ }
+  }
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

@@ -1,10 +1,8 @@
-import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import apiClient from '../api/client';
-import { 
-  ShoppingBag, 
-  Truck, 
+import {
+  Truck,
   Package, 
   ChevronRight, 
   Loader2, 

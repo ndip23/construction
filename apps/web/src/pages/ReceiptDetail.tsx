@@ -4,7 +4,7 @@ import { DashboardShell } from '../components/layout/DashboardShell';
 import { ReceiptPreview } from '../components/ReceiptPreview';
 import apiClient from '../api/client';
 import { useAuthStore } from '../store/useAuthStore';
-import { ArrowLeft, Printer, MessageCircle, Trash2, Mail, Loader2, Download } from 'lucide-react';
+import { ArrowLeft, Printer, MessageCircle, Trash2, Mail, Loader2 } from 'lucide-react';
 import { t } from '../theme';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';

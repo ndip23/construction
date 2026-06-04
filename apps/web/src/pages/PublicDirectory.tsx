@@ -5,7 +5,7 @@ import { useDebounce } from '../hooks/useDebounce';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 import { PublicFooter } from '../components/layout/PublicFooter';
 import apiClient from '../api/client';
-import { ShieldCheck, MapPin, Star, Search, Loader2, Inbox, UserCircle } from 'lucide-react';
+import { ShieldCheck, MapPin, Star, Search, Loader2, Inbox, UserCircle, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { t } from '../theme';
 
@@ -17,9 +17,9 @@ const CompanyCard = ({ company }: { company: any }) => {
   // Track impression once when component mounts
   useEffect(() => {
     if (company?._id) {
-      apiClient.post('/explore/track', { 
-        action: 'impression', 
-        targetCompanyId: company._id 
+      apiClient.post('/explore/track', {
+        action: 'impression',
+        targetCompanyId: company._id
       }).catch(err => console.error("Impression track failed", err));
     }
   }, [company?._id]);
@@ -54,17 +54,17 @@ const CompanyCard = ({ company }: { company: any }) => {
             <span className="text-[10px] font-black">{company.rating || '5.0'}</span>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-medium mb-6 mt-auto">
           <MapPin size={14} className="text-primary" />
           <span className="capitalize">{company.city}, {company.country}</span>
         </div>
-        <div className="mt-auto pt-6 border-t border-border flex items-center justify-between gap-3">
+<div className="mt-auto pt-6 border-t border-border flex items-center justify-between gap-3">
           <button
-            onClick={() => setIsContactModalOpen(true)}
-            className="flex-1 bg-primary text-brand-navy py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all"
+            onClick={handleContact}
+            className="flex-1 bg-primary text-brand-navy py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all flex items-center justify-center gap-2"
           >
-            Contact
+            <MessageSquare size={16} /> Message
           </button>
           <Link
             to={`/company/${company.slug}`}

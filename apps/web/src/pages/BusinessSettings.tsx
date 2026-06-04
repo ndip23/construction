@@ -216,7 +216,7 @@ const BusinessSettings = () => {
                 </div>
               ))}
               <button
-                onClick={() => updateMutation.mutate(effectiveFormData as Record<string, string>)}
+                onClick={() => updateMutation.mutate(effectiveFormData as unknown as Record<string, string>)}
                 disabled={!companySlug || isUpdating}
                 className="flex items-center justify-center gap-3 bg-primary text-brand-navy rounded-2xl font-black text-xs uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all h-[60px] disabled:opacity-50 disabled:cursor-not-allowed"
               >

@@ -123,11 +123,17 @@ export const convertToLocal = async (countryCode: string, usdAmount: number): Pr
     throw new Error('Swychr did not return a valid conversion amount.');
   }
 
-  // Try to get currency code from the response; fall back to XAF for CM
+  // Try to get currency code from the response; fall back to the expected currency by country.
+  const FALLBACK_CURRENCY: Record<string, string> = {
+    CM: 'XAF', SN: 'XOF', CI: 'XOF', BJ: 'XOF', BF: 'XOF', ML: 'XOF',
+    NG: 'NGN', GH: 'GHS', KE: 'KES', ZA: 'ZAR', EG: 'EGP',
+    US: 'USD', GB: 'GBP', EUR: 'EUR',
+  };
+
   const currency: string =
     data?.data?.currency ||
     data?.currency ||
-    (countryCode === 'NG' ? 'NGN' : countryCode === 'KE' ? 'KES' : 'XAF');
+    FALLBACK_CURRENCY[countryCode] || 'XAF';
 
   return { amount: Math.ceil(localAmount), currency };
 };

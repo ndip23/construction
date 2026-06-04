@@ -53,6 +53,12 @@ import NewProject from './pages/NewProject';
 import Analytics from './pages/Analytics';
 import TenderBoard from './pages/TenderBoard';
 import Opportunities from './pages/Opportunities';
+import Attendance from './pages/Attendance';
+import Timesheets from './pages/Timesheets';
+import Payroll from './pages/Payroll';
+import Tasks from './pages/Tasks';
+import WorkerLogin from './pages/worker/WorkerLogin';
+import WorkerHome from './pages/worker/WorkerHome';
 import SubmitBid from './pages/SubmitBid';
 import TenderDetail from './pages/TenderDetail';
 import BOQEngine from './pages/BOQEngine';
@@ -64,12 +70,9 @@ import PublicMarketplace from './pages/PublicMarketPlace';
 import MarketplaceProduct from './pages/MarketPlaceProduct';
 import PublicPostTender from './pages/PublicPostTender';
 
-// Wrapper: every owner dashboard route goes through OnboardingGate
 const OwnerRoute = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute allowedRoles={['owner']}>
-    {/* <OnboardingGate> */}
-      {children}
-    {/* </OnboardingGate> */}
+    {children}
   </ProtectedRoute>
 );
 function App() {
@@ -97,6 +100,10 @@ function App() {
       />
       <AnimatePresence mode="wait">
         <Routes>
+          {/* ── WORKER PORTAL (public, mobile) ── */}
+          <Route path="/worker/login" element={<WorkerLogin />} />
+          <Route path="/worker/home" element={<WorkerHome />} />
+
           {/* ── GUEST ROUTES ── */}
           <Route path="/" element={isAuthenticated ? <Navigate to={getHomePath()} /> : <Landing />} />
           <Route path="/login" element={isAuthenticated ? <Navigate to={getHomePath()} /> : <Login />} />
@@ -116,6 +123,10 @@ function App() {
           <Route path="/dashboard" element={<OwnerRoute><Dashboard /></OwnerRoute>} />
           <Route path="/dashboard/finance" element={<OwnerRoute><Finance /></OwnerRoute>} />
           <Route path="/dashboard/workforce" element={<OwnerRoute><Workforce /></OwnerRoute>} />
+          <Route path="/dashboard/attendance" element={<OwnerRoute><Attendance /></OwnerRoute>} />
+          <Route path="/dashboard/timesheets" element={<OwnerRoute><Timesheets /></OwnerRoute>} />
+          <Route path="/dashboard/payroll" element={<OwnerRoute><Payroll /></OwnerRoute>} />
+          <Route path="/dashboard/tasks" element={<OwnerRoute><Tasks /></OwnerRoute>} />
           <Route path="/dashboard/invoices/new" element={<OwnerRoute><InvoiceEditor /></OwnerRoute>} />
           <Route path="/dashboard/settings/business" element={<OwnerRoute><BusinessSettings /></OwnerRoute>} />
           <Route path="/dashboard/settings/profile" element={<OwnerRoute><UserProfile /></OwnerRoute>} />

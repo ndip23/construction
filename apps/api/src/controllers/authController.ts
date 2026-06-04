@@ -9,9 +9,7 @@ import Tender from '../models/Tender';
 import Message from '../models/Message';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import Service from '../models/Service';
-import Order from '../models/Order';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import crypto from 'crypto';
 
 // @desc    Register + Auto-generate Slug
 export const register = async (req: Request, res: Response) => {
@@ -25,8 +23,8 @@ export const register = async (req: Request, res: Response) => {
     const user = new User({ name, email, password: hashedPassword, role: role || 'owner' });
     await user.save();
 
-    const company = new Company({ 
-      name: companyName, city, country, owner: user._id, status: 'pending' 
+    const company = new Company({
+      name: companyName, city, country, owner: user._id, status: 'pending'
     });
     await company.save(); // Model middleware handles slug generation
 
@@ -38,10 +36,10 @@ export const register = async (req: Request, res: Response) => {
       process.env.JWT_SECRET!, { expiresIn: '7d' }
     );
 
-    res.status(201).json({ 
+    res.status(201).json({
       message: "BuildHub Office Initialized",
-      token, 
-      user: { id: user._id, name: user.name, role: user.role, companyId: company._id, slug: company.slug } 
+      token,
+      user: { id: user._id, name: user.name, role: user.role, companyId: company._id, slug: company.slug }
     });
   } catch (error) {
     res.status(500).json({ message: "Registration failed at infrastructure level." });
@@ -68,16 +66,16 @@ export const login = async (req: Request, res: Response) => {
       process.env.JWT_SECRET!, { expiresIn: '7d' }
     );
 
-    res.status(200).json({ 
-      token, 
-      user: { 
-         id: user._id, 
-    name: user.name, 
-    role: user.role, 
-    companyId: companyDoc?._id, 
+    res.status(200).json({
+      token,
+      user: {
+         id: user._id,
+    name: user.name,
+    role: user.role,
+    companyId: companyDoc?._id,
     company: companyDoc?.name,
     slug: companyDoc?.slug
-      } 
+      }
     });
   } catch (error) {
     res.status(500).json({ message: "Login authentication failed." });
@@ -127,7 +125,7 @@ export const getCompanyBySlug = async (req: any, res: Response) => {
 export const updateCompanyBySlug = async (req: any, res: Response) => {
   try {
     const { slug } = req.params;
-    
+
     const company = await Company.findOne({ slug });
     if (!company || company._id.toString() !== req.user.companyId.toString()) {
       return res.status(403).json({ message: "Unauthorized update attempt." });
@@ -208,7 +206,7 @@ export const getFinanceInsights = async (req: any, res: Response) => {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
-You are a top-tier construction financial analyst. 
+You are a top-tier construction financial analyst.
 Review the following real financial data for a construction company named "${company?.name || 'Company'}":
 - Total Income (Paid Invoices): $${totalIncome}
 - Outstanding Invoices: $${outstanding}
@@ -234,7 +232,7 @@ You must return a strictly formatted JSON object with exactly the following 6 ke
     } else if (textResult.startsWith('\`\`\`')) {
       textResult = textResult.replace(/\`\`\`/g, '').trim();
     }
-    
+
     let insights;
     try {
       insights = JSON.parse(textResult);
@@ -326,13 +324,70 @@ export const deleteCompanyPortfolioImage = async (req: any, res: Response) => {
     res.status(500).json({ message: "Failed to remove image" });
   }
 };
+// @desc    Forgot Password — issue a reset token
+export const forgotPassword = async (req: Request, res: Response) => {
+  const genericMessage =
+    "If an account with that email exists, a password reset link has been sent.";
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required." });
+
+    const user = await User.findOne({ email });
+
+    // Always respond generically to avoid leaking whether the email exists.
+    if (!user) return res.status(200).json({ message: genericMessage });
+
+    const token = crypto.randomBytes(32).toString('hex');
+    (user as any).resetPasswordToken = token;
+    (user as any).resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    await user.save();
+
+    const frontendBase = process.env.FRONTEND_URL || process.env.CLIENT_URL || "http://localhost:5173";
+    const resetLink = `${frontendBase}/reset-password/${token}`;
+
+    // No mailer is configured in this codebase — log the link so it can be delivered manually.
+    console.log(`[forgotPassword] Password reset link for ${email}: ${resetLink}`);
+
+    return res.status(200).json({ message: genericMessage });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to process password reset request." });
+  }
+};
+
+// @desc    Reset Password using a valid token
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!token) return res.status(400).json({ message: "Reset token is missing." });
+    if (!password) return res.status(400).json({ message: "New password is required." });
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() },
+    });
+
+    if (!user) return res.status(400).json({ message: "Invalid or expired reset token." });
+
+    user.password = await bcrypt.hash(password, 12);
+    (user as any).resetPasswordToken = undefined;
+    (user as any).resetPasswordExpires = undefined;
+    await user.save();
+
+    return res.status(200).json({ message: "Password successfully reset." });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to reset password." });
+  }
+};
+
 // @desc    Update company profile using JWT companyId (no slug needed — safe for new accounts)
 export const updateMyCompanyProfile = async (req: any, res: Response) => {
   try {
     const companyId = req.user?.companyId;
     if (!companyId) return res.status(403).json({ message: 'No company linked to this account.' });
 
-    const allowed = ['phone', 'website', 'sector', 'address', 'city', 'country', 'email'];
+    const allowed = ['phone', 'website', 'sector', 'address', 'city', 'country', 'countryCode', 'currency', 'email'];
     const update: Record<string, any> = {};
     allowed.forEach(field => { if (req.body[field] !== undefined) update[field] = req.body[field]; });
 

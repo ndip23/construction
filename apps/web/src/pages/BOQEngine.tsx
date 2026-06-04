@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../api/client';
 import { DashboardShell } from '../components/layout/DashboardShell';
@@ -669,6 +669,7 @@ const BOQEngine = () => {
   const [showAnalyze, setShowAnalyze] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Open the estimator when navigated here with ?estimate=1 (e.g. from the AI hub)
   useEffect(() => {
@@ -911,6 +912,12 @@ const BOQEngine = () => {
               className="bg-card border border-border text-foreground px-6 py-3 rounded-2xl font-bold text-xs hover:bg-muted transition-all"
             >
               <Plus size={18} className="inline mr-2" /> Add Item
+            </button>
+            <button
+              onClick={() => navigate('/dashboard/ai')}
+              className="flex items-center gap-2 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-xs hover:opacity-90 transition-all shadow-lg"
+            >
+              <Sparkles size={16} /> Create a BOQ with AI
             </button>
             <button
               onClick={exportPDF}
