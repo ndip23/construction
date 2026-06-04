@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { 
-  TrendingUp, TrendingDown, BrainCircuit, Activity, 
-  MapPin, Search, Target, Users, BarChart3, LineChart,
+import {
+  TrendingUp, TrendingDown, BrainCircuit, Activity,
+  MapPin, Search, Target, BarChart3,
   Lightbulb, PackageSearch, RefreshCw, Star, ArrowUpRight,
   MessageCircle, Eye, User, FileText
 } from 'lucide-react';
@@ -11,8 +10,6 @@ import toast from 'react-hot-toast';
 import apiClient from '../../api/client';
 
 export const MarketplaceIntelligenceTab = () => {
-  const queryClient = useQueryClient();
-
   const { data: intelligence, isLoading } = useQuery({
     queryKey: ['supplier-intelligence'],
     queryFn: async () => {
@@ -70,11 +67,11 @@ export const MarketplaceIntelligenceTab = () => {
     return <div className="text-center py-20 text-muted-foreground">No intelligence data available.</div>;
   }
 
-  const { 
+  const {
     demandForecasting, regionalDemand, searchIntelligence, marketplaceOpportunity,
-    supplierSalesIntelligence, priceIntelligence, leadQualityScoring,
-    trafficIntelligence, buyerJourney, aiMarketing, inventoryPrediction, seasonalDemand,
-    marketplaceHealthScore 
+    supplierSalesIntelligence, priceIntelligence,
+    trafficIntelligence, aiMarketing, inventoryPrediction, seasonalDemand,
+    marketplaceHealthScore
   } = intelligence;
 
   return (

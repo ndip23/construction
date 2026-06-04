@@ -7,15 +7,14 @@
  *  – Transaction history table
  *  – Handles /dashboard/wallet/verify?transaction_id=… after Swychr redirect
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { useCurrencyStore, SUPPORTED_CURRENCIES } from '../store/useCurrencyStore';
-import { useAuthStore } from '../store/useAuthStore';
-import { useOnboardingStore } from '../store/useOnboardingStore';
 import apiClient from '../api/client';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Wallet as WalletIcon, Plus, ArrowUpCircle, ArrowDownCircle,
@@ -39,23 +38,52 @@ const COUNTRIES = [
 
 const QUICK_USD = [5, 10, 20, 50, 100, 200];
 
+const CURRENCY_TO_COUNTRY: Record<string, string> = {
+  XAF: 'CM', XOF: 'SN', NGN: 'NG', GHS: 'GH', KES: 'KE', ZAR: 'ZA', EGP: 'EG', USD: 'US', GBP: 'GB', EUR: 'GB',
+};
+
+const inferCountryFromCurrency = (currencyCode: string) => CURRENCY_TO_COUNTRY[currencyCode] || 'CM';
+
+type WalletTransaction = {
+  type: 'credit' | 'debit' | string;
+  amount: number;
+  amountUSD?: number;
+  currency?: string;
+  note?: string;
+  transactionId?: string;
+  date?: string;
+};
+
+type VerifyResponse = {
+  status: 'success' | 'pending' | string;
+  balance?: number;
+  alreadyCredited?: boolean;
+};
+
+type WalletRateResponse = {
+  localAmount: number;
+  currency: string;
+};
+
 // ─── VerifyBanner ─────────────────────────────────────────────────
 const VerifyBanner = ({ txId, onSuccess }: { txId: string; onSuccess: () => void }) => {
   const qc = useQueryClient();
-  const { user } = useAuthStore();
-  const { getStep, advance } = useOnboardingStore();
   const [attempts, setAttempts] = useState(0);
   const MAX = 20;
+  const attemptsRef = useRef(0);
+  const [maxAttemptsReached, setMaxAttemptsReached] = useState(false);
 
-  const { data, isError } = useQuery({
+  const { data, isError } = useQuery<VerifyResponse, unknown, VerifyResponse, [string, string | null]>({
     queryKey: ['wallet-verify', txId],
     queryFn: async () => {
       const { data } = await apiClient.get(`/wallet/topup-verify/${txId}`);
-      return data;
+      attemptsRef.current += 1;
+      if (attemptsRef.current >= MAX) setMaxAttemptsReached(true);
+      return data as VerifyResponse;
     },
     refetchInterval: (q) => {
       const status = q.state.data?.status;
-      if (status === 'success' || attempts >= MAX) return false;
+      if (status === 'success' || attemptsRef.current >= MAX) return false;
       return 3000;
     },
     enabled: !!txId,
@@ -71,8 +99,7 @@ const VerifyBanner = ({ txId, onSuccess }: { txId: string; onSuccess: () => void
       }
       onSuccess();
     }
-    setAttempts((a) => a + 1);
-  }, [data]);
+  }, [data, qc, onSuccess]);
 
   if (data?.status === 'success') {
     return (
@@ -83,7 +110,7 @@ const VerifyBanner = ({ txId, onSuccess }: { txId: string; onSuccess: () => void
     );
   }
 
-  if (isError || attempts >= MAX) {
+  if (isError || maxAttemptsReached) {
     return (
       <div className="flex items-center gap-3 bg-rose-500/15 border border-rose-500/30 rounded-2xl px-5 py-4 mb-6">
         <AlertCircle className="text-rose-400 shrink-0" size={20} />
@@ -101,10 +128,10 @@ const VerifyBanner = ({ txId, onSuccess }: { txId: string; onSuccess: () => void
 };
 
 // ─── TopUp Modal ──────────────────────────────────────────────────
-const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose: () => void, initialCountryCode?: string, isCurrencyLocked: boolean }) => {
+const TopUpModal = ({ onClose }: { onClose: () => void }) => {
   const { setCurrency } = useCurrencyStore();
   const [usdAmount, setUsdAmount] = useState('');
-  const [countryCode, setCountryCode] = useState(initialCountryCode || 'CM');
+  const [countryCode, setCountryCode] = useState('CM');
   const [ratePreview, setRatePreview] = useState<{ localAmount: number; currency: string } | null>(null);
   const [loadingRate, setLoadingRate] = useState(false);
 
@@ -138,7 +165,7 @@ const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose
   const initiateMutation = useMutation({
     mutationFn: async () => {
       const { data } = await apiClient.post('/wallet/topup-initiate', {
-        amountUSD: Number(usdAmount),
+        amountUSD: usdValue,
         countryCode,
       });
       return data;
@@ -146,8 +173,9 @@ const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose
     onSuccess: (data) => {
       window.location.href = data.paymentLink;
     },
-    onError: (err: any) => {
-      toast.error(err?.response?.data?.message || 'Failed to create payment link.');
+    onError: (err: unknown) => {
+      const message = axios.isAxiosError(err) ? (err.response?.data as { message?: string })?.message : undefined;
+      toast.error(message || 'Failed to create payment link.');
     },
   });
 
@@ -163,7 +191,7 @@ const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose
         initial={{ scale: 0.95, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.95, y: 20 }}
-        className="bg-[#0a1628] rounded-[2.5rem] w-full max-w-md shadow-2xl border border-white/5 p-8"
+        className="bg-card rounded-[2.5rem] w-full max-w-md shadow-2xl border border-border p-8"
       >
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -190,7 +218,7 @@ const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose
             className="w-full px-4 py-3.5 bg-white/5 rounded-2xl text-sm font-medium text-white border border-white/5 outline-none focus:ring-2 focus:ring-primary/30 appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {COUNTRIES.map((c) => (
-              <option key={c.code} value={c.code} className="bg-[#0a1628]">{c.label}</option>
+              <option key={c.code} value={c.code} className="bg-white">{c.label}</option>
             ))}
           </select>
           {isCurrencyLocked && (
@@ -240,7 +268,7 @@ const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose
               exit={{ opacity: 0 }}
               className="bg-primary/10 border border-primary/20 rounded-2xl px-5 py-4 mb-5 flex items-center justify-between"
             >
-              <span className="text-sm text-white/60 font-medium">${Number(usdAmount).toLocaleString()} USD =</span>
+              <span className="text-sm text-foreground/60 font-medium">${Number(usdAmount).toLocaleString()} USD =</span>
               {loadingRate
                 ? <Loader2 size={16} className="text-primary animate-spin" />
                 : <span className="text-lg font-black text-primary">
@@ -259,7 +287,7 @@ const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose
         >
           {initiateMutation.isPending
             ? <><Loader2 size={18} className="animate-spin" /> Creating payment link…</>
-            : <><ExternalLink size={18} /> Pay with Swychr</>
+            : <><ExternalLink size={18} /> Pay ${usdValue.toFixed(2)} USD • local conversion shown</>
           }
         </button>
 
@@ -276,7 +304,7 @@ const Wallet = () => {
   const [showTopUp, setShowTopUp] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const txIdToVerify = searchParams.get('transaction_id');
-  const { format } = useCurrencyStore();
+  const { format, setCurrency } = useCurrencyStore();
 
   const { data: balanceData, isLoading: balanceLoading } = useQuery({
     queryKey: ['wallet-balance'],
@@ -287,17 +315,22 @@ const Wallet = () => {
     refetchInterval: 30000,
   });
 
-  const { data: history, isLoading: historyLoading } = useQuery({
+  useEffect(() => {
+    if (!balanceData?.currency) return;
+    const match = SUPPORTED_CURRENCIES.find((c) => c.code === balanceData.currency);
+    if (match) setCurrency(match);
+  }, [balanceData?.currency, setCurrency]);
+
+  const { data: history, isLoading: historyLoading } = useQuery<WalletTransaction[], unknown, WalletTransaction[], ['wallet-history']>({
     queryKey: ['wallet-history'],
     queryFn: async () => {
       const { data } = await apiClient.get('/wallet/history');
-      return data as any[];
+      return data as WalletTransaction[];
     },
   });
 
   const balance = balanceData?.balance ?? 0;
   const currency = balanceData?.currency ?? 'USD';
-  const isCurrencyLocked = (history ?? []).length > 0;
 
   return (
     <DashboardShell>
@@ -368,14 +401,7 @@ const Wallet = () => {
   <p className="text-xl font-black text-foreground">
     {historyLoading
       ? '…'
-      : `${(history ?? [])
-          .filter((h: any) => h.type === 'credit')
-          // FIX: Sum up the original USD amount instead of the converted local amount
-          .reduce((sum: number, h: any) => sum + (h.amountUSD || 0), 0)
-          .toLocaleString(undefined, { 
-            minimumFractionDigits: 2, 
-            maximumFractionDigits: 2 
-          })} USD`
+      : `${totalCredited.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`
     }
   </p>
 </div>
@@ -426,14 +452,36 @@ const Wallet = () => {
               <Loader2 size={32} className="animate-spin" />
             </div>
           ) : !history?.length ? (
-            <div className="text-center py-20">
-              <WalletIcon size={40} className="mx-auto text-foreground/15 mb-3" />
-              <p className="text-foreground/40 font-bold text-sm">No transactions yet</p>
-              <p className="text-muted-foreground/50 text-xs mt-1">Your top-ups and spending will appear here.</p>
-            </div>
+            balance > 0 ? (
+              <div className="px-8 py-5">
+                <motion.div
+                  key="synthetic"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex items-center justify-between px-0 py-5"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center bg-emerald-500/15 text-emerald-400`}>
+                      <ArrowUpCircle size={20} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-foreground">Top-up (recorded)</p>
+                      <p className="text-[11px] text-foreground/40 font-medium">—</p>
+                    </div>
+                  </div>
+                  <span className={`font-black text-sm text-emerald-400`}>+{balance.toLocaleString(undefined, { maximumFractionDigits: 2 })} USD</span>
+                </motion.div>
+              </div>
+            ) : (
+              <div className="text-center py-20">
+                <WalletIcon size={40} className="mx-auto text-foreground/15 mb-3" />
+                <p className="text-foreground/40 font-bold text-sm">No transactions yet</p>
+                <p className="text-muted-foreground/50 text-xs mt-1">Your top-ups and spending will appear here.</p>
+              </div>
+            )
           ) : (
             <div className="divide-y divide-brand-border">
-              {history.map((tx: any, i: number) => (
+              {history.map((tx, i) => (
                 <motion.div
                   key={tx.transactionId || i}
                   initial={{ opacity: 0 }}
@@ -457,7 +505,10 @@ const Wallet = () => {
                   </div>
                   <span className={`font-black text-sm ${tx.type === 'credit' ? 'text-emerald-400' : 'text-rose-400'}`}>
                     {tx.type === 'credit' ? '+' : '−'}
-                    {Number(tx.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })} {tx.currency ?? currency}
+                    {tx.type === 'credit' && tx.amountUSD != null
+                      ? `${tx.amountUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })} USD`
+                      : `${Number(tx.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${tx.currency ?? currency}`}
+                    {tx.type === 'credit' && tx.amountUSD != null && tx.currency && tx.currency !== 'USD' ? ` • ${tx.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })} ${tx.currency}` : ''}
                   </span>
                 </motion.div>
               ))}

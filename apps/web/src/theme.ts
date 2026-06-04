@@ -81,12 +81,15 @@ export const statusBadge = (status: string) => {
     case 'active':
     case 'in transit':
       return t.badgeGreen;
+    case 'contacted':
+      return t.badgeGreen;
     case 'pending':
     case 'new':
       return t.badgeAmber;
     case 'overdue':
     case 'rejected':
     case 'inactive':
+    case 'closed':
       return t.badgeRed;
     default:
       return t.badgeNavy;

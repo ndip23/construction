@@ -1,14 +1,15 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom'; // Added useLocation
 import { useAuthStore } from '../../store/useAuthStore';
+import { useCurrencyStore, SUPPORTED_CURRENCIES } from '../../store/useCurrencyStore';
 import { useOnboardingStore } from '../../store/useOnboardingStore';
 import apiClient from '../../api/client';
 import toast from 'react-hot-toast';
 import {
   Wallet, Building2, Wrench, CheckCircle2, ArrowRight, Loader2,
   Phone, Globe, MapPin, Briefcase, DollarSign, ImagePlus, Camera,
-  LayoutDashboard, Calculator, Store, FileText, Inbox, Lock, X, ExternalLink,
+  LayoutDashboard, Calculator, Store, FileText, Inbox, Lock, X,
 } from 'lucide-react';
 
 // ─── Tour steps ────────────────────────────────────────────────────
@@ -23,7 +24,7 @@ const TOUR = [
 
 // ─── Shared card shell ──────────────────────────────────────────────
 const Card = ({ children }: { children: React.ReactNode }) => (
-  <div className="bg-[#0a1628] rounded-[3rem] w-full max-w-2xl shadow-2xl overflow-hidden border border-white/5">
+  <div className="bg-card rounded-[3rem] w-full max-w-2xl shadow-2xl overflow-hidden border border-border">
     {children}
   </div>
 );
@@ -55,6 +56,20 @@ const CardHeader = ({
     </div>
   </div>
 );
+
+const COUNTRY_CURRENCY: Record<string, string> = {
+  CM: 'XAF', SN: 'XOF', CI: 'XOF', BJ: 'XOF', BF: 'XOF', ML: 'XOF',
+  NG: 'NGN', GH: 'GHS', KE: 'KES', ZA: 'ZAR', EG: 'EGP',
+  US: 'USD', GB: 'GBP',
+};
+
+const getCountryCodeFromLocale = (locale: string) => {
+  const match = locale.match(/[-_ ]([A-Za-z]{2})$/);
+  return match ? match[1].toUpperCase() : '';
+};
+
+const getCurrencyForCountryCode = (countryCode: string) =>
+  COUNTRY_CURRENCY[countryCode] || 'USD';
 
 // ─── Input helper ───────────────────────────────────────────────────
 const Field = ({
@@ -91,9 +106,9 @@ const WalletStep = ({ onDone }: { onDone: () => void }) => {
   const checkBalance = async () => {
     setChecking(true);
     try {
-      // Sync with your backend summary to see if balance updated
-      const { data } = await apiClient.get('/auth/company/summary');
-      if (data.balance > 0) {
+      // Check the actual wallet balance instead of dashboard profit summary
+      const { data } = await apiClient.get('/wallet/balance');
+      if ((data.balance ?? 0) > 0) {
         toast.success('Wallet funded! Continuing setup…');
         onDone();
       } else {
@@ -115,12 +130,12 @@ const WalletStep = ({ onDone }: { onDone: () => void }) => {
         sub="Top up your wallet to unlock all platform features."
       />
       <div className="p-10 space-y-6">
-        <div className="bg-white/5 rounded-3xl p-6 border border-white/5 space-y-3">
+          <div className="bg-card rounded-3xl p-6 border border-border space-y-3">
           {[
-            'Pay in USD — automatically converted to your local currency',
-            'Secured by Swychr payment gateway',
-            'Minimum deposit: $1 USD',
-            'Wallet balance visible on sidebar at all times',
+            'You top up in USD, while payment is charged in your local currency.',
+            'The wallet keeps your deposit amount in USD for consistent reporting.',
+            'Auto-detected country and currency for your current location.',
+            'Return here after funding and continue with the setup.',
           ].map((point) => (
             <div key={point} className="flex items-start gap-3">
               <CheckCircle2 size={15} className="text-primary shrink-0 mt-0.5" />
@@ -134,17 +149,17 @@ const WalletStep = ({ onDone }: { onDone: () => void }) => {
           onClick={handleGoTopUp}
           className="w-full py-4 bg-primary text-brand-navy rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all shadow-yellow"
         >
-          <ExternalLink size={18} /> Open Wallet & Top Up
+          <Wallet size={18} /> Go to Wallet
         </button>
 
         <button
           type="button"
           onClick={checkBalance}
           disabled={checking}
-          className="w-full py-3.5 bg-white/5 text-foreground/70 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 border border-white/5 hover:bg-white/10 transition-all"
+          className="w-full py-3.5 bg-white/5 text-foreground/70 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 border border-border hover:bg-white/10 transition-all"
         >
           {checking ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
-          I already topped up — verify & continue
+          I already topped up — verify balance
         </button>
       </div>
     </Card>
@@ -273,7 +288,7 @@ const ServiceStep = ({ onDone }: { onDone: () => void }) => {
           <Field label="Service Name *" icon={Wrench}    placeholder="e.g. Foundation Works" value={form.name}     onChange={f('name')} />
           <div>
             <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 mb-1 block">Category *</label>
-            <select value={form.category} onChange={(e: any) => f('category')(e.target.value)}
+            <select value={form.category} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => f('category')(e.target.value)}
               className="w-full px-4 py-3.5 bg-white/5 rounded-2xl outline-none focus:ring-2 focus:ring-primary/30 text-sm font-medium text-foreground border border-white/5 appearance-none">
               <option value="" className="bg-[#0a1628]">Select category…</option>
               {CATEGORIES.map((c) => <option key={c} value={c} className="bg-[#0a1628]">{c}</option>)}
@@ -281,7 +296,7 @@ const ServiceStep = ({ onDone }: { onDone: () => void }) => {
           </div>
           <div className="sm:col-span-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 mb-1 block">Description</label>
-            <textarea value={form.description} onChange={(e: any) => f('description')(e.target.value)} placeholder="Describe what this service includes…"
+            <textarea value={form.description} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => f('description')(e.target.value)} placeholder="Describe what this service includes…"
               className="w-full px-4 py-3.5 bg-white/5 rounded-2xl outline-none focus:ring-2 focus:ring-primary/30 text-sm font-medium text-foreground placeholder-white/25 border border-white/5 h-20 resize-none" />
           </div>
           <Field label="Price From" icon={DollarSign} placeholder="e.g. 50000" value={form.priceFrom} onChange={f('priceFrom')} type="number" />
@@ -357,12 +372,59 @@ const TourStep = ({ onDone }: { onDone: () => void }) => {
 export const OnboardingGate = ({ children }: { children: React.ReactNode }) => {
   const { user, isAuthenticated } = useAuthStore();
   const { getStep, advance, markDone, isDone } = useOnboardingStore();
+  const { setCurrency } = useCurrencyStore();
+  const localeSynced = useRef(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const step = getStep(user?.id ?? '');
+  const done = isDone(user?.id ?? '');
+
+  useEffect(() => {
+    if (!user?.id || step !== 'wallet' || localeSynced.current) return;
+
+    const locale = navigator.language || navigator.languages?.[0] || '';
+    const countryCode = getCountryCodeFromLocale(locale);
+    const currencyCode = getCurrencyForCountryCode(countryCode);
+    const matchedCurrency = SUPPORTED_CURRENCIES.find((c) => c.code === currencyCode);
+
+    if (matchedCurrency) {
+      setCurrency(matchedCurrency);
+    }
+
+    if (countryCode && currencyCode) {
+      apiClient.put('/auth/company/profile', {
+        countryCode,
+        currency: currencyCode,
+      }).catch(() => {
+        // silent fallback if backend update fails
+      });
+    }
+
+    localeSynced.current = true;
+  }, [user?.id, step, setCurrency]);
+
+  useEffect(() => {
+    if (!user?.id || done) return;
+
+    if (step === 'wallet' && !location.pathname.includes('/dashboard/wallet')) {
+      navigate('/dashboard/wallet', { replace: true });
+    }
+
+    if (step === 'profile' && location.pathname !== '/dashboard/settings/business') {
+      navigate('/dashboard/settings/business', { replace: true });
+    }
+
+    if (step === 'service' && !location.pathname.includes('/dashboard/services')) {
+      navigate('/dashboard/services', { replace: true });
+    }
+
+    if (step === 'tour' && location.pathname !== '/dashboard') {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [done, step, location.pathname, navigate, user?.id]);
 
   if (!isAuthenticated || !user?.id) return <>{children}</>;
-
-  const step = getStep(user.id);
-  const done = isDone(user.id);
 
   // Identify if we are currently on the wallet page
   const isCurrentlyOnWallet = location.pathname.includes('/wallet');
@@ -380,7 +442,7 @@ export const OnboardingGate = ({ children }: { children: React.ReactNode }) => {
         {children}
       </div>
 
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/70 backdrop-blur-md">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#040d17]/95 backdrop-blur-md">
         {/* lock badge top-right */}
         <div className="absolute top-6 right-6 flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-xs font-black text-muted-foreground uppercase tracking-widest">
             <Lock size={12} className="text-primary" />

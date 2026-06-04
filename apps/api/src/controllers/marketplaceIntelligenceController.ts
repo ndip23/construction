@@ -7,7 +7,7 @@ import { analyzeSupplierData, analyzeGlobalMarketplaceData } from '../services/a
 // @desc    Get AI Intelligence metrics for Supplier
 // @route   GET /api/marketplace/intelligence/supplier
 // @access  Protected (Supplier)
-export const getSupplierIntelligence = async (req: Request, res: Response) => {
+export const getSupplierIntelligence = async (req: any, res: Response) => {
   try {
     const supplierId = req.user?.companyId;
 
