@@ -100,7 +100,7 @@ export const DashboardShell = ({
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { getStep, advance } = useOnboardingStore();
+  const { getStep } = useOnboardingStore();
   const userId = user?.id || (user as any)?._id;
   const currentStep = userId ? getStep(userId) : 'done';
 
