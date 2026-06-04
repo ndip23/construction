@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { DashboardShell } from '../../components/layout/DashboardShell';
 import apiClient from '../../api/client';
 import { t } from '../../theme';
+import { exportToCSV } from '../../utils/exporters';
 import {
   Loader2,
   Inbox,
@@ -13,6 +14,7 @@ import {
   Wallet,
   UserCog,
   Activity,
+  Download,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -93,18 +95,44 @@ const SuperAdminAudit = () => {
     },
   });
 
+  const handleExport = () => {
+    const rows = (entries ?? []).map((e) => ({
+      time: e.createdAt ? new Date(e.createdAt).toLocaleString() : '',
+      actor: e.actor?.name || e.actorName || 'System',
+      action: friendly(e.action),
+      target: e.targetLabel || '',
+      ip: e.ip || '',
+    }));
+    exportToCSV(`buildhub-audit-${Date.now()}`, rows, [
+      { key: 'time', label: 'Time' },
+      { key: 'actor', label: 'Actor' },
+      { key: 'action', label: 'Action' },
+      { key: 'target', label: 'Target' },
+      { key: 'ip', label: 'IP' },
+    ]);
+  };
+
   return (
     <DashboardShell>
       <div className="max-w-[1100px] mx-auto pb-20">
         {/* HEADER */}
-        <header className="mb-8">
-          <div className="flex items-center gap-4 mb-2">
-            <div className={t.iconBoxNavy}>
-              <ScrollText size={20} />
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+          <div>
+            <div className="flex items-center gap-4 mb-2">
+              <div className={t.iconBoxNavy}>
+                <ScrollText size={20} />
+              </div>
+              <h1 className={t.h2}>Audit Log</h1>
             </div>
-            <h1 className={t.h2}>Audit Log</h1>
+            <p className={t.muted}>Reverse-chronological trail of platform administration.</p>
           </div>
-          <p className={t.muted}>Reverse-chronological trail of platform administration.</p>
+          <button
+            onClick={handleExport}
+            className={`${t.btnSecondary} flex items-center gap-2 self-start md:self-auto`}
+          >
+            <Download size={15} />
+            Export CSV
+          </button>
         </header>
 
         {/* ACTION FILTER */}

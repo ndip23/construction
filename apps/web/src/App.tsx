@@ -52,6 +52,8 @@ import SuperAdminCompanies from './pages/superadmin/SuperAdminCompanies';
 import SuperAdminUsers from './pages/superadmin/SuperAdminUsers';
 import SuperAdminFinance from './pages/superadmin/SuperAdminFinance';
 import SuperAdminAudit from './pages/superadmin/SuperAdminAudit';
+import SuperAdminCompanyDetail from './pages/superadmin/SuperAdminCompanyDetail';
+import SuperAdminLogins from './pages/superadmin/SuperAdminLogins';
 
 // --- SHARED DETAIL PAGES ---
 import ProjectDetail from './pages/ProjectDetail';
@@ -182,7 +184,9 @@ function App() {
           {/* ── SUPERADMIN ROUTES (platform owner) ── */}
           <Route path="/superadmin" element={<ProtectedRoute allowedRoles={['superadmin']}><SuperAdminOverview /></ProtectedRoute>} />
           <Route path="/superadmin/companies" element={<ProtectedRoute allowedRoles={['superadmin']}><SuperAdminCompanies /></ProtectedRoute>} />
+          <Route path="/superadmin/companies/:id" element={<ProtectedRoute allowedRoles={['superadmin']}><SuperAdminCompanyDetail /></ProtectedRoute>} />
           <Route path="/superadmin/users" element={<ProtectedRoute allowedRoles={['superadmin']}><SuperAdminUsers /></ProtectedRoute>} />
+          <Route path="/superadmin/logins" element={<ProtectedRoute allowedRoles={['superadmin']}><SuperAdminLogins /></ProtectedRoute>} />
           <Route path="/superadmin/finance" element={<ProtectedRoute allowedRoles={['superadmin']}><SuperAdminFinance /></ProtectedRoute>} />
           <Route path="/superadmin/audit" element={<ProtectedRoute allowedRoles={['superadmin']}><SuperAdminAudit /></ProtectedRoute>} />
 

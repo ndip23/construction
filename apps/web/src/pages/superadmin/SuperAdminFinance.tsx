@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { DashboardShell } from '../../components/layout/DashboardShell';
 import apiClient from '../../api/client';
 import { t, statusBadge } from '../../theme';
+import { exportToCSV } from '../../utils/exporters';
 import {
   Loader2,
   Inbox,
@@ -9,6 +10,7 @@ import {
   Clock,
   AlertTriangle,
   Receipt,
+  Download,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -42,6 +44,23 @@ const SuperAdminFinance = () => {
     queryFn: async () => (await apiClient.get('/superadmin/finance')).data,
   });
 
+  const handleExport = () => {
+    const rows = (data?.recent ?? []).map((inv) => ({
+      invoiceNumber: inv.invoiceNumber,
+      company: inv.company?.name || '',
+      totalAmount: inv.totalAmount ?? 0,
+      status: inv.status,
+      date: inv.createdAt ? new Date(inv.createdAt).toLocaleDateString() : '',
+    }));
+    exportToCSV(`buildhub-invoices-${Date.now()}`, rows, [
+      { key: 'invoiceNumber', label: 'Invoice Number' },
+      { key: 'company', label: 'Company' },
+      { key: 'totalAmount', label: 'Total Amount' },
+      { key: 'status', label: 'Status' },
+      { key: 'date', label: 'Date' },
+    ]);
+  };
+
   const cards = [
     {
       key: 'Paid' as const,
@@ -67,14 +86,23 @@ const SuperAdminFinance = () => {
     <DashboardShell>
       <div className="max-w-[1600px] mx-auto pb-20">
         {/* HEADER */}
-        <header className="mb-8">
-          <div className="flex items-center gap-4 mb-2">
-            <div className={t.iconBoxNavy}>
-              <Receipt size={20} />
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+          <div>
+            <div className="flex items-center gap-4 mb-2">
+              <div className={t.iconBoxNavy}>
+                <Receipt size={20} />
+              </div>
+              <h1 className={t.h2}>Finance</h1>
             </div>
-            <h1 className={t.h2}>Finance</h1>
+            <p className={t.muted}>Platform-wide invoice totals (raw figures, no FX conversion).</p>
           </div>
-          <p className={t.muted}>Platform-wide invoice totals (raw figures, no FX conversion).</p>
+          <button
+            onClick={handleExport}
+            className={`${t.btnSecondary} flex items-center gap-2 self-start md:self-auto`}
+          >
+            <Download size={15} />
+            Export CSV
+          </button>
         </header>
 
         {/* SUMMARY CARDS */}

@@ -3,7 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell } from '../../components/layout/DashboardShell';
 import apiClient from '../../api/client';
 import { t } from '../../theme';
-import { Search, Loader2, Inbox, Crown, Lock } from 'lucide-react';
+import { exportToCSV } from '../../utils/exporters';
+import { Search, Loader2, Inbox, Crown, Lock, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Role = 'superadmin' | 'admin' | 'owner' | 'staff';
@@ -56,6 +57,19 @@ const SuperAdminUsers = () => {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['sa-users'] }); },
   });
 
+  const handleExport = () => {
+    exportToCSV(
+      `buildhub-users-${Date.now()}`,
+      users ?? [],
+      [
+        { key: 'name', label: 'Name' },
+        { key: 'email', label: 'Email' },
+        { key: 'role', label: 'Role' },
+        { key: 'company.name', label: 'Company' },
+      ]
+    );
+  };
+
   return (
     <DashboardShell>
       <div className="max-w-[1600px] mx-auto pb-20">
@@ -67,15 +81,24 @@ const SuperAdminUsers = () => {
               {users?.length ?? 0} identities across the platform.
             </p>
           </div>
-          <div className="w-full md:w-80 bg-card border border-border rounded-2xl px-4 py-2.5 flex items-center gap-3 focus-within:ring-2 ring-primary/20 transition-all shadow-sm">
-            <Search size={18} className="text-muted-foreground" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search name or email..."
-              className="bg-transparent border-none outline-none text-xs w-full font-medium"
-            />
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="flex-1 md:w-80 bg-card border border-border rounded-2xl px-4 py-2.5 flex items-center gap-3 focus-within:ring-2 ring-primary/20 transition-all shadow-sm">
+              <Search size={18} className="text-muted-foreground" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search name or email..."
+                className="bg-transparent border-none outline-none text-xs w-full font-medium"
+              />
+            </div>
+            <button
+              onClick={handleExport}
+              className={`${t.btnSecondary} flex items-center gap-2 shrink-0`}
+            >
+              <Download size={15} />
+              <span className="hidden sm:inline">Export CSV</span>
+            </button>
           </div>
         </header>
 

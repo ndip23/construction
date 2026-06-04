@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { DashboardShell } from '../../components/layout/DashboardShell';
 import apiClient from '../../api/client';
 import { t, statusBadge } from '../../theme';
+import { exportToCSV } from '../../utils/exporters';
 import toast from 'react-hot-toast';
 import {
   Search,
@@ -11,6 +13,8 @@ import {
   Ban,
   RotateCcw,
   Wallet,
+  Download,
+  Eye,
   X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -105,6 +109,24 @@ const SuperAdminCompanies = () => {
     suspendMutation.mutate({ id: c._id, suspend: true, reason: reason.trim() });
   };
 
+  const handleExport = () => {
+    exportToCSV(
+      `buildhub-companies-${Date.now()}`,
+      companies ?? [],
+      [
+        { key: 'name', label: 'Name' },
+        { key: 'city', label: 'City' },
+        { key: 'country', label: 'Country' },
+        { key: 'status', label: 'Status' },
+        { key: 'plan', label: 'Plan' },
+        { key: 'walletBalance', label: 'Wallet Balance' },
+        { key: 'currency', label: 'Currency' },
+        { key: 'owner.name', label: 'Owner Name' },
+        { key: 'owner.email', label: 'Owner Email' },
+      ]
+    );
+  };
+
   return (
     <DashboardShell>
       <div className="max-w-[1600px] mx-auto pb-20">
@@ -116,15 +138,24 @@ const SuperAdminCompanies = () => {
               Manage {companies?.length ?? 0} tenants — verification, plans & wallets.
             </p>
           </div>
-          <div className="w-full md:w-80 bg-card border border-border rounded-2xl px-4 py-2.5 flex items-center gap-3 focus-within:ring-2 ring-primary/20 transition-all shadow-sm">
-            <Search size={18} className="text-muted-foreground" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search company or owner..."
-              className="bg-transparent border-none outline-none text-xs w-full font-medium"
-            />
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="flex-1 md:w-80 bg-card border border-border rounded-2xl px-4 py-2.5 flex items-center gap-3 focus-within:ring-2 ring-primary/20 transition-all shadow-sm">
+              <Search size={18} className="text-muted-foreground" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search company or owner..."
+                className="bg-transparent border-none outline-none text-xs w-full font-medium"
+              />
+            </div>
+            <button
+              onClick={handleExport}
+              className={`${t.btnSecondary} flex items-center gap-2 shrink-0`}
+            >
+              <Download size={15} />
+              <span className="hidden sm:inline">Export CSV</span>
+            </button>
           </div>
         </header>
 
@@ -243,6 +274,13 @@ const SuperAdminCompanies = () => {
                         </td>
                         <td className="px-6 py-5">
                           <div className="flex justify-end gap-2">
+                            <Link
+                              to={`/superadmin/companies/${c._id}`}
+                              title="View details"
+                              className="p-2.5 text-muted-foreground hover:text-primary hover:bg-primary-pale rounded-xl transition-all border border-transparent hover:border-border"
+                            >
+                              <Eye size={18} />
+                            </Link>
                             <button
                               onClick={() => setWalletTarget(c)}
                               title="Adjust wallet"

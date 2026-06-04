@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Building2, Briefcase, Store,
   ClipboardList, FileText, Calculator, Landmark,
   Users, Sparkles, Files, Settings, Crown, HardHat, ShieldCheck, BarChart3, LogOut,
-  Inbox, Wrench, Lock, Wallet, Radar, Receipt, Clock, CalendarClock, Banknote, ListChecks
+  Inbox, Wrench, Lock, Wallet, Radar, Receipt, Clock, CalendarClock, Banknote, ListChecks, KeyRound
 } from 'lucide-react';
 
 interface NavItemProps {
@@ -115,6 +115,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={Building2} label="Companies" path="/superadmin/companies" onNavigate={onNavigate} />
             <NavItem icon={Users} label="Users" path="/superadmin/users" onNavigate={onNavigate} />
             <NavItem icon={Landmark} label="Finance" path="/superadmin/finance" onNavigate={onNavigate} />
+            <NavItem icon={KeyRound} label="Login Monitor" path="/superadmin/logins" onNavigate={onNavigate} />
             <NavItem icon={ShieldCheck} label="Audit Log" path="/superadmin/audit" onNavigate={onNavigate} />
             <div className="my-2 border-t border-border/5" />
             <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest px-4 mb-2">Moderation</p>

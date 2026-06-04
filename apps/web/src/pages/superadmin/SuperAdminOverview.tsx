@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { DashboardShell } from '../../components/layout/DashboardShell';
 import apiClient from '../../api/client';
 import { t } from '../../theme';
+import { exportTableToPDF } from '../../utils/exporters';
 import {
   Building2,
   Users,
@@ -17,6 +18,8 @@ import {
   ShieldCheck,
   Receipt,
   ScrollText,
+  KeyRound,
+  FileText,
   ChevronRight,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -125,12 +128,41 @@ const SuperAdminOverview = () => {
       i: Receipt,
     },
     {
+      to: '/superadmin/logins',
+      label: 'Logins',
+      desc: 'Authentication activity',
+      i: KeyRound,
+    },
+    {
       to: '/superadmin/audit',
       label: 'Audit Log',
       desc: 'Platform activity trail',
       i: ScrollText,
     },
   ];
+
+  const handleDownloadReport = () => {
+    if (!data) return;
+    const body: (string | number)[][] = [
+      ['Companies (total)', data.companies.total],
+      ['Companies (verified)', data.companies.verified],
+      ['Companies (pending)', data.companies.pending],
+      ['Companies (suspended)', data.companies.suspended],
+      ['Users', data.users],
+      ['Workers', data.workers],
+      ['Open tenders', data.openTenders],
+      ['Projects', data.projects],
+      ['Marketplace GMV', data.marketplaceGMV.toLocaleString()],
+      ['Wallet float', data.walletFloat.toLocaleString()],
+    ];
+    exportTableToPDF({
+      title: 'BuildHub — Platform Report',
+      subtitle: 'Superadmin Console • Global Snapshot',
+      head: ['Metric', 'Value'],
+      body,
+      filename: `buildhub-platform-report-${Date.now()}.pdf`,
+    });
+  };
 
   return (
     <DashboardShell>
@@ -146,11 +178,21 @@ const SuperAdminOverview = () => {
             </div>
             <p className={t.muted}>BuildHub Superadmin Console • Global Overview</p>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-emerald-400">
-            <Activity size={14} className={isLoading ? 'animate-pulse' : ''} />
-            <span className="text-[10px] font-black uppercase tracking-widest">
-              {isLoading ? 'Synchronizing...' : data?.systemHealth || 'Nominal'}
-            </span>
+          <div className="flex items-center gap-3 flex-wrap">
+            <button
+              onClick={handleDownloadReport}
+              disabled={!data}
+              className={`${t.btnSecondary} flex items-center gap-2 disabled:opacity-50`}
+            >
+              <FileText size={15} />
+              Download PDF report
+            </button>
+            <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-emerald-400">
+              <Activity size={14} className={isLoading ? 'animate-pulse' : ''} />
+              <span className="text-[10px] font-black uppercase tracking-widest">
+                {isLoading ? 'Synchronizing...' : data?.systemHealth || 'Nominal'}
+              </span>
+            </div>
           </div>
         </header>
 
@@ -206,7 +248,7 @@ const SuperAdminOverview = () => {
             <h2 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">
               Quick Actions
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
               {quickLinks.map((q) => (
                 <Link
                   key={q.to}
