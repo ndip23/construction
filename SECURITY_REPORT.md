@@ -19,8 +19,8 @@ Severity legend: 🔴 Critical · 🟠 High · 🟡 Medium · ⚪ Low
 | H4 | 🟠 | **Forged attendance** — clock-in/out trusted any `workerId` without checking company ownership. | ✅ Fixed |
 | M1 | 🟡 | **JWT secret not fail-closed** — server would boot with a missing/weak `JWT_SECRET`. | ✅ Fixed (boot assertion) |
 | M2 | 🟡 | **Wallet webhook** accepts unsigned events when `NODE_ENV` ≠ `production`. | ⚠️ Deploy config — ensure `NODE_ENV=production` |
-| M3 | 🟡 | **Unescaped HTML in receipt emails** — client-supplied fields interpolated into email HTML. | ⏳ Recommended next |
-| M4 | 🟡 | **Public inquiry endpoint** is spammable (no captcha/throttle). | ⏳ Recommended next |
+| M3 | 🟡 | **Unescaped HTML in receipt emails** — client-supplied fields interpolated into email HTML. | ✅ Fixed (escape + image-URL validation) |
+| M4 | 🟡 | **Public inquiry endpoint** is spammable (no throttle). | ✅ Fixed (rate-limited 30/hr/IP — no captcha needed) |
 
 ### What was fixed (commit `9e53435`)
 - Registration can now **only** create a tenant `owner` — `role` is never read from the request body.
@@ -33,10 +33,12 @@ Severity legend: 🔴 Critical · 🟠 High · 🟡 Medium · ⚪ Low
 ### Verified clean (no action needed)
 Passwords + worker PIN are bcrypt-hashed (cost 12, `select:false`); most controllers already scope by `companyId`; no hardcoded secrets; `.env` is gitignored; no SQL/NoSQL injection sinks; no `eval` / `dangerouslySetInnerHTML`.
 
+### Also fixed (second pass)
+- **Receipt emails** now HTML-escape every client-supplied field and only allow `http(s)` image URLs (M3).
+- **Public writes** (directory inquiry, marketplace track, public tender) are rate-limited to 30/hr per IP — spam mitigation without a paid captcha (M4).
+
 ### Still recommended (not yet done)
-- Escape user-supplied fields in receipt emails (M3).
-- Add a captcha/throttle to public inquiry + tender-post endpoints (M4).
-- Confirm `NODE_ENV=production` on the deployed API (M2).
+- Confirm `NODE_ENV=production` on the deployed API (M2 — wallet webhook signature).
 - Worker tokens last 30 days with no revocation — consider shortening + a token version for logout-all.
 
 ---
@@ -67,9 +69,11 @@ A dedicated **`superadmin`** role sits above the existing `admin`. It is **seed-
 | **Companies** | `/superadmin/companies` | Search/filter all companies; **suspend/reinstate** (with reason), change **plan**, manually **adjust wallet** (credit/debit) |
 | **Users** | `/superadmin/users` | List all users across companies; **change role** (admin/owner/staff) — superadmins are locked |
 | **Finance** | `/superadmin/finance` | Paid/Pending/Overdue invoice totals + recent invoices platform-wide |
+| **Company Detail** | `/superadmin/companies/:id` | Drill into a tenant — owner, wallet, invoice summary, team (users), workers, projects, wallet history |
+| **Login Monitor** | `/superadmin/logins` | Every login attempt (manager + worker), success/failure, IP, reason, 24h fail/total stats |
 | **Audit Log** | `/superadmin/audit` | Immutable trail of every privileged action (who, what, target, before→after, reason, time, IP) |
 
-Every privileged write (suspend, plan change, wallet adjustment, role change) is recorded to the audit log automatically.
+Every privileged write (suspend, plan change, wallet adjustment, role change) is recorded to the audit log automatically. Every list/report page supports **CSV export**, and the Overview exports a branded **PDF platform report**.
 
 ### Verified end-to-end
 Login → all 5 endpoints `200`; owner token blocked with `403`; suspend wrote a correct audit entry and reinstated cleanly; registering with `role:admin` now yields `owner`. (Test accounts were created against the live DB and then deleted.)
