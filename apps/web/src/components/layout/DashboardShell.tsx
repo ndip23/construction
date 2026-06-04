@@ -66,8 +66,8 @@ const OnboardingProgress = ({ currentStep }: { currentStep: string }) => {
                   <div className={`absolute top-3 right-1/2 w-full h-[2px] -z-10 transition-colors duration-500 ${idx <= currentIndex ? 'bg-primary' : 'bg-border'}`} />
                 )}
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black transition-colors duration-500 z-10 ${
-                  idx < currentIndex ? 'bg-primary text-brand-navy' : 
-                  idx === currentIndex ? 'bg-background border-2 border-primary text-primary' : 
+                  idx < currentIndex ? 'bg-primary text-brand-navy' :
+                  idx === currentIndex ? 'bg-background border-2 border-primary text-primary' :
                   'bg-muted text-muted-foreground border border-border'
                 }`}>
                   {idx < currentIndex ? <CheckCircle2 size={12} /> : idx + 1}
@@ -101,12 +101,13 @@ export const DashboardShell = ({
   const location = useLocation();
   const navigate = useNavigate();
   const { getStep } = useOnboardingStore();
-  const currentStep = user?.id ? getStep(user.id) : 'done';
-  
+  const userId = user?.id || (user as any)?._id;
+  const currentStep = userId ? getStep(userId) : 'done';
+
   // FORCE ONBOARDING REDIRECT
   useEffect(() => {
     if (user?.role !== 'owner' || currentStep === 'done') return;
-    
+
     const stepPaths: Record<string, string> = {
       wallet: '/dashboard/wallet',
       profile: '/dashboard/settings/business',
@@ -119,7 +120,7 @@ export const DashboardShell = ({
     if (expectedPath && location.pathname !== expectedPath && !location.pathname.includes('/admin')) {
       navigate(expectedPath, { replace: true });
     }
-  }, [user, location.pathname, navigate, getStep]);
+  }, [user, location.pathname, navigate, getStep, currentStep]);
 
   // FETCH DASHBOARD SUMMARY
   const {

@@ -200,6 +200,8 @@
   dependencies:
     undici-types ">=7.24.0 <7.24.7"
 
+<<<<<<< HEAD
+=======
 "@types/nodemailer@^8.0.0":
   version "8.0.0"
   resolved "https://registry.npmjs.org/@types/nodemailer/-/nodemailer-8.0.0.tgz"
@@ -207,6 +209,7 @@
   dependencies:
     "@types/node" "*"
 
+>>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
 "@types/qs@*":
   version "6.15.1"
   resolved "https://registry.npmjs.org/@types/qs/-/qs-6.15.1.tgz"

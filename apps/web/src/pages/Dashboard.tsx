@@ -11,7 +11,7 @@ import { t } from '../theme';
 import {
   Briefcase, Wrench, ClipboardList, FileText,
   BarChart, Sparkles, MapPin, Store, Building2, Calculator, ArrowRight,
-  Wallet, FolderKanban, CheckCircle2, TrendingUp, Plus, Receipt
+  Wallet, FolderKanban, CheckCircle2, TrendingUp, Plus, Receipt, MessageSquare, Inbox
 } from 'lucide-react';
 
 interface Overview {
@@ -167,53 +167,13 @@ const Dashboard = () => {
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
 
           <DashboardCard
-            icon={Briefcase}
-            title="Project Pulse"
-            desc="Monitor ongoing site operations, track progress, and manage daily field reports."
-            path="/dashboard/projects"
+            icon={Building2}
+            title="Business"
+            desc="Manage your company profile and operations."
+            path="/dashboard/settings/business"
             delay={0.05}
             isPrimary={true}
             className="sm:col-span-2 lg:col-span-2 xl:col-span-2"
-          />
-
-          <DashboardCard
-            icon={Building2}
-            title="Inquiries"
-            desc="Manage directory leads and client messages."
-            path="/dashboard/inquiries"
-            delay={0.1}
-          />
-
-          <DashboardCard
-            icon={Store}
-            title="Marketplace"
-            desc="Buy & sell heavy equipment and materials."
-            path="/dashboard/marketplace"
-            delay={0.15}
-          />
-
-          <DashboardCard
-            icon={ClipboardList}
-            title="Tenders"
-            desc="Browse open tenders and submit bids."
-            path="/dashboard/tenders"
-            delay={0.2}
-          />
-
-          <DashboardCard
-            icon={FileText}
-            title="Invoices"
-            desc="Create, send, and track financial invoices instantly."
-            path="/dashboard/invoices"
-            delay={0.25}
-          />
-
-          <DashboardCard
-            icon={Receipt}
-            title="Smart Receipts"
-            desc="Generate, track, and download professional smart receipts."
-            path="/dashboard/receipts"
-            delay={0.27}
           />
 
           <DashboardCard
@@ -221,7 +181,15 @@ const Dashboard = () => {
             title="BOQ Tool"
             desc="Generate professional Bills of Quantities."
             path="/dashboard/boq"
-            delay={0.3}
+            delay={0.1}
+          />
+
+          <DashboardCard
+            icon={ClipboardList}
+            title="Tenders"
+            desc="Browse open tenders and submit bids."
+            path="/dashboard/tenders"
+            delay={0.15}
           />
 
           <DashboardCard
@@ -229,9 +197,49 @@ const Dashboard = () => {
             title="AI Hub"
             desc="Leverage AI for engineering insights and safety."
             path="/dashboard/ai"
-            delay={0.35}
+            delay={0.2}
             isPrimary={true}
             className="sm:col-span-2 lg:col-span-2"
+          />
+
+          <DashboardCard
+            icon={Receipt}
+            title="Smart Receipts"
+            desc="Generate, track, and download professional smart receipts."
+            path="/dashboard/receipts"
+            delay={0.25}
+          />
+
+          <DashboardCard
+            icon={MessageSquare}
+            title="Community"
+            desc="Connect and share with construction professionals."
+            path="/dashboard/community"
+            delay={0.3}
+          />
+
+          <DashboardCard
+            icon={Briefcase}
+            title="Project Pulse"
+            desc="Monitor ongoing site operations, track progress, and manage daily field reports."
+            path="/dashboard/projects"
+            delay={0.35}
+          />
+
+          <DashboardCard
+            icon={Store}
+            title="Marketplace"
+            desc="Buy & sell heavy equipment and materials."
+            path="/dashboard/marketplace"
+            delay={0.4}
+          />
+
+          <DashboardCard
+            icon={FileText}
+            title="Invoices"
+            desc="Create, send, and track financial invoices instantly."
+            path="/dashboard/invoices"
+            delay={0.45}
           />
 
           <DashboardCard
@@ -239,7 +247,7 @@ const Dashboard = () => {
             title="Analytics"
             desc="Live BOQ value, verification, budgets, and AI adoption."
             path="/dashboard/analytics"
-            delay={0.4}
+            delay={0.5}
           />
 
           <DashboardCard
@@ -247,7 +255,15 @@ const Dashboard = () => {
             title="Services"
             desc="Configure your service offerings and public profile."
             path="/dashboard/services"
-            delay={0.45}
+            delay={0.55}
+          />
+
+          <DashboardCard
+            icon={Inbox}
+            title="Inquiries"
+            desc="Manage directory leads and client messages."
+            path="/dashboard/inquiries"
+            delay={0.6}
           />
 
         </div>

@@ -19,6 +19,7 @@ export interface ICompany extends Document {
   suspendedReason?: string;
   owner: mongoose.Types.ObjectId;
   plan: 'basic' | 'pro' | 'enterprise';
+
   receiptSettings?: {
     letterhead?: string;
     whatsappNumber?: string;
@@ -29,6 +30,9 @@ export interface ICompany extends Document {
     defaultPaymentTerms?: string;
     format?: 'standard' | 'modern' | 'minimal';
   };
+  currency?: string;
+  countryCode?: string;
+
   walletBalance?: number;
   walletHistory?: Array<{
     type: 'credit' | 'debit';
@@ -82,7 +86,7 @@ const CompanySchema = new Schema({
     type: { type: String, enum: ['credit', 'debit'], default: 'credit' },
     amount: Number,
     amountUSD: Number,
-    currency: String, 
+    currency: String,
     note: String,
     transactionId: String,
     date: { type: Date, default: Date.now },

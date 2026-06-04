@@ -23,7 +23,7 @@ export const updateInquiryStatus = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    
+
     const inquiry = await Inquiry.findOneAndUpdate(
       { _id: id, companyId: req.user.companyId },
       { status },
@@ -46,13 +46,13 @@ export const updateInquiryStatus = async (req: any, res: Response) => {
 export const getInquiryStats = async (req: any, res: Response) => {
   try {
     const activities = await DirectoryActivity.find({ companyId: req.user.companyId });
-    
+
     let impressions = 0;
     let clicks = 0;
 
     activities.forEach(activity => {
       if (activity.action === 'impression') impressions++;
-      if (activity.action === 'whatsapp_click') clicks++;
+      if (activity.action === 'whatsapp_click' || activity.action === 'click') clicks++;
     });
 
     const ctaRate = impressions > 0 ? ((clicks / impressions) * 100).toFixed(1) : "0.0";
@@ -88,7 +88,7 @@ export const submitInquiry = async (req: Request, res: Response) => {
     });
 
     await inquiry.save();
-    
+
     res.status(201).json({ success: true, message: "Inquiry sent successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error submitting inquiry" });
@@ -105,12 +105,12 @@ export const getAiInsights = async (req: any, res: Response) => {
 
     const inquiries = await Inquiry.find({ companyId: req.user.companyId }).limit(20).sort({ createdAt: -1 });
     const activities = await DirectoryActivity.find({ companyId: req.user.companyId });
-    
+
     let impressions = 0;
     let clicks = 0;
     activities.forEach(a => {
       if (a.action === 'impression') impressions++;
-      if (a.action === 'whatsapp_click') clicks++;
+      if (a.action === 'whatsapp_click' || a.action === 'click') clicks++;
     });
 
     const inquiryData = inquiries.map(i => ({
@@ -159,4 +159,3 @@ Return ONLY valid JSON without any markdown formatting blocks like \`\`\`json.
     res.status(500).json({ message: "Error generating AI insights" });
   }
 };
-

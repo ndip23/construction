@@ -61,7 +61,7 @@ const DirectoryLeads = () => {
                 <p className="text-xs text-muted-foreground font-medium">Auto-generated strategic insights based on your recent directory traffic.</p>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border">
               <div className="p-8 hover:bg-muted/10 transition-colors">
                 <div className="flex items-center gap-2 mb-3">
@@ -70,7 +70,7 @@ const DirectoryLeads = () => {
                 </div>
                 <p className="text-foreground font-medium leading-relaxed text-sm">{insights.ctaPerformance?.insight}</p>
               </div>
-              
+
               <div className="p-8 hover:bg-muted/10 transition-colors">
                 <div className="flex items-center gap-2 mb-3">
                   <Eye size={16} className="text-primary" />
@@ -102,7 +102,7 @@ const DirectoryLeads = () => {
                 <Eye size={24} />
               </div>
             </div>
-            
+
             <div className="bg-card border border-border p-6 rounded-[2.5rem] flex items-center justify-between shadow-sm">
               <div>
                 <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest mb-1">WhatsApp Clicks</p>
@@ -112,7 +112,7 @@ const DirectoryLeads = () => {
                 <MousePointerClick size={24} />
               </div>
             </div>
-            
+
             <div className="bg-card border border-border p-6 rounded-[2.5rem] flex items-center justify-between shadow-sm">
               <div>
                 <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest mb-1">CTA Conversion</p>

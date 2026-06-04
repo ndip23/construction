@@ -29,8 +29,8 @@ export const register = async (req: Request, res: Response) => {
     const user = new User({ name, email, password: hashedPassword, role: 'owner' });
     await user.save();
 
-    const company = new Company({ 
-      name: companyName, city, country, owner: user._id, status: 'pending' 
+    const company = new Company({
+      name: companyName, city, country, owner: user._id, status: 'pending'
     });
     await company.save(); // Model middleware handles slug generation
 
@@ -42,10 +42,10 @@ export const register = async (req: Request, res: Response) => {
       process.env.JWT_SECRET!, { expiresIn: '7d' }
     );
 
-    res.status(201).json({ 
+    res.status(201).json({
       message: "BuildHub Office Initialized",
-      token, 
-      user: { id: user._id, name: user.name, role: user.role, companyId: company._id, slug: company.slug } 
+      token,
+      user: { id: user._id, name: user.name, role: user.role, companyId: company._id, slug: company.slug }
     });
   } catch (error) {
     res.status(500).json({ message: "Registration failed at infrastructure level." });
@@ -87,16 +87,16 @@ export const login = async (req: Request, res: Response) => {
       process.env.JWT_SECRET!, { expiresIn: '7d' }
     );
 
-    res.status(200).json({ 
-      token, 
-      user: { 
-         id: user._id, 
-    name: user.name, 
-    role: user.role, 
-    companyId: companyDoc?._id, 
+    res.status(200).json({
+      token,
+      user: {
+         id: user._id,
+    name: user.name,
+    role: user.role,
+    companyId: companyDoc?._id,
     company: companyDoc?.name,
     slug: companyDoc?.slug
-      } 
+      }
     });
   } catch (error) {
     res.status(500).json({ message: "Login authentication failed." });
@@ -146,7 +146,7 @@ export const getCompanyBySlug = async (req: any, res: Response) => {
 export const updateCompanyBySlug = async (req: any, res: Response) => {
   try {
     const { slug } = req.params;
-    
+
     const company = await Company.findOne({ slug });
     if (!company || company._id.toString() !== req.user.companyId.toString()) {
       return res.status(403).json({ message: "Unauthorized update attempt." });
@@ -234,7 +234,7 @@ export const getFinanceInsights = async (req: any, res: Response) => {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
-You are a top-tier construction financial analyst. 
+You are a top-tier construction financial analyst.
 Review the following real financial data for a construction company named "${company?.name || 'Company'}":
 - Total Income (Paid Invoices): $${totalIncome}
 - Outstanding Invoices: $${outstanding}
@@ -260,7 +260,7 @@ You must return a strictly formatted JSON object with exactly the following 6 ke
     } else if (textResult.startsWith('\`\`\`')) {
       textResult = textResult.replace(/\`\`\`/g, '').trim();
     }
-    
+
     let insights;
     try {
       insights = JSON.parse(textResult);
@@ -387,8 +387,8 @@ export const forgotPassword = async (req: Request, res: Response) => {
       { expiresIn: '1h' }
     );
 
-    res.status(200).json({ 
-      message: 'Password reset token issued. Check your email.', 
+    res.status(200).json({
+      message: 'Password reset token issued. Check your email.',
       resetToken // In production, send this via email
     });
   } catch (error) {

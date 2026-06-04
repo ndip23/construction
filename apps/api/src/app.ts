@@ -17,7 +17,7 @@ import adminRoutes from './routes/adminRoutes';
 import exploreRoutes from './routes/exploreRoutes';
 import inquiryRoutes from './routes/inquiryRoutes';
 import documentRoutes from './routes/documentRoutes';
-import aiRoutes from './routes/aiRoutes'; 
+import aiRoutes from './routes/aiRoutes';
 import serviceRoutes from './routes/serviceRoutes';
 import walletRoutes from './routes/walletRoutes';
 import fxRoutes from './routes/fxRoutes';
@@ -36,7 +36,7 @@ dotenv.config();
 const app = express();
 
 // 2. GLOBAL MIDDLEWARES
-app.use(helmet()); 
+app.use(helmet());
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -47,7 +47,7 @@ app.use(cors({
   origin: function (origin, callback) {
     // allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
       return callback(new Error(msg), false);
@@ -64,7 +64,7 @@ app.use(morgan('dev'));
 // Webhook route needs raw body for HMAC verification — mount BEFORE express.json()
 app.use('/api/v1/wallet/webhook', express.raw({ type: 'application/json' }));
 
-app.use(express.json()); 
+app.use(express.json());
 
 // 3. API ENDPOINTS (Version 1)
 app.use('/api/v1/auth', authRoutes);
@@ -80,7 +80,7 @@ app.use('/api/v1/superadmin', superAdminRoutes);
 app.use('/api/v1/explore', exploreRoutes);
 app.use('/api/v1/inquiries', inquiryRoutes);
 app.use('/api/v1/documents', documentRoutes);
-app.use('/api/v1/ai', aiRoutes); 
+app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/services', serviceRoutes);
 app.use('/api/v1/wallet', walletRoutes);
 app.use('/api/v1/fx', fxRoutes);

@@ -17,13 +17,13 @@ const InquirySchema = new Schema({
   phone: { type: String },
   message: { type: String, required: true },
   location: { type: String },
-  status: { 
-    type: String, 
+  status: {
+    type: String,
     enum: ['New', 'Contacted', 'Closed'],
-    default: 'New' 
+    default: 'New'
   },
-  companyId: { 
-    type: Schema.Types.ObjectId, 
+  companyId: {
+    type: Schema.Types.ObjectId,
     ref: 'Company',
     required: true
   }

@@ -1,6 +1,6 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 import apiClient from '../api/client';
 import { ShieldCheck, MapPin, Star, Phone, Mail, Globe, CheckCircle2, Loader2, ArrowLeft, MessageSquare, Award, Image as ImageIcon, Wrench, DollarSign } from 'lucide-react';
@@ -18,6 +18,7 @@ const PublicCompanyProfile = () => {
     queryFn: async () => (await apiClient.get(`/explore/company/${slug}`)).data,
     enabled: !!slug,
   });
+
 
   if (isLoading) return (
     <div className="min-h-screen bg-background flex items-center justify-center">

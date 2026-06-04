@@ -4,8 +4,7 @@ import Company from '../models/Company';
 import User from '../models/User';
 import nodemailer from 'nodemailer';
 import { parseReceiptPrompt } from '../services/aiService';
-import Company from '../models/Company';
-import nodemailer from 'nodemailer';
+
 
 // SECURITY: escape any user-supplied value before interpolating into email HTML
 // (client names, item descriptions, notes, etc.) so a value like
@@ -50,13 +49,13 @@ export const createReceipt = async (req: Request, res: Response) => {
     if (!company) return res.status(404).json({ message: 'Company not found' });
 
     const receiptNumber = await generateReceiptNumber();
-    
+
     // Calculate totals
     const subtotal = items.reduce((sum: number, item: any) => sum + (item.quantity * item.rate), 0);
     const taxRate = company.receiptSettings?.defaultTaxRate || 0;
     const taxAmount = (subtotal * taxRate) / 100;
     const totalAmount = subtotal + taxAmount;
-    
+
     const qrCodeData = `${process.env.FRONTEND_URL}/verify/receipt/${receiptNumber}`;
 
     const receipt = new Receipt({
@@ -99,10 +98,10 @@ export const getReceiptById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const companyId = req.user?.companyId;
-    
+
     const receipt = await Receipt.findById(id).populate('company');
     if (!receipt) return res.status(404).json({ message: 'Receipt not found' });
-    
+
     if (receipt.company._id.toString() !== companyId) {
        return res.status(403).json({ message: 'Unauthorized access to this receipt' });
     }
@@ -117,10 +116,10 @@ export const deleteReceipt = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const companyId = req.user?.companyId;
-    
+
     const receipt = await Receipt.findById(id);
     if (!receipt) return res.status(404).json({ message: 'Receipt not found' });
-    
+
     if (receipt.company.toString() !== companyId) {
        return res.status(403).json({ message: 'Unauthorized' });
     }
@@ -174,7 +173,7 @@ export const sendReceiptEmail = async (req: Request, res: Response) => {
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px; border: 1px solid #e5e7eb; background: #ffffff;">
         ${safeImgUrl(settings.letterheadUrl) ? `<img src="${safeImgUrl(settings.letterheadUrl)}" alt="Letterhead" style="width: 100%; height: auto; margin-bottom: 30px;" />` : ''}
-        
+
         <table style="width: 100%; border-bottom: 2px solid ${themeColor}; padding-bottom: 30px; margin-bottom: 30px;">
           <tr>
             <td style="vertical-align: top;">
@@ -276,7 +275,7 @@ export const parseReceiptAI = async (req: Request, res: Response) => {
     if (!prompt) return res.status(400).json({ message: 'Prompt is required' });
 
     const aiResult = await parseReceiptPrompt(prompt);
-    
+
     // Add total to each item since the AI doesn't calculate it
     if (aiResult.items && Array.isArray(aiResult.items)) {
       aiResult.items = aiResult.items.map((item: any) => ({

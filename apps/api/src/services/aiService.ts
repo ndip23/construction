@@ -1,5 +1,12 @@
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 
+export interface ReferencePrice {
+  name: string;
+  price: number;
+  unit: string;
+  supplier?: string;
+}
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '');
 
 export const suggestBOQRate = async (description: string, category: string) => {
@@ -69,17 +76,214 @@ export const parseReceiptPrompt = async (promptText: string) => {
     required: ["clientName", "items"]
   };
 
+
   const result = await model.generateContent({
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
     generationConfig: {
       responseMimeType: "application/json",
       responseSchema: responseSchema as any
-    }
+   }
   });
 
   return JSON.parse(result.response.text() || '{}');
 };
 
+
+/* ------------------------------------------------------------------ */
+/* WHOLE-BOQ ANALYSIS: missing items / duplicates / alternatives /    */
+/* price outliers                                                     */
+/* ------------------------------------------------------------------ */
+
+export interface BOQItemInput {
+  description: string;
+  unit: string;
+  qty: number;
+  rate: number;
+}
+
+export type SuggestionType = "missing" | "duplicate" | "alternative" | "outlier";
+
+export interface BOQSuggestion {
+  type: SuggestionType;
+  severity: "high" | "medium" | "low";
+  title: string;
+  detail: string;
+  relatedItems?: string[]; // descriptions of existing items this refers to
+  item?: BOQItemInput;     // an addable item (for missing / alternative)
+}
+
+const VALID_TYPES: SuggestionType[] = ["missing", "duplicate", "alternative", "outlier"];
+
+/**
+ * Review an entire BOQ and surface missing complementary items, duplicates,
+ * cheaper marketplace alternatives, and price outliers.
+ */
+export const analyzeBOQ = async (
+  items: BOQItemInput[],
+  location?: string,
+  referencePrices: ReferencePrice[] = []
+): Promise<BOQSuggestion[]> => {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("Missing GEMINI_API_KEY in .env");
+  }
+  if (!items.length) return [];
+
+  const itemList = items
+    .map((it, i) => `${i + 1}. ${it.description} — ${it.qty} ${it.unit} @ ${it.rate}`)
+    .join("\n");
+
+  const referenceLine = referencePrices.length
+    ? `Marketplace catalogue (prices in USD), use for alternatives and outlier checks:\n` +
+      referencePrices
+        .map((p) => `- ${p.name}: ${p.price} per ${p.unit}${p.supplier ? ` (${p.supplier})` : ""}`)
+        .join("\n")
+    : "";
+
+  const prompt = `
+    Act as a quantity surveyor reviewing a Bill of Quantities${location ? ` for a project in ${location}` : ""}.
+
+    BOQ items (number. description — qty unit @ rate):
+    ${itemList}
+
+    ${referenceLine}
+
+    Review the BOQ and return concrete, high-value suggestions only. Look for:
+    - "missing": complementary items clearly required but absent (e.g. concrete without rebar/aggregate).
+    - "duplicate": items that appear to be the same thing entered more than once.
+    - "alternative": a cheaper marketplace product that could substitute an item.
+    - "outlier": a rate that is far from the marketplace/regional norm.
+
+    For "missing" and "alternative", include an "item" object the user can add directly.
+    Reference existing items by their description in "relatedItems" where relevant.
+    Be conservative — do not invent problems. Return at most 8 suggestions.
+
+    Return ONLY JSON in this exact shape:
+    {
+      "suggestions": [
+        {
+          "type": "missing" | "duplicate" | "alternative" | "outlier",
+          "severity": "high" | "medium" | "low",
+          "title": string,
+          "detail": string,
+          "relatedItems": string[],
+          "item": { "description": string, "unit": string, "qty": number, "rate": number }
+        }
+      ]
+    }
+  `;
+
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+    generationConfig: { responseMimeType: "application/json" }
+  });
+
+  const result = await model.generateContent({
+    contents: [{ role: 'user', parts: [{ text: prompt }] }]
+  });
+
+  return JSON.parse(result.response.text() || '{}');
+};
+
+/* ------------------------------------------------------------------ */
+/* CONVERSATIONAL BOQ GENERATION: turn a free-text brief into a full  */
+/* draft Bill of Quantities anchored to marketplace reference prices  */
+/* ------------------------------------------------------------------ */
+
+export interface GeneratedItem {
+  description: string;
+  unit: string;
+  qty: number;
+  rate: number;
+  category: string;
+  confidence: "high" | "medium" | "low";
+}
+
+/**
+ * Generate a complete draft BOQ from a free-text construction brief.
+ * Returns a short summary plus 8–20 realistic line items with USD rates,
+ * anchored to the supplied marketplace reference prices where they match.
+ */
+export const generateBOQ = async (
+  brief: string,
+  location?: string,
+  referencePrices: ReferencePrice[] = []
+): Promise<{ items: GeneratedItem[]; summary: string }> => {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("Missing GEMINI_API_KEY in .env");
+  }
+
+  const locationLine = location
+    ? `The project is located in: "${location}". Use realistic market rates for that
+       region, accounting for local labour, transport, and import costs.`
+    : `Assume a general African market for rates.`;
+
+  const referenceLine = referencePrices.length
+    ? `Use these real marketplace prices (in USD) as your primary anchor for any matching
+       items; only deviate when an item clearly differs:\n` +
+      referencePrices
+        .map((p) => `- ${p.name}: ${p.price} per ${p.unit}${p.supplier ? ` (${p.supplier})` : ""}`)
+        .join("\n")
+    : "";
+
+  const prompt = `
+    Act as an experienced quantity surveyor.
+    ${locationLine}
+    ${referenceLine}
+
+    A client has given you this construction brief:
+    "${brief}"
+
+    Produce a realistic draft Bill of Quantities — the major material and work line
+    items needed to deliver this brief. For each line item give a sensible quantity,
+    a unit of measure, and a market RATE IN USD (number only, no currency symbol) for
+    the given location. Group items with a short category (e.g. "Substructure",
+    "Concrete", "Blockwork", "Roofing", "Finishes", "Plumbing", "Electrical").
+    Keep it to roughly 8 to 20 line items covering the whole job.
+
+    Set "confidence" per item to:
+      - "high" if anchored to a marketplace reference price or a common standardised item
+      - "medium" if pricing varies by supplier or region
+      - "low" if the item is vague or hard to price without specs
+
+    Return ONLY JSON in this exact shape:
+    {
+      "summary": string,
+      "items": [
+        { "description": string, "unit": string, "qty": number, "rate": number, "category": string, "confidence": "high" | "medium" | "low" }
+      ]
+    }
+  `;
+
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+    generationConfig: { responseMimeType: "application/json" },
+  });
+
+  const result = await model.generateContent({
+    contents: [{ role: 'user', parts: [{ text: prompt }] }]
+  });
+  const parsed = JSON.parse(result.response.text() || "{}");
+  const raw = Array.isArray(parsed.items) ? parsed.items : [];
+
+  const items: GeneratedItem[] = raw
+    .filter((it: any) => it && it.description && String(it.description).trim())
+    .slice(0, 25)
+    .map((it: any) => ({
+      description: String(it.description).trim(),
+      unit: String(it.unit || "unit"),
+      qty: Number(it.qty) || 1,
+      rate: Number(it.rate) || 0,
+      category: String(it.category || "General"),
+      confidence: ["high", "medium", "low"].includes(it.confidence) ? it.confidence : "medium",
+    }));
+
+  return {
+    summary: String(parsed.summary || "Draft BOQ generated from your brief."),
+    items,
+  };
+};
+
+/* ---- Marketplace Intelligence (teammate) ---- */
 export const analyzeSupplierData = async (aggregatedData: any) => {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 

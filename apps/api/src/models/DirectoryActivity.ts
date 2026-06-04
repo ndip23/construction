@@ -10,7 +10,7 @@ export interface IDirectoryActivity extends Document {
 const DirectoryActivitySchema = new Schema({
   action: { 
     type: String, 
-    enum: ['impression', 'whatsapp_click'],
+    enum: ['impression', 'whatsapp_click', 'click'],
     required: true 
   },
   companyId: { 
