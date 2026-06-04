@@ -17,6 +17,7 @@ const io = new Server(server, {
     methods: ["GET", "POST"]
   }
 });
+app.set('io', io);
 
 // 2. Database Connection
 const dbUri = process.env.MONGO_URI;
@@ -52,6 +53,16 @@ io.on('connection', (socket) => {
   socket.on('join_room', (userId: string) => {
     socket.join(userId);
     console.log(`🏠 Room Joined: ${userId}`);
+  });
+
+  socket.on('join_community_post', (postId: string) => {
+    socket.join(`post_${postId}`);
+    console.log(`📖 Joined Community Post: ${postId}`);
+  });
+
+  socket.on('leave_community_post', (postId: string) => {
+    socket.leave(`post_${postId}`);
+    console.log(`🚪 Left Community Post: ${postId}`);
   });
 
   socket.on('send_message', (data) => {

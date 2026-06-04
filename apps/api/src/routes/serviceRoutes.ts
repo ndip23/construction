@@ -4,6 +4,7 @@ import { upload } from '../middleware/upload';
 import { handleUpload } from '../middleware/handleUpload';
 import Service from '../models/Service';
 import User from '../models/User';
+import Company from '../models/Company';
 
 const router = express.Router();
 
@@ -113,6 +114,41 @@ router.delete('/:id', protect, async (req: any, res) => {
     res.json({ message: 'Service removed.' });
   } catch {
     res.status(500).json({ message: 'Failed to delete service.' });
+  }
+});
+
+// POST /services/:id/click — deduct $0.50 from company wallet for a click
+router.post('/:id/click', async (req, res) => {
+  try {
+    const service = await Service.findById(req.params.id);
+    if (!service) return res.status(404).json({ message: 'Service not found.' });
+
+    const company = await Company.findById(service.company);
+    if (!company) return res.status(404).json({ message: 'Company not found.' });
+
+    const FALLBACK: Record<string, number> = {
+      XAF: 600, XOF: 600, NGN: 1600, GHS: 15, KES: 130, ZAR: 19, EGP: 48, USD: 1, EUR: 0.92, GBP: 0.79,
+    };
+    
+    const currency = (company as any).currency || 'XAF';
+    const rate = FALLBACK[currency] || 600;
+    const deductionAmount = Math.ceil(0.50 * rate);
+
+    (company as any).walletBalance = ((company as any).walletBalance || 0) - deductionAmount;
+    (company as any).walletHistory = (company as any).walletHistory || [];
+    (company as any).walletHistory.push({
+      type: 'debit',
+      amount: deductionAmount,
+      amountUSD: 0.50,
+      currency: currency,
+      note: `Directory click on service: ${service.name}`,
+      date: new Date(),
+    } as any);
+
+    await company.save();
+    res.json({ success: true, newBalance: company.walletBalance });
+  } catch (e: any) {
+    res.status(500).json({ message: e.message || 'Failed to record click.' });
   }
 });
 

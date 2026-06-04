@@ -7,6 +7,8 @@ export interface ICommunityComment extends Document {
   isAi: boolean;
   isAcceptedSolution: boolean;
   upvotes: number;
+  images: string[];
+  voiceNote?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -18,6 +20,8 @@ const CommunityCommentSchema = new Schema({
   isAi: { type: Boolean, default: false },
   isAcceptedSolution: { type: Boolean, default: false },
   upvotes: { type: Number, default: 0 },
+  images: [{ type: String }],
+  voiceNote: { type: String },
 }, { timestamps: true });
 
 export default mongoose.model<ICommunityComment>('CommunityComment', CommunityCommentSchema);

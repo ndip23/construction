@@ -136,6 +136,33 @@ export const trackDirectoryActivity = async (req: Request, res: Response) => {
     });
 
     await activity.save();
+
+    // --- PAY-PER-CLICK DEDUCTION ---
+    if (action === 'click') {
+      const company = await Company.findById(targetCompanyId);
+      if (company) {
+        const FALLBACK: Record<string, number> = {
+          XAF: 600, XOF: 600, NGN: 1600, GHS: 15, KES: 130, ZAR: 19, EGP: 48, USD: 1, EUR: 0.92, GBP: 0.79,
+        };
+        const currency = (company as any).currency || 'XAF';
+        const rate = FALLBACK[currency] || 600;
+        const deductionAmount = Math.ceil(0.50 * rate);
+
+        (company as any).walletBalance = ((company as any).walletBalance || 0) - deductionAmount;
+        (company as any).walletHistory = (company as any).walletHistory || [];
+        (company as any).walletHistory.push({
+          type: 'debit',
+          amount: deductionAmount,
+          amountUSD: 0.50,
+          currency: currency,
+          note: 'Directory Lead Profile View (PPC)',
+          date: new Date(),
+        } as any);
+
+        await company.save();
+      }
+    }
+
     res.status(201).json({ success: true });
   } catch (error) {
     res.status(500).json({ message: "Error tracking directory activity" });

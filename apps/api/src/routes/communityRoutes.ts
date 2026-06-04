@@ -9,6 +9,7 @@ import {
   acceptSolution 
 } from '../controllers/communityController';
 import { protect } from '../middleware/auth';
+import { upload } from '../middleware/upload';
 
 const router = express.Router();
 
@@ -19,8 +20,8 @@ router.get('/posts/:id', getPostById);
 // Protected routes (require login)
 router.use(protect);
 
-router.post('/posts', createPost);
-router.post('/posts/:id/comments', addComment);
+router.post('/posts', upload.array('images', 5), createPost);
+router.post('/posts/:id/comments', upload.fields([{ name: 'images', maxCount: 5 }, { name: 'voiceNote', maxCount: 1 }]), addComment);
 
 router.put('/posts/:id/vote', votePost);
 router.put('/comments/:id/vote', voteComment);

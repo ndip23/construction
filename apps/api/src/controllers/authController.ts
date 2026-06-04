@@ -9,6 +9,9 @@ import Tender from '../models/Tender';
 import Message from '../models/Message';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import Service from '../models/Service';
+import Order from '../models/Order';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // @desc    Register + Auto-generate Slug
 export const register = async (req: Request, res: Response) => {
@@ -141,23 +144,117 @@ export const updateCompanyBySlug = async (req: any, res: Response) => {
 export const getSummary = async (req: any, res: Response) => {
   try {
     const companyId = req.user.companyId;
-    const [projectCount, invoiceCount, tenderCount, msgCount, invoices] = await Promise.all([
+    const [projectCount, invoiceCount, tenderCount, msgCount, invoices, serviceCount, orders] = await Promise.all([
       Project.countDocuments({ company: companyId }),
       Invoice.countDocuments({ company: companyId, status: 'Pending' }),
       Tender.countDocuments({ status: 'Open' }),
       Message.countDocuments({ isRead: false }),
-      Invoice.find({ company: companyId })
+      Invoice.find({ company: companyId }),
+      Service.countDocuments({ company: companyId }),
+      Order.find({ company: companyId })
     ]);
 
     const totalIncome = invoices.filter(i => i.status === 'Paid').reduce((acc, curr) => acc + (curr.totalAmount || 0), 0);
-    const totalExpenses = 45000; // Placeholder
+    const outstanding = invoices.filter(i => i.status === 'Pending').reduce((acc, curr) => acc + (curr.totalAmount || 0), 0);
+    const totalExpenses = orders.reduce((acc, curr) => acc + (curr.amount || 0), 0);
+
+    // Calculate Dynamic Expense Breakdown based on Orders
+    const expensesByCategory: Record<string, number> = {};
+    orders.forEach(order => {
+      const name = order.itemName || 'Misc';
+      expensesByCategory[name] = (expensesByCategory[name] || 0) + (order.amount || 0);
+    });
+
+    let expenseBreakdown = Object.keys(expensesByCategory).map(key => {
+      const percentage = totalExpenses > 0 ? Math.round((expensesByCategory[key] / totalExpenses) * 100) : 0;
+      return { label: key, value: percentage };
+    }).sort((a, b) => b.value - a.value).slice(0, 4);
+
+    if (expenseBreakdown.length === 0) {
+      expenseBreakdown = []; // Will handle zero-state in UI
+    }
 
     res.status(200).json({
-      projectCount, invoiceCount, tenderCount, msgCount,
-      totalIncome, totalExpenses, balance: totalIncome - totalExpenses
+      projectCount, invoiceCount, tenderCount, msgCount, serviceCount,
+      totalIncome, totalExpenses, outstanding, balance: totalIncome - totalExpenses,
+      expenseBreakdown
     });
   } catch (error) {
     res.status(500).json({ message: "Failed to aggregate dashboard data." });
+  }
+};
+
+// @desc    Get AI Finance Insights
+export const getFinanceInsights = async (req: any, res: Response) => {
+  try {
+    const companyId = req.user.companyId;
+    const [invoices, serviceCount, company, orders, services] = await Promise.all([
+      Invoice.find({ company: companyId }),
+      Service.countDocuments({ company: companyId }),
+      Company.findById(companyId),
+      Order.find({ company: companyId }),
+      Service.find({ company: companyId }).limit(5)
+    ]);
+
+    const totalIncome = invoices.filter(i => i.status === 'Paid').reduce((acc, curr) => acc + (curr.totalAmount || 0), 0);
+    const outstanding = invoices.filter(i => i.status === 'Pending').reduce((acc, curr) => acc + (curr.totalAmount || 0), 0);
+    const totalExpenses = orders.reduce((acc, curr) => acc + (curr.amount || 0), 0);
+    const serviceNames = services.map(s => s.name).join(', ') || 'No specific services listed yet';
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return res.status(500).json({ message: "AI Integration not configured" });
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    const prompt = `
+You are a top-tier construction financial analyst. 
+Review the following real financial data for a construction company named "${company?.name || 'Company'}":
+- Total Income (Paid Invoices): $${totalIncome}
+- Outstanding Invoices: $${outstanding}
+- Total Expenses (Material/Equipment Orders): $${totalExpenses}
+- Total Active Services/Products on Marketplace: ${serviceCount}
+- Top Services Provided: ${serviceNames}
+- Total Invoice Count: ${invoices.length}
+
+You must return a strictly formatted JSON object with exactly the following 6 keys. Do not include markdown blocks (\`\`\`json) or any outside text. Just the raw JSON. If they have $0 in values, calculate a score of 0 and strongly advise them to start listing services and making transactions.
+{
+  "performanceScore": "An integer between 0 and 100 representing their financial health based on income vs expenses, outstanding debt, and service volume. Ensure it is a Number.",
+  "scoreSuggestion": "1 specific sentence on exactly what to do to increase their performance score.",
+  "productROI": "Analyze the return on investment based on their listed products and units. 2 sentences.",
+  "serviceProjection": "Project expected income based on the types of services listed. 2 sentences.",
+  "investmentStrategy": "Provide suggestions on where to invest money. If $0 profit, suggest how to secure jobs. 2 sentences.",
+  "operationalRisk": "Analyze risk factors (e.g., zero presence, overdue invoices). 2 sentences."
+}`;
+
+    const result = await model.generateContent(prompt);
+    let textResult = result.response.text().trim();
+    if (textResult.startsWith('\`\`\`json')) {
+      textResult = textResult.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
+    } else if (textResult.startsWith('\`\`\`')) {
+      textResult = textResult.replace(/\`\`\`/g, '').trim();
+    }
+    
+    let insights;
+    try {
+      insights = JSON.parse(textResult);
+    } catch (e) {
+      console.error("Failed to parse Gemini JSON:", textResult);
+      // Fallback object
+      insights = {
+        performanceScore: 0,
+        scoreSuggestion: "Data parsing error. Please try again.",
+        productROI: "Data parsing error.",
+        serviceProjection: "Data parsing error.",
+        investmentStrategy: "Data parsing error.",
+        operationalRisk: "Data parsing error."
+      };
+    }
+
+    res.status(200).json({ insights });
+  } catch (error) {
+    console.error("AI Finance Insight Error:", error);
+    res.status(500).json({ message: "Failed to generate financial insights." });
   }
 };
 export const updateCompanyLogo = async (req: any, res: Response) => {
