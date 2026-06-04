@@ -4,7 +4,7 @@ const UserSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['admin', 'owner', 'staff'], default: 'owner' },
+  role: { type: String, enum: ['superadmin', 'admin', 'owner', 'staff'], default: 'owner' },
   company: { type: Schema.Types.ObjectId, ref: 'Company' }, // Link to their business
   
   // Community & Reputation features

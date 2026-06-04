@@ -15,6 +15,8 @@ export interface ICompany extends Document {
   portfolio?: string[];
   isVerified: boolean;
   status: 'pending' | 'verified' | 'rejected';
+  isSuspended?: boolean;
+  suspendedReason?: string;
   owner: mongoose.Types.ObjectId;
   plan: 'basic' | 'pro' | 'enterprise';
   receiptSettings?: {
@@ -53,6 +55,10 @@ const CompanySchema = new Schema({
   portfolio: [{ type: String }],
   isVerified: { type: Boolean, default: false },
   status: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
+  // Suspension is orthogonal to verification — a superadmin can disable a
+  // company (e.g. abuse/non-payment) without changing its verification status.
+  isSuspended: { type: Boolean, default: false },
+  suspendedReason: { type: String, default: '' },
   owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   plan: { type: String, enum: ['basic', 'pro', 'enterprise'], default: 'pro' },
   receiptSettings: {
