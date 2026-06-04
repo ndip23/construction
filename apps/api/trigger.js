@@ -17,3 +17,4 @@
 // fix tsconfig
 // deploy to pressing env
 // trigger deployment
+// deploy to new env
