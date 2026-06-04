@@ -7,6 +7,7 @@ import Project from '../models/Project';
 import Invoice from '../models/Invoice';
 import Tender from '../models/Tender';
 import Message from '../models/Message';
+import LoginEvent from '../models/LoginEvent';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
@@ -49,17 +50,32 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
+// Fire-and-forget audit of a login attempt — never block/break login on failure.
+const recordLogin = async (data: any) => {
+  try { await LoginEvent.create({ kind: 'manager', ...data }); }
+  catch (e) { console.error('[loginEvent]', (e as Error).message); }
+};
+
 // @desc    Login + Return Slug
 export const login = async (req: Request, res: Response) => {
+  const ip = req.ip;
+  const userAgent = req.headers['user-agent'] as string | undefined;
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email }).populate('company');
-    if (!user) return res.status(404).json({ message: "Identity not found." });
+    if (!user) {
+      await recordLogin({ identifier: email, success: false, reason: 'unknown email', ip, userAgent });
+      return res.status(404).json({ message: "Identity not found." });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials." });
+    if (!isMatch) {
+      await recordLogin({ identifier: email, user: user._id, role: user.role, success: false, reason: 'bad password', ip, userAgent });
+      return res.status(400).json({ message: "Invalid credentials." });
+    }
 
     const companyDoc = user.company as any;
+    await recordLogin({ identifier: email, user: user._id, company: companyDoc?._id, role: user.role, success: true, ip, userAgent });
     if (companyDoc && !companyDoc.slug) {
       await ensureCompanyHasSlug(companyDoc);
     }

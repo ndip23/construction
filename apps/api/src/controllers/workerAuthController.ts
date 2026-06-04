@@ -2,10 +2,19 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Worker from '../models/Worker';
+import LoginEvent from '../models/LoginEvent';
+
+// Fire-and-forget audit of a worker login attempt.
+const recordLogin = async (data: any) => {
+  try { await LoginEvent.create({ kind: 'worker', role: 'worker', ...data }); }
+  catch (e) { console.error('[loginEvent]', (e as Error).message); }
+};
 
 // @desc   Worker portal login — PHONE + 4-digit PIN (low-tech, no email)
 // @route  POST /api/v1/worker/login   (public)
 export const workerLogin = async (req: Request, res: Response) => {
+  const ip = req.ip;
+  const userAgent = req.headers['user-agent'] as string | undefined;
   try {
     const { phone, pin } = req.body || {};
     if (!phone || !pin) {
@@ -15,13 +24,17 @@ export const workerLogin = async (req: Request, res: Response) => {
     // Phones are unique enough for MVP — if multiple match, take the first.
     const worker = await Worker.findOne({ phone, portalEnabled: true }).select('+pin');
     if (!worker || !worker.pin) {
+      await recordLogin({ identifier: phone, success: false, reason: 'unknown phone', ip, userAgent });
       return res.status(401).json({ message: 'Invalid phone or PIN' });
     }
 
     const isMatch = await bcrypt.compare(String(pin), worker.pin);
     if (!isMatch) {
+      await recordLogin({ identifier: phone, company: worker.company, success: false, reason: 'bad PIN', ip, userAgent });
       return res.status(401).json({ message: 'Invalid phone or PIN' });
     }
+
+    await recordLogin({ identifier: phone, company: worker.company, success: true, ip, userAgent });
 
     const token = jwt.sign(
       { workerId: worker._id, companyId: worker.company, role: 'worker' },

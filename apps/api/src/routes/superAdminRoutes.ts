@@ -2,8 +2,8 @@ import express from 'express';
 import { protect } from '../middleware/auth';
 import { authorize } from '../middleware/roleCheck';
 import {
-  getOverview, listCompanies, suspendCompany, updateCompanyPlan, adjustWallet,
-  listUsers, updateUserRole, getFinance, getAuditLogs,
+  getOverview, listCompanies, getCompanyDetail, suspendCompany, updateCompanyPlan, adjustWallet,
+  listUsers, updateUserRole, getFinance, getLogins, getAuditLogs,
 } from '../controllers/superAdminController';
 
 const router = express.Router();
@@ -15,6 +15,7 @@ router.use(protect, authorize(['superadmin']));
 router.get('/overview', getOverview);
 
 router.get('/companies', listCompanies);
+router.get('/companies/:id', getCompanyDetail);
 router.patch('/companies/:id/suspend', suspendCompany);
 router.patch('/companies/:id/plan', updateCompanyPlan);
 router.patch('/companies/:id/wallet', adjustWallet);
@@ -23,6 +24,7 @@ router.get('/users', listUsers);
 router.patch('/users/:id/role', updateUserRole);
 
 router.get('/finance', getFinance);
+router.get('/logins', getLogins);
 router.get('/audit', getAuditLogs);
 
 export default router;

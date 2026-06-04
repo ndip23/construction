@@ -6,6 +6,7 @@ import Invoice from '../models/Invoice';
 import Tender from '../models/Tender';
 import Project from '../models/Project';
 import AuditLog from '../models/AuditLog';
+import LoginEvent from '../models/LoginEvent';
 
 /** Record a privileged action to the immutable audit trail. */
 const writeAudit = async (
@@ -86,6 +87,34 @@ export const listCompanies = async (req: any, res: Response) => {
     res.status(200).json(companies);
   } catch (error) {
     res.status(500).json({ message: 'Failed to list companies.' });
+  }
+};
+
+// @route GET /api/v1/superadmin/companies/:id  — full drill-down (team + projects + finance)
+export const getCompanyDetail = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const company = await Company.findById(id).populate('owner', 'name email');
+    if (!company) return res.status(404).json({ message: 'Company not found.' });
+
+    const [team, workers, projects, invoiceAgg] = await Promise.all([
+      User.find({ company: id }).select('name email role createdAt').sort({ createdAt: -1 }),
+      Worker.find({ company: id }).select('name role phone payType payRate portalEnabled createdAt').sort({ createdAt: -1 }),
+      Project.find({ company: id }).select('name status budget location createdAt').sort({ createdAt: -1 }).limit(100),
+      Invoice.aggregate([
+        { $match: { company: company._id } },
+        { $group: { _id: '$status', count: { $sum: 1 }, total: { $sum: '$totalAmount' } } },
+      ]),
+    ]);
+
+    const invoices = { Paid: { count: 0, total: 0 }, Pending: { count: 0, total: 0 }, Overdue: { count: 0, total: 0 } } as any;
+    invoiceAgg.forEach((s: any) => { if (invoices[s._id]) invoices[s._id] = { count: s.count, total: s.total }; });
+
+    const walletHistory = ((company.walletHistory as any[]) || []).slice(-20).reverse();
+
+    res.status(200).json({ company, team, workers, projects, invoices, walletHistory });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to load company detail.' });
   }
 };
 
@@ -217,6 +246,28 @@ export const getFinance = async (req: any, res: Response) => {
     res.status(200).json({ summary, recent });
   } catch (error) {
     res.status(500).json({ message: 'Failed to load finance data.' });
+  }
+};
+
+// ── Login / session monitoring ──────────────────────────────────────────────
+// @route GET /api/v1/superadmin/logins?success=&kind=
+export const getLogins = async (req: any, res: Response) => {
+  try {
+    const { success = '', kind = '' } = req.query;
+    const filter: any = {};
+    if (success === 'true') filter.success = true;
+    if (success === 'false') filter.success = false;
+    if (kind) filter.kind = kind;
+
+    const [events, failed24h, total24h] = await Promise.all([
+      LoginEvent.find(filter).sort({ createdAt: -1 }).limit(200)
+        .populate('user', 'name email').populate('company', 'name slug'),
+      LoginEvent.countDocuments({ success: false, createdAt: { $gte: new Date(Date.now() - 86400000) } }),
+      LoginEvent.countDocuments({ createdAt: { $gte: new Date(Date.now() - 86400000) } }),
+    ]);
+    res.status(200).json({ events, stats: { failed24h, total24h } });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to load login events.' });
   }
 };
 

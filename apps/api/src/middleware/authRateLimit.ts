@@ -21,3 +21,19 @@ export const authRateLimiter = rateLimit({
     message: 'Too many attempts. Please wait 15 minutes and try again.',
   },
 });
+
+/**
+ * Throttles UNAUTHENTICATED public writes (directory inquiries, marketplace
+ * activity tracking, public tender posts) to curb spam/abuse without needing a
+ * paid captcha service. Keyed by IP.
+ */
+export const publicWriteLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  limit: 30, // 30 public submissions per IP per hour
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req: any) => ipKeyGenerator(req.ip),
+  message: {
+    message: 'Too many submissions from this network. Please try again later.',
+  },
+});

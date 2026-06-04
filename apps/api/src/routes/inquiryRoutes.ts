@@ -1,5 +1,6 @@
 import express from 'express';
 import { protect } from '../middleware/auth';
+import { publicWriteLimiter } from '../middleware/authRateLimit';
 import {
   createPublicInquiry,
   getCompanyInquiries,
@@ -8,7 +9,7 @@ import {
 
 const router = express.Router();
 
-router.post('/public', createPublicInquiry);
+router.post('/public', publicWriteLimiter, createPublicInquiry);
 
 router.use(protect);
 

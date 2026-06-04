@@ -14,6 +14,7 @@ import { getSupplierIntelligence } from '../controllers/marketplaceIntelligenceC
 import { trackActivity, generateMockTraffic } from '../controllers/activityController';
 import { protect } from '../middleware/auth';
 import { authorize } from '../middleware/roleCheck';
+import { publicWriteLimiter } from '../middleware/authRateLimit';
 import { upload } from '../middleware/upload';
 
 const router = express.Router();
@@ -21,7 +22,7 @@ const router = express.Router();
 // Public: Browse & Track
 router.get('/products', getProducts);
 router.get('/products/:id', getProductById);
-router.post('/track', trackActivity);
+router.post('/track', publicWriteLimiter, trackActivity);
 
 // Protected: Orders & Stats
 router.use(protect); // All routes below require login
