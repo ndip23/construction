@@ -1,63 +1,20 @@
 import { useState } from 'react';
-<<<<<<< HEAD
-import { useQuery } from '@tanstack/react-query';
-import { DashboardShell } from '../components/layout/DashboardShell';
-import apiClient from '../api/client';
-import {
-  User,
-  MessageSquare,
-  MapPin,
-  Loader2,
-  Inbox,
-  Search,
-  Clock3,
-  Filter,
-  CheckCheck,
-  BadgeAlert,
-} from 'lucide-react';
-import { motion } from 'framer-motion';
-=======
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import apiClient from '../api/client';
 import { User, MapPin, Loader2, Inbox, Eye, MousePointerClick, TrendingUp, Sparkles, ChevronDown, Mail, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
 import { t, statusBadge } from '../theme';
 
 const DirectoryLeads = () => {
-<<<<<<< HEAD
-  const [search, setSearch] = useState('');
-  const [activeFilter, setActiveFilter] = useState<InquiryStatus>('all');
-=======
   const queryClient = useQueryClient();
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
 
   const { data: leads, isLoading } = useQuery({
     queryKey: ['inquiries'],
     queryFn: async () => (await apiClient.get('/inquiries')).data,
   });
 
-<<<<<<< HEAD
-  const inquiryList = Array.isArray(leads) ? leads : [];
-  const todayKey = new Date().toDateString();
-
-  const total = inquiryList.length;
-  const newCount = inquiryList.filter((lead: any) => lead.status === 'new').length;
-  const contactedCount = inquiryList.filter((lead: any) => lead.status === 'contacted').length;
-  const todayCount = inquiryList.filter((lead: any) => new Date(lead.createdAt).toDateString() === todayKey).length;
-
-  const filteredLeads = inquiryList.filter((lead: any) => {
-    const matchesSearch = [lead.clientName, lead.clientPhone, lead.message]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase()
-      .includes(search.toLowerCase());
-
-    const matchesFilter = activeFilter === 'all' || lead.status === activeFilter;
-    return matchesSearch && matchesFilter;
-=======
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['inquiries', 'stats'],
     queryFn: async () => (await apiClient.get('/inquiries/stats')).data,
@@ -73,81 +30,15 @@ const DirectoryLeads = () => {
     mutationFn: ({ id, status }: { id: string; status: string }) =>
       apiClient.put(`/inquiries/${id}/status`, { status }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['inquiries'] }),
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
   });
 
   return (
     <DashboardShell>
       <div className="max-w-[1600px] mx-auto pb-20">
-<<<<<<< HEAD
-        <header className="mb-8 space-y-6">
-          <div className="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-6">
-            <div>
-              <p className={t.label}>Client inbox</p>
-              <h1 className={t.h1 + ' text-3xl md:text-4xl'}>Inquiries</h1>
-              <p className={t.muted + ' mt-2'}>Messages saved from public company profiles and directory clicks.</p>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full xl:w-auto">
-              {[
-                { label: 'Total', value: total, icon: Inbox },
-                { label: 'New', value: newCount, icon: BadgeAlert },
-                { label: 'Contacted', value: contactedCount, icon: CheckCheck },
-                { label: 'Today', value: todayCount, icon: Clock3 },
-              ].map(({ label, value, icon: Icon }) => (
-                <div key={label} className={t.statCard + ' min-w-[8rem]'}>
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className={t.label + ' mb-1'}>{label}</p>
-                      <p className="text-2xl font-black text-white">{value}</p>
-                    </div>
-                    <div className={t.iconBoxNavy}>
-                      <Icon size={18} />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-brand-navy-card border border-brand-border rounded-[2rem] p-4 md:p-5 flex flex-col lg:flex-row gap-3 lg:items-center">
-            <div className="flex items-center gap-3 flex-1 bg-brand-navy-light border border-brand-border rounded-2xl px-4 py-3">
-              <Search className="text-white/45 shrink-0" size={18} />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by name, phone, or message"
-                className="bg-transparent outline-none text-sm font-medium text-white placeholder:text-white/35 w-full min-w-0"
-              />
-            </div>
-
-            <div className="flex items-center gap-2 flex-wrap">
-              <Filter size={16} className="text-white/35 shrink-0 ml-1" />
-              {statusFilters.map((item) => {
-                const active = activeFilter === item.key;
-                return (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => setActiveFilter(item.key)}
-                    className={`px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-                      active
-                        ? 'bg-brand-yellow text-brand-navy border-brand-yellow shadow-yellow'
-                        : 'bg-brand-navy text-white/55 border-brand-border hover:text-white hover:border-brand-yellow/20'
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                );
-              })}
-            </div>
-=======
         <header className="mb-10 flex justify-between items-end">
           <div>
             <h1 className={t.h1 + ' text-3xl'}>Inquiries & Activity</h1>
             <p className={t.muted + ' italic mt-1'}>Client inquiries and public directory performance.</p>
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
           </div>
         </header>
 
@@ -269,23 +160,6 @@ const DirectoryLeads = () => {
                     </div>
                   </div>
 
-<<<<<<< HEAD
-                <div className="flex items-center gap-4 mt-4 md:mt-0">
-                  <span className={statusBadge(lead.status) + ' px-3 py-1'}>
-                    {lead.status || 'new'}
-                  </span>
-                  <div className="text-right hidden md:block">
-                    <p className={t.label + ' mb-0.5'}>Received</p>
-                    <p className="text-xs font-bold text-muted-foreground">{new Date(lead.createdAt).toLocaleDateString()}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => openWhatsApp(lead.clientPhone)}
-                    className="p-4 bg-muted border border-border rounded-2xl text-muted-foreground group-hover:bg-background group-hover:text-foreground transition-all"
-                  >
-                    <MessageSquare size={20} />
-                  </button>
-=======
                   <div className="flex items-center justify-between w-full md:w-auto gap-6 mt-4 md:mt-0">
                     <div className="text-right hidden lg:block">
                       <p className={t.label + ' mb-0.5'}>Received</p>
@@ -303,7 +177,6 @@ const DirectoryLeads = () => {
                       <ChevronDown size={20} className={`transition-transform ${expandedLead === lead._id ? 'rotate-180' : ''}`} />
                     </button>
                   </div>
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
                 </div>
 
                 <AnimatePresence>

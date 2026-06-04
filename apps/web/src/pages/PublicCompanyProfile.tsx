@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
@@ -10,18 +11,7 @@ import { ContactModal } from '../components/directory/ContactModal';
 const PublicCompanyProfile = () => {
   const { id: slug } = useParams();
   const navigate = useNavigate();
-<<<<<<< HEAD
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [isInquiryOpen, setIsInquiryOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [inquiryForm, setInquiryForm] = useState<InquiryForm>({
-    clientName: '',
-    clientPhone: '',
-    message: '',
-  });
-=======
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
 
   const { data: company, isLoading, isError } = useQuery({
     queryKey: ['public-company', slug],
@@ -29,99 +19,7 @@ const PublicCompanyProfile = () => {
     enabled: !!slug,
   });
 
-<<<<<<< HEAD
-  useEffect(() => {
-    if (searchParams.get('inquire') === '1' && company && !isInquiryOpen) {
-      setInquiryForm(buildDefaultInquiryForm(company.name));
-      setIsInquiryOpen(true);
-    }
-  }, [company, isInquiryOpen, searchParams]);
 
-  const openInquiryModal = () => {
-    if (!company?.phone) {
-      toast.error("This company hasn't provided a contact number yet.");
-      return;
-    }
-
-    setInquiryForm(buildDefaultInquiryForm(company.name));
-    setIsInquiryOpen(true);
-    setSearchParams({ inquire: '1' }, { replace: true });
-  };
-
-  const closeInquiryModal = () => {
-    setIsInquiryOpen(false);
-    setSearchParams({}, { replace: true });
-  };
-
-  const handleWhatsApp = () => {
-    const phone = cleanPhone(company?.phone || '');
-    if (phone) {
-      window.open(`https://wa.me/${phone}`, '_blank', 'noopener,noreferrer');
-    } else {
-      openInquiryModal();
-    }
-  };
-
-  const handleInquirySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!company?.phone) {
-      toast.error("This company hasn't provided a contact number yet.");
-      return;
-    }
-
-    if (inquiryForm.clientName.trim().length < 2) {
-      toast.error('Please add your name.');
-      return;
-    }
-
-    if (cleanPhone(inquiryForm.clientPhone).length < 8) {
-      toast.error('Please add a valid WhatsApp number.');
-      return;
-    }
-
-    if (inquiryForm.message.trim().length < 10) {
-      toast.error('Please add a short message.');
-      return;
-    }
-
-    const chatWindow = window.open('', '_blank');
-    if (!chatWindow) {
-      toast.error('Please allow popups to continue to WhatsApp.');
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const { data } = await apiClient.post('/inquiries/public', {
-        companyId: company._id,
-        clientName: inquiryForm.clientName.trim(),
-        clientPhone: inquiryForm.clientPhone.trim(),
-        message: inquiryForm.message.trim(),
-        source: 'public_profile',
-      });
-
-      localStorage.setItem('buildhub-inquiry-name', inquiryForm.clientName.trim());
-      localStorage.setItem('buildhub-inquiry-phone', inquiryForm.clientPhone.trim());
-
-      closeInquiryModal();
-
-      if (data?.whatsappUrl) {
-        chatWindow.location.href = data.whatsappUrl;
-      } else {
-        chatWindow.close();
-        toast.error('WhatsApp link unavailable.');
-      }
-    } catch {
-      chatWindow.close();
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-=======
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
   if (isLoading) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center">
@@ -182,13 +80,8 @@ const PublicCompanyProfile = () => {
               </div>
             </div>
             <div className="pb-4 w-full md:w-auto">
-<<<<<<< HEAD
-              <button onClick={openInquiryModal} className={t.btnPrimary + ' w-full md:w-auto px-12 py-5 text-sm flex items-center justify-center gap-3'}>
-                <MessageSquare size={18} /> Send Inquiry
-=======
               <button onClick={() => setIsContactModalOpen(true)} className={t.btnPrimary + ' w-full md:w-auto px-12 py-5 text-sm'}>
                 Hire This Company
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
               </button>
             </div>
           </motion.div>
@@ -318,11 +211,7 @@ const PublicCompanyProfile = () => {
             </div>
             <div className="pt-10 border-t border-border">
               <button
-<<<<<<< HEAD
-onClick={handleWhatsApp}
-=======
                 onClick={() => setIsContactModalOpen(true)}
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
                 className="w-full py-5 bg-background border border-border text-foreground rounded-[2rem] font-black text-xs uppercase tracking-widest hover:bg-muted transition-all flex items-center justify-center gap-3"
               >
                 <MessageSquare size={20} /> Open Direct Chat
@@ -341,89 +230,7 @@ onClick={handleWhatsApp}
         </aside>
       </main>
 
-<<<<<<< HEAD
-      <AnimatePresence>
-        {isInquiryOpen && (
-          <motion.div
-            className={t.overlay}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 24, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 24, scale: 0.98 }}
-              className={t.modal + ' relative overflow-hidden'}
-            >
-              <button
-                type="button"
-                onClick={closeInquiryModal}
-                className="absolute right-6 top-6 w-10 h-10 rounded-2xl bg-brand-navy-light border border-brand-border flex items-center justify-center text-white/45 hover:text-white hover:bg-brand-navy transition-all"
-                aria-label="Close inquiry form"
-              >
-                <X size={18} />
-              </button>
-
-              <div className="flex items-center gap-4 mb-8 pr-12">
-                <div className={t.iconBoxYellow}>
-                  <MessageSquare size={20} />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-black text-white tracking-tight">{company.name}</h3>
-                  <p className="text-white/45 text-sm font-medium">Send a WhatsApp inquiry</p>
-                </div>
-              </div>
-
-              <form className="space-y-4" onSubmit={handleInquirySubmit}>
-                <div className="space-y-2">
-                  <label className={t.label + ' px-2'}>Your Name</label>
-                  <input
-                    value={inquiryForm.clientName}
-                    onChange={(e) => setInquiryForm({ ...inquiryForm, clientName: e.target.value })}
-                    className={t.input}
-                    placeholder="Full name"
-                    autoComplete="name"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className={t.label + ' px-2'}>WhatsApp Number</label>
-                  <input
-                    value={inquiryForm.clientPhone}
-                    onChange={(e) => setInquiryForm({ ...inquiryForm, clientPhone: e.target.value })}
-                    className={t.input}
-                    placeholder="+237 6XX XXX XXX"
-                    autoComplete="tel"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className={t.label + ' px-2'}>Message</label>
-                  <textarea
-                    value={inquiryForm.message}
-                    onChange={(e) => setInquiryForm({ ...inquiryForm, message: e.target.value })}
-                    className={t.textarea + ' h-40'}
-                    placeholder="Write your inquiry"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-5 bg-brand-yellow text-brand-navy rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] shadow-yellow hover:bg-brand-yellow-dim transition-all flex items-center justify-center gap-3 disabled:opacity-60"
-                >
-                  {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
-                  Send to WhatsApp
-                </button>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-=======
       <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} company={company} />
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
     </div>
   );
 };

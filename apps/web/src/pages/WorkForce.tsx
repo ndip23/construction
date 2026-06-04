@@ -112,9 +112,6 @@ const Workforce = () => {
                 {isLoading ? '...' : workers?.filter((w: any) => w.status === 'Active').length}
               </h3>
             </div>
-<<<<<<< HEAD
-          ))}
-=======
             <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-brand-navy shadow-lg relative z-10">
               <ShieldCheck size={24} />
             </div>
@@ -139,7 +136,6 @@ const Workforce = () => {
               <Users size={24} />
             </div>
           </div>
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
         </div>
 
         {isLoading ? (

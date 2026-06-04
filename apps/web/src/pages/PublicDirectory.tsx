@@ -61,13 +61,11 @@ const CompanyCard = ({ company }: { company: any }) => {
         </div>
         <div className="mt-auto pt-6 border-t border-border flex items-center justify-between gap-3">
           <button
-<<<<<<< HEAD
-            onClick={handleContact}
-            className="flex-1 bg-primary text-brand-navy py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all flex items-center justify-center gap-2"
-=======
-            onClick={() => setIsContactModalOpen(true)}
+            onClick={() => {
+              apiClient.post('/explore/track', { action: 'click', targetCompanyId: company._id }).catch(() => {});
+              setIsContactModalOpen(true);
+            }}
             className="flex-1 bg-primary text-brand-navy py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all"
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
           >
             Contact
           </button>

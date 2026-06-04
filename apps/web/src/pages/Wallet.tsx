@@ -12,11 +12,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { useCurrencyStore, SUPPORTED_CURRENCIES } from '../store/useCurrencyStore';
-<<<<<<< HEAD
-import { useOnboardingStore } from '../store/useOnboardingStore';
-import { useAuthStore } from '../store/useAuthStore';
-=======
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
+
 import apiClient from '../api/client';
 import toast from 'react-hot-toast';
 import axios from 'axios';
@@ -119,12 +115,6 @@ const VerifyBanner = ({ txId, onSuccess }: { txId: string; onSuccess: () => void
 };
 
 // ─── TopUp Modal ──────────────────────────────────────────────────
-<<<<<<< HEAD
-const TopUpModal = ({ onClose }: { onClose: () => void }) => {
-  const { currency: currentCurrency } = useCurrencyStore();
-  const [usdAmount, setUsdAmount] = useState('');
-  const [countryCode, setCountryCode] = useState(() => inferCountryFromCurrency(currentCurrency.code));
-=======
 const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose: () => void; initialCountryCode?: string; isCurrencyLocked?: boolean }) => {
   const { setCurrency } = useCurrencyStore();
   const [usdAmount, setUsdAmount] = useState('');
@@ -132,7 +122,6 @@ const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose
   const [ratePreview, setRatePreview] = useState<{ localAmount: number; currency: string } | null>(null);
   const [loadingRate, setLoadingRate] = useState(false);
   const usdValue = Number(usdAmount) || 0;
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
 
   // Live rate fetch whenever usdAmount or countryCode changes
   useEffect(() => {
@@ -267,7 +256,6 @@ const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose
               exit={{ opacity: 0 }}
               className="bg-primary/10 border border-primary/20 rounded-2xl px-5 py-4 mb-5 flex items-center justify-between"
             >
-<<<<<<< HEAD
               <div className="flex items-center justify-between mb-2 gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-[0.22em] text-foreground/40 font-black">Local payment preview</p>
@@ -287,15 +275,6 @@ const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose
               <div className="rounded-2xl bg-white/5 p-3 border border-white/5 text-[11px] text-foreground/50">
                 Deposit stored as USD. Payment is collected in the local currency shown above.
               </div>
-=======
-              <span className="text-sm text-foreground/60 font-medium">${Number(usdAmount).toLocaleString()} USD =</span>
-              {loadingRate
-                ? <Loader2 size={16} className="text-primary animate-spin" />
-                : <span className="text-lg font-black text-primary">
-                    {ratePreview?.localAmount?.toLocaleString()} {ratePreview?.currency}
-                  </span>
-              }
->>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
             </motion.div>
           )}
         </AnimatePresence>
