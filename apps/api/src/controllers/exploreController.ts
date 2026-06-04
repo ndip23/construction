@@ -144,15 +144,15 @@ export const trackDirectoryActivity = async (req: Request, res: Response) => {
         const FALLBACK: Record<string, number> = {
           XAF: 600, XOF: 600, NGN: 1600, GHS: 15, KES: 130, ZAR: 19, EGP: 48, USD: 1, EUR: 0.92, GBP: 0.79,
         };
-        const currency = (company as any).currency || 'XAF';
+        const currency = (company as any).currency || (company as any).countryCode || 'XAF';
         const rate = FALLBACK[currency] || 600;
-        const deductionAmount = Math.ceil(0.50 * rate);
+        const deductionAmountLocal = Math.ceil(0.50 * rate);
 
-        (company as any).walletBalance = ((company as any).walletBalance || 0) - deductionAmount;
+        (company as any).walletBalance = ((company as any).walletBalance || 0) - 0.50;
         (company as any).walletHistory = (company as any).walletHistory || [];
         (company as any).walletHistory.push({
           type: 'debit',
-          amount: deductionAmount,
+          amount: deductionAmountLocal,
           amountUSD: 0.50,
           currency: currency,
           note: 'Directory Lead Profile View (PPC)',

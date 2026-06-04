@@ -1,7 +1,9 @@
 import { NavLink } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../api/client';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useOnboardingStore } from '../../store/useOnboardingStore';
 import {
   LayoutDashboard, Building2, Briefcase, Store,
   ClipboardList, FileText, Calculator, Landmark,
@@ -59,7 +61,12 @@ const NavItem = ({ icon: Icon, label, path, badge, onNavigate, locked }: NavItem
 
 export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
   const { user, logout } = useAuthStore();
+  const { getStep } = useOnboardingStore();
   const role = user?.role;
+  const userId = user?.id || (user as any)?._id;
+  
+  const onboardingStep = userId ? getStep(userId) : 'done';
+  const onboarded = onboardingStep === 'done';
 
   const { data: pendingQueue } = useQuery({
     queryKey: ['admin-pending-count'],
@@ -83,6 +90,15 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
     enabled: role === 'owner',
     refetchInterval: 60000,
   });
+
+  // DB-LEVEL AUTO-ADVANCE: if the backend reports a wallet balance > 0, bypass the funding phase
+  const { advance } = useOnboardingStore();
+  
+  useEffect(() => {
+    if (onboardingStep === 'wallet' && walletData && walletData.balance > 0) {
+      advance(userId);
+    }
+  }, [onboardingStep, walletData, advance, userId]);
 
   return (
     <aside className="w-[min(280px,85vw)] sm:w-[260px] h-[100dvh] bg-background text-foreground flex flex-col p-4 overflow-y-auto no-scrollbar border-r border-border/5">
@@ -215,8 +231,8 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
               </div>
               <p className="text-sm font-bold text-foreground truncate">{user?.name}</p>
               {role === 'owner' && (
-                <div className="mt-2 py-1.5 px-3 rounded-lg text-[10px] font-black text-center bg-primary/10 text-primary">
-                  Active
+                <div className={`mt-2 py-1.5 px-3 rounded-lg text-[10px] font-black text-center ${onboarded ? 'bg-primary/10 text-primary' : 'bg-amber-500/10 text-amber-500'}`}>
+                  {onboarded ? 'Active' : 'Setup Required'}
                 </div>
               )}
             </>

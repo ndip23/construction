@@ -100,8 +100,9 @@ export const DashboardShell = ({
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { getStep } = useOnboardingStore();
-  const currentStep = user?.id ? getStep(user.id) : 'done';
+  const { getStep, advance } = useOnboardingStore();
+  const userId = user?.id || (user as any)?._id;
+  const currentStep = userId ? getStep(userId) : 'done';
 
   // FORCE ONBOARDING REDIRECT
   useEffect(() => {
@@ -119,7 +120,7 @@ export const DashboardShell = ({
     if (expectedPath && location.pathname !== expectedPath && !location.pathname.includes('/admin')) {
       navigate(expectedPath, { replace: true });
     }
-  }, [user, location.pathname, navigate, getStep]);
+  }, [user, location.pathname, navigate, getStep, currentStep]);
 
   // FETCH DASHBOARD SUMMARY
   const {

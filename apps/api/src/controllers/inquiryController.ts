@@ -52,7 +52,7 @@ export const getInquiryStats = async (req: any, res: Response) => {
 
     activities.forEach(activity => {
       if (activity.action === 'impression') impressions++;
-      if (activity.action === 'whatsapp_click') clicks++;
+      if (activity.action === 'whatsapp_click' || activity.action === 'click') clicks++;
     });
 
     const ctaRate = impressions > 0 ? ((clicks / impressions) * 100).toFixed(1) : "0.0";
@@ -110,7 +110,7 @@ export const getAiInsights = async (req: any, res: Response) => {
     let clicks = 0;
     activities.forEach(a => {
       if (a.action === 'impression') impressions++;
-      if (a.action === 'whatsapp_click') clicks++;
+      if (a.action === 'whatsapp_click' || a.action === 'click') clicks++;
     });
 
     const inquiryData = inquiries.map(i => ({
