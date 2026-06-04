@@ -1,48 +1,16 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 import apiClient from '../api/client';
-import {
-  ShieldCheck,
-  MapPin,
-  Star,
-  Phone,
-  Mail,
-  Globe,
-  CheckCircle2,
-  Loader2,
-  ArrowLeft,
-  MessageSquare,
-  Award,
-  Image as ImageIcon,
-  Wrench,
-  DollarSign,
-  X,
-  Send,
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import toast from 'react-hot-toast';
+import { ShieldCheck, MapPin, Star, Phone, Mail, Globe, CheckCircle2, Loader2, ArrowLeft, MessageSquare, Award, Image as ImageIcon, Wrench, DollarSign } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { t } from '../theme';
 import { ContactModal } from '../components/directory/ContactModal';
-
-type InquiryForm = {
-  clientName: string;
-  clientPhone: string;
-  message: string;
-};
-
-const buildDefaultInquiryForm = (companyName: string): InquiryForm => ({
-  clientName: localStorage.getItem('buildhub-inquiry-name') ?? '',
-  clientPhone: localStorage.getItem('buildhub-inquiry-phone') ?? '',
-  message: `Hello ${companyName || 'there'}, I found your profile on BuildHub Africa and I'd like to discuss a project.`,
-});
-
-const cleanPhone = (value: string) => value.replace(/[^0-9]/g, '');
 
 const PublicCompanyProfile = () => {
   const { id: slug } = useParams();
   const navigate = useNavigate();
+<<<<<<< HEAD
   const [searchParams, setSearchParams] = useSearchParams();
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,6 +19,9 @@ const PublicCompanyProfile = () => {
     clientPhone: '',
     message: '',
   });
+=======
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+>>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
 
   const { data: company, isLoading, isError } = useQuery({
     queryKey: ['public-company', slug],
@@ -58,6 +29,7 @@ const PublicCompanyProfile = () => {
     enabled: !!slug,
   });
 
+<<<<<<< HEAD
   useEffect(() => {
     if (searchParams.get('inquire') === '1' && company && !isInquiryOpen) {
       setInquiryForm(buildDefaultInquiryForm(company.name));
@@ -148,6 +120,8 @@ const PublicCompanyProfile = () => {
     }
   };
 
+=======
+>>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
   if (isLoading) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center">
@@ -208,8 +182,13 @@ const PublicCompanyProfile = () => {
               </div>
             </div>
             <div className="pb-4 w-full md:w-auto">
+<<<<<<< HEAD
               <button onClick={openInquiryModal} className={t.btnPrimary + ' w-full md:w-auto px-12 py-5 text-sm flex items-center justify-center gap-3'}>
                 <MessageSquare size={18} /> Send Inquiry
+=======
+              <button onClick={() => setIsContactModalOpen(true)} className={t.btnPrimary + ' w-full md:w-auto px-12 py-5 text-sm'}>
+                Hire This Company
+>>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
               </button>
             </div>
           </motion.div>
@@ -339,10 +318,14 @@ const PublicCompanyProfile = () => {
             </div>
             <div className="pt-10 border-t border-border">
               <button
+<<<<<<< HEAD
 onClick={handleWhatsApp}
+=======
+                onClick={() => setIsContactModalOpen(true)}
+>>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
                 className="w-full py-5 bg-background border border-border text-foreground rounded-[2rem] font-black text-xs uppercase tracking-widest hover:bg-muted transition-all flex items-center justify-center gap-3"
               >
-                <MessageSquare size={20} /> Send Inquiry
+                <MessageSquare size={20} /> Open Direct Chat
               </button>
               <div className="mt-8 flex flex-col items-center gap-2">
                 <div className="flex items-center gap-1.5 text-primary">
@@ -358,6 +341,7 @@ onClick={handleWhatsApp}
         </aside>
       </main>
 
+<<<<<<< HEAD
       <AnimatePresence>
         {isInquiryOpen && (
           <motion.div
@@ -437,6 +421,9 @@ onClick={handleWhatsApp}
           </motion.div>
         )}
       </AnimatePresence>
+=======
+      <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} company={company} />
+>>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
     </div>
   );
 };

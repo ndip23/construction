@@ -17,7 +17,7 @@ export interface ICompany extends Document {
   status: 'pending' | 'verified' | 'rejected';
   owner: mongoose.Types.ObjectId;
   plan: 'basic' | 'pro' | 'enterprise';
-<<<<<<< HEAD
+
   receiptSettings?: {
     letterhead?: string;
     whatsappNumber?: string;
@@ -28,10 +28,9 @@ export interface ICompany extends Document {
     defaultPaymentTerms?: string;
     format?: 'standard' | 'modern' | 'minimal';
   };
-=======
   currency?: string;
   countryCode?: string;
->>>>>>> main
+
   walletBalance?: number;
   walletHistory?: Array<{
     type: 'credit' | 'debit';
@@ -42,16 +41,6 @@ export interface ICompany extends Document {
     transactionId?: string;
     date: Date;
   }>;
-  receiptSettings?: {
-    letterhead?: string;
-    whatsappNumber?: string;
-    taxId?: string;
-    defaultTaxRate?: number;
-    themeColor?: string;
-    signature?: string;
-    defaultPaymentTerms?: string;
-    format?: 'standard' | 'modern' | 'minimal';
-  };
 }
 
 const CompanySchema = new Schema({
@@ -91,24 +80,11 @@ const CompanySchema = new Schema({
     type: { type: String, enum: ['credit', 'debit'], default: 'credit' },
     amount: Number,
     amountUSD: Number,
-    currency: String, 
+    currency: String,
     note: String,
     transactionId: String,
     date: { type: Date, default: Date.now },
   }],
-  receiptSettings: {
-    type: new Schema({
-      letterhead: { type: String },
-      whatsappNumber: { type: String },
-      taxId: { type: String },
-      defaultTaxRate: { type: Number },
-      themeColor: { type: String },
-      signature: { type: String },
-      defaultPaymentTerms: { type: String },
-      format: { type: String, enum: ['standard', 'modern', 'minimal'] },
-    }, { _id: false }),
-    default: undefined,
-  },
 }, { timestamps: true });
 
 CompanySchema.pre('save', async function () {

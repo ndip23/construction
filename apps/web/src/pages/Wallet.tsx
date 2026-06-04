@@ -12,8 +12,11 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { useCurrencyStore, SUPPORTED_CURRENCIES } from '../store/useCurrencyStore';
+<<<<<<< HEAD
 import { useOnboardingStore } from '../store/useOnboardingStore';
 import { useAuthStore } from '../store/useAuthStore';
+=======
+>>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
 import apiClient from '../api/client';
 import toast from 'react-hot-toast';
 import axios from 'axios';
@@ -40,12 +43,6 @@ const COUNTRIES = [
 
 const QUICK_USD = [5, 10, 20, 50, 100, 200];
 
-const CURRENCY_TO_COUNTRY: Record<string, string> = {
-  XAF: 'CM', XOF: 'SN', NGN: 'NG', GHS: 'GH', KES: 'KE', ZAR: 'ZA', EGP: 'EG', USD: 'US', GBP: 'GB', EUR: 'GB',
-};
-
-const inferCountryFromCurrency = (currencyCode: string) => CURRENCY_TO_COUNTRY[currencyCode] || 'CM';
-
 type WalletTransaction = {
   type: 'credit' | 'debit' | string;
   amount: number;
@@ -60,11 +57,6 @@ type VerifyResponse = {
   status: 'success' | 'pending' | string;
   balance?: number;
   alreadyCredited?: boolean;
-};
-
-type WalletRateResponse = {
-  localAmount: number;
-  currency: string;
 };
 
 // ─── VerifyBanner ─────────────────────────────────────────────────
@@ -95,9 +87,7 @@ const VerifyBanner = ({ txId, onSuccess }: { txId: string; onSuccess: () => void
       toast.success('Wallet topped up successfully!');
       qc.invalidateQueries({ queryKey: ['wallet-balance'] });
       qc.invalidateQueries({ queryKey: ['wallet-history'] });
-      if (user?.id && getStep(user.id) === 'wallet') {
-        advance(user.id);
-      }
+      // Onboarding progression handled elsewhere; just notify and refresh data here.
       onSuccess();
     }
   }, [data, qc, onSuccess]);
@@ -129,28 +119,47 @@ const VerifyBanner = ({ txId, onSuccess }: { txId: string; onSuccess: () => void
 };
 
 // ─── TopUp Modal ──────────────────────────────────────────────────
+<<<<<<< HEAD
 const TopUpModal = ({ onClose }: { onClose: () => void }) => {
   const { currency: currentCurrency } = useCurrencyStore();
   const [usdAmount, setUsdAmount] = useState('');
   const [countryCode, setCountryCode] = useState(() => inferCountryFromCurrency(currentCurrency.code));
+=======
+const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose: () => void; initialCountryCode?: string; isCurrencyLocked?: boolean }) => {
+  const { setCurrency } = useCurrencyStore();
+  const [usdAmount, setUsdAmount] = useState('');
+  const [countryCode, setCountryCode] = useState(initialCountryCode || 'CM');
+  const [ratePreview, setRatePreview] = useState<{ localAmount: number; currency: string } | null>(null);
+  const [loadingRate, setLoadingRate] = useState(false);
+  const usdValue = Number(usdAmount) || 0;
+>>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
 
-  const usdValue = Number(usdAmount);
-  const fallbackRatePreview = usdValue > 0 ? {
-    localAmount: Math.ceil(usdValue * ({ XAF: 600, XOF: 600, NGN: 1600, GHS: 15, KES: 130, ZAR: 19, EGP: 48, USD: 1, GBP: 0.79 }[COUNTRIES.find((c) => c.code === countryCode)?.label.match(/\((\w+)\)/)?.[1] ?? 'XAF'] ?? 600)),
-    currency: COUNTRIES.find((c) => c.code === countryCode)?.label.match(/\((\w+)\)/)?.[1] ?? 'XAF',
-  } : null;
-
-  const { data: rateData, isFetching: loadingRate, isError: rateError } = useQuery<WalletRateResponse, unknown, WalletRateResponse, [string, string, string]>({
-    queryKey: ['wallet-rate', usdAmount, countryCode],
-    queryFn: async () => {
-      const { data } = await apiClient.get('/wallet/rate', { params: { amount: usdValue, countryCode } });
-      return data as WalletRateResponse;
-    },
-    enabled: usdValue > 0,
-    retry: 1,
-  });
-
-  const ratePreview = rateData ? { localAmount: rateData.localAmount, currency: rateData.currency } : rateError ? fallbackRatePreview : null;
+  // Live rate fetch whenever usdAmount or countryCode changes
+  useEffect(() => {
+    const usd = Number(usdAmount);
+    if (!usd || usd <= 0) { setRatePreview(null); return; }
+    const timer = setTimeout(async () => {
+      setLoadingRate(true);
+      try {
+        const { data } = await apiClient.get('/wallet/rate', { params: { amount: usd, countryCode } });
+        setRatePreview({ localAmount: data.localAmount, currency: data.currency });
+        // Sync currency store with chosen country currency
+        const match = SUPPORTED_CURRENCIES.find((c) => c.code === data.currency);
+        if (match) setCurrency(match);
+      } catch {
+        // Fallback to local calculation
+        const FALLBACK: Record<string, number> = {
+          XAF: 600, XOF: 600, NGN: 1600, GHS: 15, KES: 130, ZAR: 19, EGP: 48, USD: 1, GBP: 0.79,
+        };
+        const curr = COUNTRIES.find((c) => c.code === countryCode)?.label.match(/\((\w+)\)/)?.[1] ?? 'XAF';
+        const rate = FALLBACK[curr] ?? 600;
+        setRatePreview({ localAmount: Math.ceil(usd * rate), currency: curr });
+      } finally {
+        setLoadingRate(false);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [usdAmount, countryCode]);
 
   const initiateMutation = useMutation({
     mutationFn: async () => {
@@ -256,8 +265,9 @@ const TopUpModal = ({ onClose }: { onClose: () => void }) => {
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="bg-card rounded-2xl border border-border px-5 py-4 mb-3"
+              className="bg-primary/10 border border-primary/20 rounded-2xl px-5 py-4 mb-5 flex items-center justify-between"
             >
+<<<<<<< HEAD
               <div className="flex items-center justify-between mb-2 gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-[0.22em] text-foreground/40 font-black">Local payment preview</p>
@@ -277,6 +287,15 @@ const TopUpModal = ({ onClose }: { onClose: () => void }) => {
               <div className="rounded-2xl bg-white/5 p-3 border border-white/5 text-[11px] text-foreground/50">
                 Deposit stored as USD. Payment is collected in the local currency shown above.
               </div>
+=======
+              <span className="text-sm text-foreground/60 font-medium">${Number(usdAmount).toLocaleString()} USD =</span>
+              {loadingRate
+                ? <Loader2 size={16} className="text-primary animate-spin" />
+                : <span className="text-lg font-black text-primary">
+                    {ratePreview?.localAmount?.toLocaleString()} {ratePreview?.currency}
+                  </span>
+              }
+>>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
             </motion.div>
           )}
         </AnimatePresence>
@@ -333,30 +352,14 @@ const Wallet = () => {
 
   const balance = balanceData?.balance ?? 0;
   const currency = balanceData?.currency ?? 'USD';
-  const isCurrencyLocked = (history ?? []).length > 0;
+  // Whether the workspace currency is locked (after first top-up) — tolerate multiple possible keys
+  const isCurrencyLocked = Boolean((balanceData as any)?.currencyLocked || (balanceData as any)?.isCurrencyLocked);
 
-  const totalCreditedFromHistory = (history ?? [])
-    .filter((h) => h.type === 'credit')
-    .reduce((sum, h) => sum + (h.amountUSD ?? 0), 0);
-
-  const totalCredited = totalCreditedFromHistory > 0 ? totalCreditedFromHistory : (currency === 'USD' ? balance : 0);
-
-  // Auto-advance onboarding if wallet already funded but user hasn't progressed.
-  const { getStep, advance } = useOnboardingStore();
-  const { user } = useAuthStore();
-
-  useEffect(() => {
-    if (!user?.id) return;
-    try {
-      const step = getStep(user.id);
-      if (step === 'wallet' && balance > 0) {
-        advance(user.id);
-        toast.success('Wallet detected — continuing onboarding.');
-      }
-    } catch (e) {
-      // silent
-    }
-  }, [balance, user?.id, getStep, advance]);
+  // Compute total credited in USD where available, else use local amount as fallback
+  const totalCredited = (history ?? []).filter((t) => t.type === 'credit').reduce((sum, t) => {
+    const v = typeof t.amountUSD === 'number' ? t.amountUSD : (typeof t.amount === 'number' ? t.amount : 0);
+    return sum + v;
+  }, 0);
 
   return (
     <DashboardShell>

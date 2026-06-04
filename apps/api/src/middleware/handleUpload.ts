@@ -1,11 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 
-type MulterHandler = (req: Request, res: Response, cb: (error?: unknown) => void) => void;
-
-export const handleUpload = (uploadMiddleware: MulterHandler) => {
+export const handleUpload = (uploadMiddleware: any) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    uploadMiddleware(req, res, (err) => {
+    uploadMiddleware(req, res, (err: any) => {
       if (!err) return next();
 
       if (err instanceof multer.MulterError) {

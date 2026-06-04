@@ -11,10 +11,26 @@ import { backfillMissingCompanySlugs } from './utils/companySlug';
 const server = http.createServer(app);
 
 // 1. Socket.IO Setup
+const allowedSocketOrigins = [process.env.CLIENT_URL || 'http://localhost:5173'];
+const isLocalhostOrigin = (origin?: string | null) => {
+  if (!origin) return false;
+  try {
+    const u = new URL(origin);
+    return u.hostname === 'localhost' || u.hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
+};
+
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
-    methods: ["GET", "POST"]
+    origin: (origin, callback) => {
+      // allow no-origin requests
+      if (!origin) return callback(null, true);
+      if (allowedSocketOrigins.indexOf(origin) !== -1 || isLocalhostOrigin(origin)) return callback(null, true);
+      return callback(new Error('Not allowed by CORS'));
+    },
+    methods: ['GET', 'POST', 'PUT', 'OPTIONS']
   }
 });
 app.set('io', io);

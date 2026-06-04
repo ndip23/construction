@@ -16,25 +16,27 @@ import tenderRoutes from './routes/tenderRoutes';
 import messageRoutes from './routes/messageRoutes';
 import adminRoutes from './routes/adminRoutes';
 import exploreRoutes from './routes/exploreRoutes';
-import inquiryRoutes from './routes/inquiryRoutes';
 import documentRoutes from './routes/documentRoutes';
-import aiRoutes from './routes/aiRoutes'; 
+import aiRoutes from './routes/aiRoutes';
 import serviceRoutes from './routes/serviceRoutes';
 import walletRoutes from './routes/walletRoutes';
 import fxRoutes from './routes/fxRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
 import opportunityRoutes from './routes/opportunityRoutes';
-<<<<<<< HEAD
+
 import receiptRoutes from './routes/receiptRoutes';
 import inquiryRoutes from './routes/inquiryRoutes';
 import communityRoutes from './routes/communityRoutes';
-=======
+
 import attendanceRoutes from './routes/attendanceRoutes';
 import payrollRoutes from './routes/payrollRoutes';
 import taskRoutes from './routes/taskRoutes';
 import workerAuthRoutes from './routes/workerAuthRoutes';
 import receiptRoutes from './routes/receiptRoutes';
->>>>>>> main
+
+import receiptRoutes from './routes/receiptRoutes';
+import inquiryRoutes from './routes/inquiryRoutes';
+import communityRoutes from './routes/communityRoutes';
 
 import { errorHandler } from './middleware/errorMiddleware';
 
@@ -46,7 +48,7 @@ const app = express();
 app.use(helmet({
   contentSecurityPolicy: false, // Disabling strict CSP since we serve React separately and it can block inline scripts/styles if not perfectly tuned
   crossOriginEmbedderPolicy: false
-})); 
+}));
 
 // Global Rate Limiting
 const limiter = rateLimit({
@@ -63,12 +65,23 @@ const allowedOrigins = [
   "https://construction-ten-zeta.vercel.app"
 ];
 
+const isLocalhostOrigin = (origin?: string | null) => {
+  if (!origin) return false;
+  try {
+    const u = new URL(origin);
+    return u.hostname === 'localhost' || u.hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
+};
+
 app.use(cors({
   origin: function (origin, callback) {
     // allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) === -1) {
+
+    // allow explicit configured origins or any localhost origin (different dev ports)
+    if (allowedOrigins.indexOf(origin) === -1 && !isLocalhostOrigin(origin)) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
       return callback(new Error(msg), false);
     }
@@ -100,25 +113,25 @@ app.use('/api/v1/tenders', tenderRoutes);
 app.use('/api/v1/messages', messageRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/explore', exploreRoutes);
-app.use('/api/v1/inquiries', inquiryRoutes);
 app.use('/api/v1/documents', documentRoutes);
-app.use('/api/v1/ai', aiRoutes); 
+app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/services', serviceRoutes);
 app.use('/api/v1/wallet', walletRoutes);
 app.use('/api/v1/fx', fxRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/opportunities', opportunityRoutes);
-<<<<<<< HEAD
+
 app.use('/api/v1/receipts', receiptRoutes);
 app.use('/api/v1/inquiries', inquiryRoutes);
 app.use('/api/v1/community', communityRoutes);
-=======
 app.use('/api/v1/attendance', attendanceRoutes);
 app.use('/api/v1/payroll', payrollRoutes);
 app.use('/api/v1/tasks', taskRoutes);
 app.use('/api/v1/worker', workerAuthRoutes);
 app.use('/api/v1/receipts', receiptRoutes);
->>>>>>> main
+app.use('/api/v1/receipts', receiptRoutes);
+app.use('/api/v1/inquiries', inquiryRoutes);
+app.use('/api/v1/community', communityRoutes);
 
 // 4. HEALTH CHECK ROUTE
 app.get('/health', (req, res) => {

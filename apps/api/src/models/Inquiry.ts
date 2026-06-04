@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IInquiry extends Document {
-<<<<<<< HEAD
+
   clientName: string;
   email?: string;
   phone?: string;
@@ -18,18 +18,17 @@ const InquirySchema = new Schema({
   phone: { type: String },
   message: { type: String, required: true },
   location: { type: String },
-  status: { 
-    type: String, 
+  status: {
+    type: String,
     enum: ['New', 'Contacted', 'Closed'],
-    default: 'New' 
+    default: 'New'
   },
-  companyId: { 
-    type: Schema.Types.ObjectId, 
+  companyId: {
+    type: Schema.Types.ObjectId,
     ref: 'Company',
     required: true
   }
 }, { timestamps: true });
-=======
   company: mongoose.Types.ObjectId;
   clientName: string;
   clientPhone: string;
@@ -64,6 +63,6 @@ const InquirySchema = new Schema<IInquiry>(
 );
 
 InquirySchema.index({ company: 1, createdAt: -1 });
->>>>>>> main
+
 
 export default mongoose.model<IInquiry>('Inquiry', InquirySchema);

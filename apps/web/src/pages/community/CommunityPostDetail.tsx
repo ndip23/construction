@@ -7,12 +7,10 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { t } from '../../theme';
 import { ArrowLeft, MessageSquare, ThumbsUp, Send, CheckCircle2, Sparkles, AlertCircle, Loader2, X } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { io } from 'socket.io-client';
+import { getSocket } from '../../lib/socket';
 import { useEffect } from 'react';
 
-const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000', {
-  transports: ['websocket'],
-});
+const socket = getSocket();
 
 const CommunityPostDetail = () => {
   const { id } = useParams();
@@ -107,7 +105,7 @@ const CommunityPostDetail = () => {
   );
 
   const { post, comments } = data || {};
-  const isAuthor = user?._id === post?.author?._id;
+  const isAuthor = user?.id === post?.author?._id;
 
   return (
     <DashboardShell>

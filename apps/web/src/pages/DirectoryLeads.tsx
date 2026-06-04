@@ -1,4 +1,5 @@
 import { useState } from 'react';
+<<<<<<< HEAD
 import { useQuery } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import apiClient from '../api/client';
@@ -15,34 +16,30 @@ import {
   BadgeAlert,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+=======
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { DashboardShell } from '../components/layout/DashboardShell';
+import apiClient from '../api/client';
+import { User, MapPin, Loader2, Inbox, Eye, MousePointerClick, TrendingUp, Sparkles, ChevronDown, Mail, Phone } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+>>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
 import { t, statusBadge } from '../theme';
 
-type InquiryStatus = 'all' | 'new' | 'contacted' | 'closed';
-
-const statusFilters: { key: InquiryStatus; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'new', label: 'New' },
-  { key: 'contacted', label: 'Contacted' },
-  { key: 'closed', label: 'Closed' },
-];
-
-const cleanPhone = (phone: string) => phone.replace(/[^0-9]/g, '');
-
-const openWhatsApp = (phone: string) => {
-  const clean = cleanPhone(phone);
-  if (!clean) return;
-  window.open(`https://wa.me/${clean}`, '_blank', 'noopener,noreferrer');
-};
-
 const DirectoryLeads = () => {
+<<<<<<< HEAD
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState<InquiryStatus>('all');
+=======
+  const queryClient = useQueryClient();
+  const [expandedLead, setExpandedLead] = useState<string | null>(null);
+>>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
 
   const { data: leads, isLoading } = useQuery({
     queryKey: ['inquiries'],
     queryFn: async () => (await apiClient.get('/inquiries')).data,
   });
 
+<<<<<<< HEAD
   const inquiryList = Array.isArray(leads) ? leads : [];
   const todayKey = new Date().toDateString();
 
@@ -60,11 +57,29 @@ const DirectoryLeads = () => {
 
     const matchesFilter = activeFilter === 'all' || lead.status === activeFilter;
     return matchesSearch && matchesFilter;
+=======
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ['inquiries', 'stats'],
+    queryFn: async () => (await apiClient.get('/inquiries/stats')).data,
+  });
+
+  const { data: insights, isLoading: insightsLoading } = useQuery({
+    queryKey: ['inquiries', 'ai-insights'],
+    queryFn: async () => (await apiClient.get('/inquiries/ai-insights')).data,
+    enabled: true, // Run automatically
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      apiClient.put(`/inquiries/${id}/status`, { status }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['inquiries'] }),
+>>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
   });
 
   return (
     <DashboardShell>
       <div className="max-w-[1600px] mx-auto pb-20">
+<<<<<<< HEAD
         <header className="mb-8 space-y-6">
           <div className="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-6">
             <div>
@@ -127,6 +142,12 @@ const DirectoryLeads = () => {
                 );
               })}
             </div>
+=======
+        <header className="mb-10 flex justify-between items-end">
+          <div>
+            <h1 className={t.h1 + ' text-3xl'}>Inquiries & Activity</h1>
+            <p className={t.muted + ' italic mt-1'}>Client inquiries and public directory performance.</p>
+>>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
           </div>
         </header>
 
@@ -219,19 +240,15 @@ const DirectoryLeads = () => {
           <div className="h-64 flex items-center justify-center text-foreground/35 font-bold animate-pulse">
             <Loader2 className="animate-spin mr-2" /> Syncing with Directory...
           </div>
-        ) : filteredLeads.length === 0 ? (
+        ) : leads?.length === 0 ? (
           <div className={t.emptyState}>
-<Inbox className="mx-auto text-foreground/15 mb-4" size={48} />
-            <h3 className="text-xl font-bold text-muted-foreground">
-              {total === 0 ? 'No inquiries yet' : 'No inquiries match your filters'}
-            </h3>
-            <p className={t.label + ' mt-1 italic'}>
-              {total === 0 ? 'New leads will appear here once clients reach out.' : 'Try a different name, phone number, or status.'}
-            </p>
+            <Inbox className="mx-auto text-foreground/15 mb-4" size={48} />
+            <h3 className="text-xl font-bold text-muted-foreground">No inquiries yet</h3>
+            <p className={t.label + ' mt-1 italic'}>Update your profile to attract more clients</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {filteredLeads.map((lead: any) => (
+            {leads?.map((lead: any) => (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -252,6 +269,7 @@ const DirectoryLeads = () => {
                     </div>
                   </div>
 
+<<<<<<< HEAD
                 <div className="flex items-center gap-4 mt-4 md:mt-0">
                   <span className={statusBadge(lead.status) + ' px-3 py-1'}>
                     {lead.status || 'new'}
@@ -267,6 +285,25 @@ const DirectoryLeads = () => {
                   >
                     <MessageSquare size={20} />
                   </button>
+=======
+                  <div className="flex items-center justify-between w-full md:w-auto gap-6 mt-4 md:mt-0">
+                    <div className="text-right hidden lg:block">
+                      <p className={t.label + ' mb-0.5'}>Received</p>
+                      <p className="text-xs font-bold text-muted-foreground">{new Date(lead.createdAt).toLocaleDateString()}</p>
+                    </div>
+
+                    <button
+                      onClick={(e) => { e.stopPropagation(); statusMutation.mutate({ id: lead._id, status: lead.status === 'New' ? 'Contacted' : lead.status === 'Contacted' ? 'Closed' : 'New' }); }}
+                      className={statusBadge(lead.status) + ' px-5 py-2 cursor-pointer hover:opacity-80 transition-opacity whitespace-nowrap'}
+                    >
+                      {lead.status}
+                    </button>
+
+                    <button className="p-3 bg-muted border border-border rounded-xl text-muted-foreground hover:bg-background hover:text-foreground transition-all shrink-0">
+                      <ChevronDown size={20} className={`transition-transform ${expandedLead === lead._id ? 'rotate-180' : ''}`} />
+                    </button>
+                  </div>
+>>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
                 </div>
 
                 <AnimatePresence>

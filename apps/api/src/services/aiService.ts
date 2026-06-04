@@ -1,126 +1,27 @@
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '');
 
-/**
- * Gemini intermittently returns 503 "model is overloaded / high demand" — these
- * are transient. Retry a few times with backoff before giving up.
- */
-async function generateWithRetry(model: any, prompt: string, attempts = 3): Promise<any> {
-  let lastErr: any;
-  for (let i = 0; i < attempts; i++) {
-    try {
-      return await model.generateContent(prompt);
-    } catch (err: any) {
-      lastErr = err;
-      const msg = String(err?.message || "");
-      const retryable = /503|overload|high demand|Service Unavailable|ECONNRESET|fetch failed/i.test(msg);
-      if (!retryable || i === attempts - 1) throw err;
-      await new Promise((r) => setTimeout(r, 900 * (i + 1))); // 0.9s, 1.8s
-    }
-  }
-  throw lastErr;
-}
-
-export interface BOQRateSuggestion {
-  rate: number;
-  unit: string;
-  justification: string;
-  confidence: "high" | "medium" | "low";
-}
-
-/**
- * Suggest a market rate for a construction BOQ item using Gemini.
- * Returns rate, unit, a short justification, and a confidence level.
- */
-export interface ReferencePrice {
-  name: string;
-  price: number;
-  unit: string;
-  supplier?: string;
-}
-
-export interface PastCorrection {
-  description: string;
-  aiSuggestedRate: number;
-  finalRate: number;
-  location?: string;
-}
-
-export const suggestBOQRate = async (
-  description: string,
-  category: string,
-  location?: string,
-  referencePrices: ReferencePrice[] = [],
-  pastCorrections: PastCorrection[] = []
-): Promise<BOQRateSuggestion> => {
-  if (!process.env.GEMINI_API_KEY) {
-    throw new Error("Missing GEMINI_API_KEY in .env");
-  }
-
-  const locationLine = location
-    ? `Estimate the rate for this specific location: "${location}". Account for local
-       market conditions, transport, and import costs in that region.`
-    : `Estimate a general market rate for Africa.`;
-
-  const referenceLine = referencePrices.length
-    ? `Use these real marketplace prices (in USD) as your primary anchor; only
-       deviate if the item clearly differs:\n` +
-      referencePrices
-        .map((p) => `- ${p.name}: ${p.price} per ${p.unit}${p.supplier ? ` (${p.supplier})` : ''}`)
-        .join('\n')
-    : '';
-
-  // Learning loop: the user's own past corrections steer future estimates
-  const correctionLine = pastCorrections.length
-    ? `This user previously corrected your estimates for similar items — weight these heavily:\n` +
-      pastCorrections
-        .map((c) => `- "${c.description}"${c.location ? ` (${c.location})` : ''}: you suggested ${c.aiSuggestedRate}, they used ${c.finalRate}`)
-        .join('\n')
-    : '';
+export const suggestBOQRate = async (description: string, category: string) => {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const prompt = `
-    Act as a construction cost estimator.
-    ${locationLine}
-    ${referenceLine}
-    ${correctionLine}
+    Act as a construction cost estimator in Africa.
     Analyze this item: "${description}" in category "${category}".
-    Provide a suggested market rate (number, no currency symbol), the unit of
-    measure, a brief one-sentence justification (mention the location if given),
-    and your confidence in the estimate.
-    When marketplace reference prices are given, set confidence to "high".
-
-    Set "confidence" to:
-      - "high" if this is a common, standardised item with stable pricing
-      - "medium" if pricing varies by supplier or region
-      - "low" if the item is vague, specialised, or hard to price without specs
-
-    Return ONLY JSON in this exact shape:
-    { "rate": number, "unit": string, "justification": string, "confidence": "high" | "medium" | "low" }
+    Provide a suggested market rate, unit of measure, and a brief justification.
   `;
 
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
-    generationConfig: { responseMimeType: "application/json" },
-  });
-
-  const result = await generateWithRetry(model, prompt);
-  const parsed = JSON.parse(result.response.text() || "{}");
-
-  // Normalise / guard the response
-  const confidence = ["high", "medium", "low"].includes(parsed.confidence)
-    ? parsed.confidence
-    : "low";
-
-  return {
-    rate: Number(parsed.rate) || 0,
-    unit: parsed.unit || "unit",
-    justification: parsed.justification || "No justification provided.",
-    confidence,
+  const responseSchema = {
+    type: SchemaType.OBJECT,
+    properties: {
+      rate: { type: SchemaType.NUMBER },
+      unit: { type: SchemaType.STRING },
+      justification: { type: SchemaType.STRING }
+    },
+    required: ["rate", "unit", "justification"]
   };
-};
 
-<<<<<<< HEAD
+
 export const parseReceiptPrompt = async (promptText: string) => {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
@@ -158,18 +59,19 @@ export const parseReceiptPrompt = async (promptText: string) => {
     required: ["clientName", "items"]
   };
 
+
   const result = await model.generateContent({
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
     generationConfig: {
       responseMimeType: "application/json",
       responseSchema: responseSchema as any
-    }
+   }
   });
 
   return JSON.parse(result.response.text() || '{}');
 };
 
-=======
+
 /* ------------------------------------------------------------------ */
 /* WHOLE-BOQ ANALYSIS: missing items / duplicates / alternatives /    */
 /* price outliers                                                     */
@@ -250,38 +152,11 @@ export const analyzeBOQ = async (
           "item": { "description": string, "unit": string, "qty": number, "rate": number }
         }
       ]
-    }
-  `;
 
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
-    generationConfig: { responseMimeType: "application/json" },
+    }
   });
 
-  const result = await generateWithRetry(model, prompt);
-  const parsed = JSON.parse(result.response.text() || "{}");
-  const raw = Array.isArray(parsed.suggestions) ? parsed.suggestions : [];
-
-  // Validate / normalise each suggestion
-  return raw
-    .filter((s: any) => VALID_TYPES.includes(s?.type))
-    .slice(0, 8)
-    .map((s: any) => ({
-      type: s.type,
-      severity: ["high", "medium", "low"].includes(s.severity) ? s.severity : "medium",
-      title: String(s.title || "Suggestion"),
-      detail: String(s.detail || ""),
-      relatedItems: Array.isArray(s.relatedItems) ? s.relatedItems.map(String).slice(0, 5) : [],
-      item:
-        s.item && s.item.description
-          ? {
-              description: String(s.item.description),
-              unit: String(s.item.unit || "unit"),
-              qty: Number(s.item.qty) || 1,
-              rate: Number(s.item.rate) || 0,
-            }
-          : undefined,
-    }));
+  return JSON.parse(result.response.text() || '{}');
 };
 
 /* ------------------------------------------------------------------ */
@@ -383,6 +258,56 @@ export const generateBOQ = async (
 
 /* ---- Marketplace Intelligence (teammate) ---- */
 >>>>>>> main
+=======
+export const parseReceiptPrompt = async (promptText: string) => {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+  const prompt = `
+    Act as an AI receipt generation assistant.
+    Analyze the following user request and extract the necessary details to build a receipt.
+    If some details are missing, use reasonable generic defaults (e.g. status: 'draft', quantity: 1) or leave them empty.
+
+    USER REQUEST:
+    "${promptText}"
+  `;
+
+  const responseSchema = {
+    type: SchemaType.OBJECT,
+    properties: {
+      clientName: { type: SchemaType.STRING },
+      clientEmail: { type: SchemaType.STRING },
+      clientPhone: { type: SchemaType.STRING },
+      clientAddress: { type: SchemaType.STRING },
+      status: { type: SchemaType.STRING, description: "draft, pending, or paid" },
+      notes: { type: SchemaType.STRING },
+      items: {
+        type: SchemaType.ARRAY,
+        items: {
+          type: SchemaType.OBJECT,
+          properties: {
+            description: { type: SchemaType.STRING },
+            quantity: { type: SchemaType.NUMBER },
+            rate: { type: SchemaType.NUMBER }
+          },
+          required: ["description", "quantity", "rate"]
+        }
+      }
+    },
+    required: ["clientName", "items"]
+  };
+
+  const result = await model.generateContent({
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: responseSchema as any
+    }
+  });
+
+  return JSON.parse(result.response.text() || '{}');
+};
+
+>>>>>>> 7d1c33eea5ac569aa87505e32ff265b2b6d88d3c
 export const analyzeSupplierData = async (aggregatedData: any) => {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
@@ -620,55 +545,6 @@ export const analyzeGlobalMarketplaceData = async (globalData: any) => {
       }
     },
     required: ["overview", "demandIntelligence", "growthOpportunities"]
-  };
-
-  const result = await model.generateContent({
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    generationConfig: {
-      responseMimeType: "application/json",
-      responseSchema: responseSchema as any
-    }
-  });
-
-  return JSON.parse(result.response.text() || '{}');
-};
-
-/* ---- Receipt AI parsing (from samdav) ---- */
-export const parseReceiptPrompt = async (promptText: string) => {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-  const prompt = `
-    Act as an AI receipt generation assistant.
-    Analyze the following user request and extract the necessary details to build a receipt.
-    If some details are missing, use reasonable generic defaults (e.g. status: 'draft', quantity: 1) or leave them empty.
-
-    USER REQUEST:
-    "${promptText}"
-  `;
-
-  const responseSchema = {
-    type: SchemaType.OBJECT,
-    properties: {
-      clientName: { type: SchemaType.STRING },
-      clientEmail: { type: SchemaType.STRING },
-      clientPhone: { type: SchemaType.STRING },
-      clientAddress: { type: SchemaType.STRING },
-      status: { type: SchemaType.STRING, description: "draft, pending, or paid" },
-      notes: { type: SchemaType.STRING },
-      items: {
-        type: SchemaType.ARRAY,
-        items: {
-          type: SchemaType.OBJECT,
-          properties: {
-            description: { type: SchemaType.STRING },
-            quantity: { type: SchemaType.NUMBER },
-            rate: { type: SchemaType.NUMBER }
-          },
-          required: ["description", "quantity", "rate"]
-        }
-      }
-    },
-    required: ["clientName", "items"]
   };
 
   const result = await model.generateContent({

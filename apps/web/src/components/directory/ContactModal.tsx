@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, MessageSquare, Send, Mail, Phone, User, MapPin, CheckCircle2, Loader2 } from 'lucide-react';
+import { X, Send, Mail, Phone, User, MapPin, CheckCircle2, Loader2 } from 'lucide-react';
 import apiClient from '../../api/client';
 import toast from 'react-hot-toast';
-import { t } from '../../theme';
+
 
 interface ContactModalProps {
   isOpen: boolean;

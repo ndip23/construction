@@ -12,7 +12,6 @@ import {
   X,
   Mail,
   Loader2,
-  ChevronRight,
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
@@ -148,14 +147,6 @@ export const DashboardShell = ({
     enabled: !!user,
     staleTime: 1000 * 60 * 5,
   });
-
-  const { setCurrency } = useCurrencyStore();
-
-  useEffect(() => {
-    if (!companyProfile?.currency) return;
-    const match = SUPPORTED_CURRENCIES.find((c) => c.code === companyProfile.currency);
-    if (match) setCurrency(match);
-  }, [companyProfile?.currency, setCurrency]);
 
   // LOCK BODY SCROLL WHEN MOBILE MENU OPEN
   useEffect(() => {
