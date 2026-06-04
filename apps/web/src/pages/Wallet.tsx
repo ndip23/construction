@@ -437,7 +437,7 @@ const Wallet = () => {
               onClick={() => setShowTopUp(true)}
               className="px-5 py-2.5 bg-primary text-brand-navy rounded-xl font-black text-xs shrink-0 hover:scale-105 transition-all"
             >
-              Add Funds
+              Add Fund
             </button>
           </div>
         )}
