@@ -344,3 +344,60 @@ export const updateMyCompanyProfile = async (req: any, res: Response) => {
     res.status(500).json({ message: 'Profile update failed.' });
   }
 };
+
+// @desc    Forgot Password - Issue reset token
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email is required.' });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found with this email.' });
+
+    // Generate reset token (valid for 1 hour)
+    const resetToken = jwt.sign(
+      { id: user._id, type: 'password_reset' },
+      process.env.JWT_SECRET!,
+      { expiresIn: '1h' }
+    );
+
+    res.status(200).json({ 
+      message: 'Password reset token issued. Check your email.', 
+      resetToken // In production, send this via email
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Forgot password request failed.' });
+  }
+};
+
+// @desc    Reset Password
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!password) return res.status(400).json({ message: 'New password is required.' });
+
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    } catch {
+      return res.status(400).json({ message: 'Invalid or expired reset token.' });
+    }
+
+    if (decoded.type !== 'password_reset') {
+      return res.status(400).json({ message: 'Invalid token type.' });
+    }
+
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successfully.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Password reset failed.' });
+  }
+};

@@ -94,9 +94,7 @@ const VerifyBanner = ({ txId, onSuccess }: { txId: string; onSuccess: () => void
       toast.success('Wallet topped up successfully!');
       qc.invalidateQueries({ queryKey: ['wallet-balance'] });
       qc.invalidateQueries({ queryKey: ['wallet-history'] });
-      if (user?.id && getStep(user.id) === 'wallet') {
-        advance(user.id);
-      }
+      // Onboarding progression handled elsewhere; just notify and refresh data here.
       onSuccess();
     }
   }, [data, qc, onSuccess]);
@@ -128,12 +126,13 @@ const VerifyBanner = ({ txId, onSuccess }: { txId: string; onSuccess: () => void
 };
 
 // ─── TopUp Modal ──────────────────────────────────────────────────
-const TopUpModal = ({ onClose }: { onClose: () => void }) => {
+const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose: () => void; initialCountryCode?: string; isCurrencyLocked?: boolean }) => {
   const { setCurrency } = useCurrencyStore();
   const [usdAmount, setUsdAmount] = useState('');
-  const [countryCode, setCountryCode] = useState('CM');
+  const [countryCode, setCountryCode] = useState(initialCountryCode || 'CM');
   const [ratePreview, setRatePreview] = useState<{ localAmount: number; currency: string } | null>(null);
   const [loadingRate, setLoadingRate] = useState(false);
+  const usdValue = Number(usdAmount) || 0;
 
   // Live rate fetch whenever usdAmount or countryCode changes
   useEffect(() => {
@@ -331,6 +330,14 @@ const Wallet = () => {
 
   const balance = balanceData?.balance ?? 0;
   const currency = balanceData?.currency ?? 'USD';
+  // Whether the workspace currency is locked (after first top-up) — tolerate multiple possible keys
+  const isCurrencyLocked = Boolean((balanceData as any)?.currencyLocked || (balanceData as any)?.isCurrencyLocked);
+
+  // Compute total credited in USD where available, else use local amount as fallback
+  const totalCredited = (history ?? []).filter((t) => t.type === 'credit').reduce((sum, t) => {
+    const v = typeof t.amountUSD === 'number' ? t.amountUSD : (typeof t.amount === 'number' ? t.amount : 0);
+    return sum + v;
+  }, 0);
 
   return (
     <DashboardShell>

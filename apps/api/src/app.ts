@@ -54,12 +54,23 @@ const allowedOrigins = [
   "https://construction-ten-zeta.vercel.app"
 ];
 
+const isLocalhostOrigin = (origin?: string | null) => {
+  if (!origin) return false;
+  try {
+    const u = new URL(origin);
+    return u.hostname === 'localhost' || u.hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
+};
+
 app.use(cors({
   origin: function (origin, callback) {
     // allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) === -1) {
+
+    // allow explicit configured origins or any localhost origin (different dev ports)
+    if (allowedOrigins.indexOf(origin) === -1 && !isLocalhostOrigin(origin)) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
       return callback(new Error(msg), false);
     }

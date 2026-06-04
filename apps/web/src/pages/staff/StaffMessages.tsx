@@ -4,7 +4,7 @@ import { DashboardShell } from '../../components/layout/DashboardShell';
 import { useAuthStore } from '../../store/useAuthStore';
 import apiClient from '../../api/client';
 
-import { io } from 'socket.io-client';
+import { getSocket } from '../../lib/socket';
 
 import {
   Send,
@@ -21,13 +21,7 @@ import {
 } from 'framer-motion';
 
 // SOCKET CONNECTION
-const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ||
-  window.location.origin;
-
-const socket = io(SOCKET_URL, {
-  transports: ['websocket'],
-});
+const socket = getSocket();
 
 const StaffMessages = () => {
   const { user } = useAuthStore();
