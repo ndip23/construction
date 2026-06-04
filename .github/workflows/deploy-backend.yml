@@ -30,3 +30,4 @@ jobs:
           region: eu-north-1
           version_label: deploy-${{ github.run_number }}-${{ github.sha }}
           deployment_package: apps/api/deploy.zip
+          use_existing_version_if_available: true
