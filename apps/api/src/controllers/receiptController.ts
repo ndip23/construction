@@ -4,8 +4,24 @@ import Company from '../models/Company';
 import User from '../models/User';
 import nodemailer from 'nodemailer';
 import { parseReceiptPrompt } from '../services/aiService';
-import Company from '../models/Company';
-import nodemailer from 'nodemailer';
+
+
+// SECURITY: escape any user-supplied value before interpolating into email HTML
+// (client names, item descriptions, notes, etc.) so a value like
+// "<script>" or "<img onerror>" renders as text, not markup.
+const esc = (v: unknown): string =>
+  String(v ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+// Only allow http(s) image URLs into <img src> (blocks javascript:/data: vectors).
+const safeImgUrl = (v: unknown): string => {
+  const s = String(v ?? '').trim();
+  return /^https?:\/\//i.test(s) ? s.replace(/"/g, '%22') : '';
+};
 
 // Generate a unique receipt number: REC-YYYY-XXXXXX
 const generateReceiptNumber = async (): Promise<string> => {
@@ -147,28 +163,28 @@ export const sendReceiptEmail = async (req: Request, res: Response) => {
 
     const itemsHtml = receipt.items.map((item: any) => `
       <tr style="border-bottom: 1px solid #e5e7eb;">
-        <td style="padding: 16px; font-size: 14px; color: #1f2937;">${item.description}</td>
-        <td style="padding: 16px; font-size: 14px; text-align: center; color: #4b5563;">${item.quantity}</td>
-        <td style="padding: 16px; font-size: 14px; text-align: right; color: #4b5563;">${currency} ${item.rate.toLocaleString()}</td>
-        <td style="padding: 16px; font-size: 14px; text-align: right; font-weight: bold; color: #111827;">${currency} ${item.total.toLocaleString()}</td>
+        <td style="padding: 16px; font-size: 14px; color: #1f2937;">${esc(item.description)}</td>
+        <td style="padding: 16px; font-size: 14px; text-align: center; color: #4b5563;">${esc(item.quantity)}</td>
+        <td style="padding: 16px; font-size: 14px; text-align: right; color: #4b5563;">${esc(currency)} ${Number(item.rate).toLocaleString()}</td>
+        <td style="padding: 16px; font-size: 14px; text-align: right; font-weight: bold; color: #111827;">${esc(currency)} ${Number(item.total).toLocaleString()}</td>
       </tr>
     `).join('');
 
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px; border: 1px solid #e5e7eb; background: #ffffff;">
-        ${settings.letterheadUrl ? `<img src="${settings.letterheadUrl}" alt="Letterhead" style="width: 100%; height: auto; margin-bottom: 30px;" />` : ''}
+        ${safeImgUrl(settings.letterheadUrl) ? `<img src="${safeImgUrl(settings.letterheadUrl)}" alt="Letterhead" style="width: 100%; height: auto; margin-bottom: 30px;" />` : ''}
 
         <table style="width: 100%; border-bottom: 2px solid ${themeColor}; padding-bottom: 30px; margin-bottom: 30px;">
           <tr>
             <td style="vertical-align: top;">
-              <h1 style="font-size: 24px; font-weight: bold; color: #111827; margin: 0 0 8px 0;">${(receipt.company as any).name}</h1>
-              <p style="margin: 0 0 4px 0; font-size: 14px; color: #4b5563;">${(receipt.company as any).address || ''}</p>
-              <p style="margin: 0 0 4px 0; font-size: 14px; color: #4b5563;">${(receipt.company as any).email || ''} | ${(receipt.company as any).phone || ''}</p>
-              ${settings.taxId ? `<p style="margin: 0; font-size: 14px; color: #4b5563;">Tax ID: ${settings.taxId}</p>` : ''}
+              <h1 style="font-size: 24px; font-weight: bold; color: #111827; margin: 0 0 8px 0;">${esc((receipt.company as any).name)}</h1>
+              <p style="margin: 0 0 4px 0; font-size: 14px; color: #4b5563;">${esc((receipt.company as any).address || '')}</p>
+              <p style="margin: 0 0 4px 0; font-size: 14px; color: #4b5563;">${esc((receipt.company as any).email || '')} | ${esc((receipt.company as any).phone || '')}</p>
+              ${settings.taxId ? `<p style="margin: 0; font-size: 14px; color: #4b5563;">Tax ID: ${esc(settings.taxId)}</p>` : ''}
             </td>
             <td style="vertical-align: top; text-align: right;">
               <h2 style="font-size: 32px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 8px 0; color: ${themeColor};">Receipt</h2>
-              <p style="margin: 0 0 4px 0; font-size: 14px; color: #4b5563;"><strong>No:</strong> ${receipt.receiptNumber}</p>
+              <p style="margin: 0 0 4px 0; font-size: 14px; color: #4b5563;"><strong>No:</strong> ${esc(receipt.receiptNumber)}</p>
               <p style="margin: 0 0 4px 0; font-size: 14px; color: #4b5563;"><strong>Date:</strong> ${new Date(receipt.createdAt).toLocaleDateString()}</p>
             </td>
           </tr>
@@ -176,10 +192,10 @@ export const sendReceiptEmail = async (req: Request, res: Response) => {
 
         <div style="margin-bottom: 30px;">
           <h3 style="font-size: 14px; font-weight: bold; color: #111827; margin: 0 0 8px 0; text-transform: uppercase; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;">Billed To</h3>
-          <p style="font-size: 18px; font-weight: bold; color: #1f2937; margin: 0 0 4px 0;">${receipt.client.name}</p>
-          ${receipt.client.email ? `<p style="font-size: 14px; color: #4b5563; margin: 0 0 4px 0;">${receipt.client.email}</p>` : ''}
-          ${receipt.client.phone ? `<p style="font-size: 14px; color: #4b5563; margin: 0 0 4px 0;">${receipt.client.phone}</p>` : ''}
-          ${receipt.client.address ? `<p style="font-size: 14px; color: #4b5563; margin: 0 0 4px 0;">${receipt.client.address}</p>` : ''}
+          <p style="font-size: 18px; font-weight: bold; color: #1f2937; margin: 0 0 4px 0;">${esc(receipt.client.name)}</p>
+          ${receipt.client.email ? `<p style="font-size: 14px; color: #4b5563; margin: 0 0 4px 0;">${esc(receipt.client.email)}</p>` : ''}
+          ${receipt.client.phone ? `<p style="font-size: 14px; color: #4b5563; margin: 0 0 4px 0;">${esc(receipt.client.phone)}</p>` : ''}
+          ${receipt.client.address ? `<p style="font-size: 14px; color: #4b5563; margin: 0 0 4px 0;">${esc(receipt.client.address)}</p>` : ''}
         </div>
 
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
@@ -224,13 +240,13 @@ export const sendReceiptEmail = async (req: Request, res: Response) => {
               ${receipt.notes ? `
               <div style="margin-bottom: 16px;">
                 <p style="font-size: 12px; font-weight: bold; text-transform: uppercase; color: #6b7280; margin: 0 0 4px 0;">Notes</p>
-                <p style="font-size: 12px; color: #4b5563; font-style: italic; margin: 0;">${receipt.notes}</p>
+                <p style="font-size: 12px; color: #4b5563; font-style: italic; margin: 0;">${esc(receipt.notes)}</p>
               </div>
               ` : ''}
             </td>
             <td style="vertical-align: bottom; text-align: right;">
-              ${settings.signatureImage ? `<img src="${settings.signatureImage}" alt="Signature" style="height: 64px; object-fit: contain; margin-bottom: 8px;" />` :
-                settings.signatureText ? `<div style="font-size: 24px; font-family: Georgia, serif; font-style: italic; color: #1f2937; border-bottom: 1px solid #d1d5db; padding-bottom: 8px; margin-bottom: 8px; display: inline-block;">${settings.signatureText}</div>` :
+              ${safeImgUrl(settings.signatureImage) ? `<img src="${safeImgUrl(settings.signatureImage)}" alt="Signature" style="height: 64px; object-fit: contain; margin-bottom: 8px;" />` :
+                settings.signatureText ? `<div style="font-size: 24px; font-family: Georgia, serif; font-style: italic; color: #1f2937; border-bottom: 1px solid #d1d5db; padding-bottom: 8px; margin-bottom: 8px; display: inline-block;">${esc(settings.signatureText)}</div>` :
                 `<div style="width: 192px; border-bottom: 2px solid #d1d5db; margin-bottom: 8px; display: inline-block;"></div>`
               }
               <p style="font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #9ca3af; margin: 0;">Authorized Signature</p>

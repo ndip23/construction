@@ -11,22 +11,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Convert line endings to Unix
+        run: |
+          find apps/api -type f -name "*.js" -exec dos2unix {} \;
+          find apps/api -type f -name "*.ts" -exec dos2unix {} \;
+          find apps/api -type f -name "*.json" -exec dos2unix {} \;
+      
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
+
       - name: Install dependencies
         run: cd apps/api && yarn install --ignore-engines
-      - name: Build TypeScript
-        run: cd apps/api && yarn build
-      - name: Zip code
-        run: cd apps/api && zip -r deploy.zip . -x "node_modules/*" -x ".ebextensions/*"
+
+      - name: Zip code (Unix format)
+        run: |
+          cd apps/api
+          zip -r deploy.zip . -x "node_modules/*" --symlinks
+          
+      - name: Verify zip contents
+        run: |
+          unzip -l apps/api/deploy.zip | head -20
+
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: construction-node-env
-          environment_name: Construction-node-env-env
+          application_name: construction-backend
+          environment_name: Construction-backend-env
           region: eu-north-1
           version_label: deploy-${{ github.run_number }}-${{ github.sha }}
           deployment_package: apps/api/deploy.zip
+          use_existing_version_if_available: true

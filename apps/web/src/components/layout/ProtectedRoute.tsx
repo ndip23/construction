@@ -16,6 +16,11 @@ export const ProtectedRoute = ({ children, allowedRoles }: Props) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // 1b. superadmin (platform owner) may enter any protected route.
+  if (user?.role === 'superadmin') {
+    return <>{children}</>;
+  }
+
   // 2. If logged in but the role isn't allowed (e.g. Staff trying to see Finance)
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
     // Redirect to their specific dashboard

@@ -13,3 +13,15 @@
 // fix app name
 // exclude ebextensions
 // nodeversion fixed
+// deploy to Construction-node-env-env
+// fix tsconfig
+// deploy to pressing env
+// trigger deployment
+// deploy to new env
+// trigger deployment
+// fresh push
+// fresh push
+// clean build with dist
+// trigger zip fix
+// skip ts build
+// final fix

@@ -1,14 +1,20 @@
 import express from 'express';
-import { getInquiries, updateInquiryStatus, getInquiryStats, submitInquiry, getAiInsights } from '../controllers/inquiryController';
 import { protect } from '../middleware/auth';
+import { publicWriteLimiter } from '../middleware/authRateLimit';
+import {
+  submitInquiry,
+  getInquiries,
+  updateInquiryStatus,
+  getInquiryStats,
+  getAiInsights
+} from '../controllers/inquiryController';
 
 const router = express.Router();
 
-// Public route for submitting inquiries from directory
-router.post('/submit', submitInquiry);
+router.post('/submit', publicWriteLimiter, submitInquiry);
 
-// Protected routes
-router.use(protect); 
+router.use(protect);
+
 router.get('/', getInquiries);
 router.get('/stats', getInquiryStats);
 router.get('/ai-insights', getAiInsights);

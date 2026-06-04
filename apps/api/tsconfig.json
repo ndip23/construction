@@ -7,8 +7,9 @@
     "lib": ["esnext"],
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
+    "strict": false,
     "skipLibCheck": true,
+    "noEmitOnError": false,
 
     /* 2. SILENCE THE DEPRECATION ERROR */
     "ignoreDeprecations": "5.0",

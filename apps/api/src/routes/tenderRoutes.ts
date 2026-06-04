@@ -8,12 +8,13 @@ import {
 } from '../controllers/tenderController';
 import { protect } from '../middleware/auth';
 import { authorize } from '../middleware/roleCheck';
+import { publicWriteLimiter } from '../middleware/authRateLimit';
 
 const router = express.Router();
 
 // --- PUBLIC ROUTES ---
 router.get('/', getAllTenders);
-router.post('/public', createPublicTender);
+router.post('/public', publicWriteLimiter, createPublicTender);
 router.get('/:slug', getTenderBySlug);
 
 // --- PROTECTED ROUTES ---
