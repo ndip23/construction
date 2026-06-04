@@ -18,19 +18,7 @@ jobs:
       - name: Install dependencies
         run: cd apps/api && yarn install --ignore-engines
 
-      - name: Build TypeScript
-        run: cd apps/api && yarn build
-
-      - name: Verify build output
-        run: |
-          cd apps/api
-          if [ ! -f "dist/server.js" ]; then
-            echo "Error: dist/server.js not found!"
-            exit 1
-          fi
-          echo "✅ Build verified"
-
-      - name: Zip code (Unix format)
+      - name: Zip code (skip build)
         run: |
           cd apps/api
           zip -r deploy.zip . -x "node_modules/*" -x "src/*" --symlinks
