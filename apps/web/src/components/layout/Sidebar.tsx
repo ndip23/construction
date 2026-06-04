@@ -107,6 +107,22 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
           </>
         )}
 
+        {/* SUPERADMIN — platform owner */}
+        {role === 'superadmin' && (
+          <>
+            <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest px-4 mb-2">Platform Owner</p>
+            <NavItem icon={LayoutDashboard} label="Overview" path="/superadmin" onNavigate={onNavigate} />
+            <NavItem icon={Building2} label="Companies" path="/superadmin/companies" onNavigate={onNavigate} />
+            <NavItem icon={Users} label="Users" path="/superadmin/users" onNavigate={onNavigate} />
+            <NavItem icon={Landmark} label="Finance" path="/superadmin/finance" onNavigate={onNavigate} />
+            <NavItem icon={ShieldCheck} label="Audit Log" path="/superadmin/audit" onNavigate={onNavigate} />
+            <div className="my-2 border-t border-border/5" />
+            <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest px-4 mb-2">Moderation</p>
+            <NavItem icon={ShieldCheck} label="Verification Queue" path="/admin/verifications" onNavigate={onNavigate} badge={pendingQueue?.length ?? null} />
+            <NavItem icon={Settings} label="Global Settings" path="/admin/settings" onNavigate={onNavigate} />
+          </>
+        )}
+
         {/* OWNER */}
         {role === 'owner' && (
           <>

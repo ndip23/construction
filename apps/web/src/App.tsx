@@ -46,6 +46,13 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminStats from './pages/admin/AdminStats';
 import AdminSettings from './pages/admin/AdminSettings';
 
+// SUPERADMIN (platform owner)
+import SuperAdminOverview from './pages/superadmin/SuperAdminOverview';
+import SuperAdminCompanies from './pages/superadmin/SuperAdminCompanies';
+import SuperAdminUsers from './pages/superadmin/SuperAdminUsers';
+import SuperAdminFinance from './pages/superadmin/SuperAdminFinance';
+import SuperAdminAudit from './pages/superadmin/SuperAdminAudit';
+
 // --- SHARED DETAIL PAGES ---
 import ProjectDetail from './pages/ProjectDetail';
 import Projects from './pages/Projects';
@@ -77,6 +84,7 @@ function App() {
   const { isAuthenticated, user } = useAuthStore();
 
   const getHomePath = () => {
+    if (user?.role === 'superadmin') return '/superadmin';
     if (user?.role === 'admin') return '/admin';
     if (user?.role === 'staff') return '/staff/dashboard';
     return '/dashboard';
@@ -170,6 +178,13 @@ function App() {
           <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><AdminUsers /></ProtectedRoute>} />
           <Route path="/admin/stats" element={<ProtectedRoute allowedRoles={['admin']}><AdminStats /></ProtectedRoute>} />
           <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['admin']}><AdminSettings /></ProtectedRoute>} />
+
+          {/* ── SUPERADMIN ROUTES (platform owner) ── */}
+          <Route path="/superadmin" element={<ProtectedRoute allowedRoles={['superadmin']}><SuperAdminOverview /></ProtectedRoute>} />
+          <Route path="/superadmin/companies" element={<ProtectedRoute allowedRoles={['superadmin']}><SuperAdminCompanies /></ProtectedRoute>} />
+          <Route path="/superadmin/users" element={<ProtectedRoute allowedRoles={['superadmin']}><SuperAdminUsers /></ProtectedRoute>} />
+          <Route path="/superadmin/finance" element={<ProtectedRoute allowedRoles={['superadmin']}><SuperAdminFinance /></ProtectedRoute>} />
+          <Route path="/superadmin/audit" element={<ProtectedRoute allowedRoles={['superadmin']}><SuperAdminAudit /></ProtectedRoute>} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
