@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "start": "ts-node-dev --respawn --transpile-only src/server.ts"
+    "start": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "seed:superadmin": "ts-node --transpile-only src/scripts/seedSuperAdmin.ts"
   },
   "keywords": [],
   "author": "",

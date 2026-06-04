@@ -28,6 +28,7 @@ import payrollRoutes from './routes/payrollRoutes';
 import taskRoutes from './routes/taskRoutes';
 import workerAuthRoutes from './routes/workerAuthRoutes';
 import receiptRoutes from './routes/receiptRoutes';
+import superAdminRoutes from './routes/superAdminRoutes';
 
 import { errorHandler } from './middleware/errorMiddleware';
 
@@ -75,6 +76,7 @@ app.use('/api/v1/boq', boqRoutes);
 app.use('/api/v1/tenders', tenderRoutes);
 app.use('/api/v1/messages', messageRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/superadmin', superAdminRoutes);
 app.use('/api/v1/explore', exploreRoutes);
 app.use('/api/v1/inquiries', inquiryRoutes);
 app.use('/api/v1/documents', documentRoutes);
