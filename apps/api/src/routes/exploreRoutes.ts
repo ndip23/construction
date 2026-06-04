@@ -1,5 +1,5 @@
 import express from 'express';
-import { getCompanies, getPublicProfile, getCompanyBySlug } from '../controllers/exploreController';
+import { getCompanies, getPublicProfile, getCompanyBySlug, trackDirectoryActivity } from '../controllers/exploreController';
 
 const router = express.Router();
 
@@ -15,5 +15,7 @@ router.get('/companies', getCompanies);
 router.get('/company/:slug', getPublicProfile);
 router.get('/company/:slug/preview', getCompanyBySlug);
 
+// Matches: /api/v1/explore/track
+router.post('/track', trackDirectoryActivity);
 
 export default router;

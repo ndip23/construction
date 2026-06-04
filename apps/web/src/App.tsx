@@ -64,6 +64,8 @@ import TenderDetail from './pages/TenderDetail';
 import BOQEngine from './pages/BOQEngine';
 import Documents from './pages/Documents';
 import AIAssistant from './pages/AIAssistant';
+import CommunityHub from './pages/community/CommunityHub';
+import CommunityPostDetail from './pages/community/CommunityPostDetail';
 import PublicMarketplace from './pages/PublicMarketPlace';
 import MarketplaceProduct from './pages/MarketPlaceProduct';
 import PublicPostTender from './pages/PublicPostTender';
@@ -113,6 +115,7 @@ function App() {
           <Route path="/post-project" element={<PublicPostTender />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
 
@@ -156,6 +159,8 @@ function App() {
           <Route path="/dashboard/opportunities" element={<OwnerRoute><Opportunities /></OwnerRoute>} />
           <Route path="/dashboard/tenders/:id/bid" element={<OwnerRoute><SubmitBid /></OwnerRoute>} />
           <Route path="/dashboard/tenders/:id" element={<OwnerRoute><TenderDetail /></OwnerRoute>} />
+          <Route path="/dashboard/community" element={<OwnerRoute><CommunityHub /></OwnerRoute>} />
+          <Route path="/dashboard/community/:id" element={<OwnerRoute><CommunityPostDetail /></OwnerRoute>} />
 
           {/* ── STAFF ROUTES ── */}
           <Route path="/staff/dashboard" element={<ProtectedRoute allowedRoles={['staff']}><StaffDashboard /></ProtectedRoute>} />

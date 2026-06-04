@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { useAuthStore } from '../store/useAuthStore';
+import { useOnboardingStore } from '../store/useOnboardingStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { TourModal } from '../components/dashboard/TourModal';
 import apiClient from '../api/client';
 import { t } from '../theme';
 import {
@@ -81,6 +83,7 @@ const DashboardCard = ({ icon: Icon, title, desc, path, delay, isPrimary, classN
 
 const Dashboard = () => {
   const { user } = useAuthStore();
+  const { getStep } = useOnboardingStore();
   const { fromUSD, format } = useCurrencyStore();
   const money = (usd: number) => format(fromUSD(usd || 0));
 
@@ -95,6 +98,11 @@ const Dashboard = () => {
 
   return (
     <DashboardShell>
+      <AnimatePresence>
+        {user?.id && getStep(user.id) === 'tour' && (
+          <TourModal />
+        )}
+      </AnimatePresence>
       <div className="max-w-[1600px] mx-auto pb-20">
 
         {/* HEADER */}

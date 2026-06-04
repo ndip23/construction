@@ -1,18 +1,17 @@
 import express from 'express';
+import { getInquiries, updateInquiryStatus, getInquiryStats, submitInquiry, getAiInsights } from '../controllers/inquiryController';
 import { protect } from '../middleware/auth';
-import {
-  createPublicInquiry,
-  getCompanyInquiries,
-  updateInquiryStatus,
-} from '../controllers/inquiryController';
 
 const router = express.Router();
 
-router.post('/public', createPublicInquiry);
+// Public route for submitting inquiries from directory
+router.post('/submit', submitInquiry);
 
-router.use(protect);
-
-router.get('/', getCompanyInquiries);
+// Protected routes
+router.use(protect); 
+router.get('/', getInquiries);
+router.get('/stats', getInquiryStats);
+router.get('/ai-insights', getAiInsights);
 router.put('/:id/status', updateInquiryStatus);
 
 export default router;

@@ -1,25 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { useDebounce } from '../hooks/useDebounce';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 import { PublicFooter } from '../components/layout/PublicFooter';
 import apiClient from '../api/client';
-import { ShieldCheck, MapPin, Star, Search, Loader2, Inbox, UserCircle, MessageSquare } from 'lucide-react';
+import { ShieldCheck, MapPin, Star, Search, Loader2, Inbox, UserCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { t } from '../theme';
 
+import { ContactModal } from '../components/directory/ContactModal';
+
 const CompanyCard = ({ company }: { company: any }) => {
-  const handleContact = () => {
-    const phone = String(company.phone || company.whatsappNumber || '').replace(/[^0-9]/g, '');
-    if (phone) {
-      window.open(`https://wa.me/${phone}`, '_blank', 'noopener,noreferrer');
-    } else {
-      window.location.href = `/company/${company.slug}`;
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+
+  // Track impression once when component mounts
+  useEffect(() => {
+    if (company?._id) {
+      apiClient.post('/explore/track', { 
+        action: 'impression', 
+        targetCompanyId: company._id 
+      }).catch(err => console.error("Impression track failed", err));
     }
-  };
+  }, [company?._id]);
 
   return (
+    <>
     <motion.div
       layout
       initial={{ opacity: 0, scale: 0.95 }}
@@ -41,26 +47,30 @@ const CompanyCard = ({ company }: { company: any }) => {
         )}
       </div>
       <div className="p-6 flex-1 flex flex-col">
-        <div className="flex justify-between items-start mb-2">
+        <div className="flex justify-between items-start mb-3">
           <h3 className="text-2xl font-black text-foreground tracking-tighter truncate capitalize">{company.name}</h3>
           <div className="bg-amber-500/10 border border-amber-500/20 text-amber-400 px-2 py-1 rounded-lg flex items-center gap-1 shrink-0">
             <Star size={12} fill="currentColor" />
             <span className="text-[10px] font-black">{company.rating || '5.0'}</span>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-medium mb-6">
+        
+        <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-medium mb-6 mt-auto">
           <MapPin size={14} className="text-primary" />
           <span className="capitalize">{company.city}, {company.country}</span>
         </div>
-<div className="mt-auto pt-6 border-t border-border flex items-center justify-between gap-3">
+        <div className="mt-auto pt-6 border-t border-border flex items-center justify-between gap-3">
           <button
-            onClick={handleContact}
-            className="flex-1 bg-primary text-brand-navy py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all flex items-center justify-center gap-2"
+            onClick={() => setIsContactModalOpen(true)}
+            className="flex-1 bg-primary text-brand-navy py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all"
           >
-            <MessageSquare size={16} /> Message
+            Contact
           </button>
           <Link
             to={`/company/${company.slug}`}
+            onClick={() => {
+              apiClient.post('/explore/track', { action: 'click', targetCompanyId: company._id }).catch(() => {});
+            }}
             className="flex-1 bg-muted text-foreground py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-border flex items-center justify-center gap-2 hover:bg-background hover:border-primary/20 transition-all"
           >
             <UserCircle size={16} /> View Profile
@@ -68,6 +78,8 @@ const CompanyCard = ({ company }: { company: any }) => {
         </div>
       </div>
     </motion.div>
+    <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} company={company} />
+    </>
   );
 };
 

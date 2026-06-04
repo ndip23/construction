@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import apiClient from '../api/client';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { useAuthStore } from '../store/useAuthStore';
+import { useOnboardingStore } from '../store/useOnboardingStore';
 import {
   Plus, Trash2, Loader2, Wrench, CheckCircle2,
   DollarSign, Clock, Tag, Globe, Lock, ImagePlus, Camera
@@ -22,6 +24,8 @@ const emptyForm = {
 
 const Services = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+  const { getStep, advance } = useOnboardingStore();
   const { format, currency } = useCurrencyStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cardImageInputRef = useRef<HTMLInputElement>(null);
@@ -65,6 +69,9 @@ const Services = () => {
       queryClient.invalidateQueries({ queryKey: ['company-services'] });
       toast.success('Service added — visible on your directory profile!');
       resetForm();
+      if (user?.id && getStep(user.id) === 'service') {
+        advance(user.id);
+      }
     },
     onError: () => toast.error('Failed to add service.')
   });

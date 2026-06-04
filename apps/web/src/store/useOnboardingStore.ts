@@ -8,12 +8,13 @@ import { persist } from 'zustand/middleware';
  * wallet   → top-up the workspace wallet
  * profile  → fill in the business profile
  * service  → add at least one service
+ * product  → add at least one product to the marketplace
  * tour     → watch the quick tour
  * done     → fully onboarded, no more gates
  */
-export type OnboardingStep = 'wallet' | 'profile' | 'service' | 'tour' | 'done';
+export type OnboardingStep = 'wallet' | 'profile' | 'service' | 'product' | 'tour' | 'done';
 
-const STEP_ORDER: OnboardingStep[] = ['wallet', 'profile', 'service', 'tour', 'done'];
+const STEP_ORDER: OnboardingStep[] = ['wallet', 'profile', 'service', 'product', 'tour', 'done'];
 
 interface OnboardingState {
   /** keyed by userId so multiple accounts on the same browser don't interfere */

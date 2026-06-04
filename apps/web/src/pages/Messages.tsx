@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { useAuthStore } from '../store/useAuthStore';
 import apiClient from '../api/client';
-import { io } from 'socket.io-client';
+import { getSocket } from '../lib/socket';
 import { 
   Search, 
   Paperclip, 
@@ -17,8 +17,8 @@ import {
 } from 'lucide-react';
 import { motion} from 'framer-motion';
 
-// Initialize Socket.io (URL should match your backend)
-const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000');
+// Initialize Socket.io singleton
+const socket = getSocket();
 
 const Messages = () => {
   const { user } = useAuthStore();

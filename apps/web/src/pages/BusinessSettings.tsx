@@ -4,6 +4,7 @@ import { DashboardShell } from '../components/layout/DashboardShell';
 import axios from 'axios';
 import apiClient from '../api/client';
 import { useAuthStore } from '../store/useAuthStore';
+import { useOnboardingStore } from '../store/useOnboardingStore';
 import { Camera, Save, MapPin, Loader2, Plus, Trash2, CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -37,6 +38,7 @@ interface CompanyProfile {
 const BusinessSettings = () => {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
+  const { advance, getStep } = useOnboardingStore();
   const logoInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const [tempLogo, setTempLogo] = useState<string | null>(null);
@@ -138,7 +140,13 @@ const BusinessSettings = () => {
       if (!companySlug) return Promise.reject(new Error('Missing company slug'));
       return apiClient.put(`/auth/company/${companySlug}`, data);
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['company-profile'] }); toast.success('Profile Updated'); },
+    onSuccess: () => { 
+      queryClient.invalidateQueries({ queryKey: ['company-profile'] }); 
+      toast.success('Profile Updated');
+      if (user?.id && getStep(user.id) === 'profile') {
+        advance(user.id);
+      }
+    },
     onError: (err: unknown) => { toast.error(err instanceof Error ? err.message : 'Update failed'); },
   });
 

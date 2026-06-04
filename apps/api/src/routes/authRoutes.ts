@@ -1,6 +1,7 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 // 1. Import your named exports from the controller
-import { register, login, getSummary, getCompanyBySlug, getMyCompanyProfile, updateCompanyBySlug,
+import { register, login, getSummary, getFinanceInsights, getCompanyBySlug, getMyCompanyProfile, updateCompanyBySlug,
 updateCompanyPortfolio, updateCompanyLogo, deleteCompanyPortfolioImage, updateMyCompanyProfile, forgotPassword, resetPassword, updateCompanyLetterhead } from '../controllers/authController';
 import { protect } from '../middleware/auth';
 import { upload } from '../middleware/upload';
@@ -8,19 +9,28 @@ import { handleUpload } from '../middleware/handleUpload';
 
 const router = express.Router();
 
+// Strict Rate Limiting for Auth Routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 requests per `window` (here, per 15 minutes)
+  message: { message: "Too many login attempts from this IP, please try again after 15 minutes to protect your account." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 /**
  * @route   POST /api/v1/auth/register
  * @desc    Atomic registration (Creates Owner + Company Profile)
  * @access  Public
  */
-router.post('/register', register);
+router.post('/register', authLimiter, register);
 
 /**
  * @route   POST /api/v1/auth/login
  * @desc    Login and return JWT token + User/Company metadata
  * @access  Public
  */
-router.post('/login', login);
+router.post('/login', authLimiter, login);
 
 /**
  * @route   POST /api/v1/auth/forgotpassword
@@ -42,6 +52,7 @@ router.put('/resetpassword/:token', resetPassword);
  * @access  Private
  */
 router.get('/company/summary', protect, getSummary);
+router.get('/company/finance-insights', protect, getFinanceInsights);
 
 /**
  * @route   PUT /api/v1/auth/company/:id

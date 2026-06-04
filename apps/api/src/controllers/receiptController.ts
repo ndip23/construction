@@ -4,6 +4,8 @@ import Company from '../models/Company';
 import User from '../models/User';
 import nodemailer from 'nodemailer';
 import { parseReceiptPrompt } from '../services/aiService';
+import Company from '../models/Company';
+import nodemailer from 'nodemailer';
 
 // Generate a unique receipt number: REC-YYYY-XXXXXX
 const generateReceiptNumber = async (): Promise<string> => {
@@ -20,7 +22,7 @@ const generateReceiptNumber = async (): Promise<string> => {
   return `REC-${year}-${sequence.toString().padStart(6, '0')}`;
 };
 
-export const createReceipt = async (req: any, res: Response) => {
+export const createReceipt = async (req: Request, res: Response) => {
   try {
     const { items, client, project, status, paymentMethod, notes, currency } = req.body;
     const companyId = req.user?.companyId;
@@ -64,7 +66,7 @@ export const createReceipt = async (req: any, res: Response) => {
   }
 };
 
-export const getReceipts = async (req: any, res: Response) => {
+export const getReceipts = async (req: Request, res: Response) => {
   try {
     const companyId = req.user?.companyId;
     if (!companyId) return res.status(403).json({ message: 'Company ID required' });
@@ -76,7 +78,7 @@ export const getReceipts = async (req: any, res: Response) => {
   }
 };
 
-export const getReceiptById = async (req: any, res: Response) => {
+export const getReceiptById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const companyId = req.user?.companyId;
@@ -94,7 +96,7 @@ export const getReceiptById = async (req: any, res: Response) => {
   }
 };
 
-export const deleteReceipt = async (req: any, res: Response) => {
+export const deleteReceipt = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const companyId = req.user?.companyId;
@@ -113,7 +115,7 @@ export const deleteReceipt = async (req: any, res: Response) => {
   }
 };
 
-export const sendReceiptEmail = async (req: any, res: Response) => {
+export const sendReceiptEmail = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const companyId = req.user?.companyId;
@@ -251,7 +253,7 @@ export const sendReceiptEmail = async (req: any, res: Response) => {
   }
 };
 
-export const parseReceiptAI = async (req: any, res: Response) => {
+export const parseReceiptAI = async (req: Request, res: Response) => {
   try {
     const { prompt } = req.body;
     if (!prompt) return res.status(400).json({ message: 'Prompt is required' });
@@ -272,7 +274,7 @@ export const parseReceiptAI = async (req: any, res: Response) => {
   }
 };
 
-export const getRecentClients = async (req: any, res: Response) => {
+export const getRecentClients = async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.user.id).populate('company');
     const companyId = (user?.company as any)?._id || user?.company;

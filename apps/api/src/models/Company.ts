@@ -17,18 +17,6 @@ export interface ICompany extends Document {
   status: 'pending' | 'verified' | 'rejected';
   owner: mongoose.Types.ObjectId;
   plan: 'basic' | 'pro' | 'enterprise';
-  currency?: string;
-  countryCode?: string;
-  walletBalance?: number;
-  walletHistory?: Array<{
-    type: 'credit' | 'debit';
-    amount: number;
-    amountUSD?: number;
-    currency?: string;
-    note?: string;
-    transactionId?: string;
-    date: Date;
-  }>;
   receiptSettings?: {
     letterhead?: string;
     whatsappNumber?: string;
@@ -39,6 +27,16 @@ export interface ICompany extends Document {
     defaultPaymentTerms?: string;
     format?: 'standard' | 'modern' | 'minimal';
   };
+  walletBalance?: number;
+  walletHistory?: Array<{
+    type: 'credit' | 'debit';
+    amount: number;
+    amountUSD?: number;
+    currency?: string;
+    note?: string;
+    transactionId?: string;
+    date: Date;
+  }>;
 }
 
 const CompanySchema = new Schema({
@@ -57,6 +55,20 @@ const CompanySchema = new Schema({
   status: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
   owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   plan: { type: String, enum: ['basic', 'pro', 'enterprise'], default: 'pro' },
+  receiptSettings: {
+    letterhead: String,
+    whatsappNumber: String,
+    taxId: String,
+    defaultTaxRate: { type: Number, default: 0 },
+    themeColor: { type: String, default: '#000000' },
+    signature: String,
+    defaultPaymentTerms: String,
+    format: {
+      type: String,
+      enum: ['standard', 'modern', 'minimal'],
+      default: 'standard'
+    }
+  },
   currency: { type: String, default: 'XAF' },
   countryCode: { type: String, default: 'CM' },
   walletBalance: { type: Number, default: 0 },
@@ -69,19 +81,6 @@ const CompanySchema = new Schema({
     transactionId: String,
     date: { type: Date, default: Date.now },
   }],
-  receiptSettings: {
-    type: new Schema({
-      letterhead: { type: String },
-      whatsappNumber: { type: String },
-      taxId: { type: String },
-      defaultTaxRate: { type: Number },
-      themeColor: { type: String },
-      signature: { type: String },
-      defaultPaymentTerms: { type: String },
-      format: { type: String, enum: ['standard', 'modern', 'minimal'] },
-    }, { _id: false }),
-    default: undefined,
-  },
 }, { timestamps: true });
 
 CompanySchema.pre('save', async function () {
