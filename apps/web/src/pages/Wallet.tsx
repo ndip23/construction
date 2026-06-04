@@ -38,12 +38,6 @@ const COUNTRIES = [
 
 const QUICK_USD = [5, 10, 20, 50, 100, 200];
 
-const CURRENCY_TO_COUNTRY: Record<string, string> = {
-  XAF: 'CM', XOF: 'SN', NGN: 'NG', GHS: 'GH', KES: 'KE', ZAR: 'ZA', EGP: 'EG', USD: 'US', GBP: 'GB', EUR: 'GB',
-};
-
-const inferCountryFromCurrency = (currencyCode: string) => CURRENCY_TO_COUNTRY[currencyCode] || 'CM';
-
 type WalletTransaction = {
   type: 'credit' | 'debit' | string;
   amount: number;
@@ -60,15 +54,9 @@ type VerifyResponse = {
   alreadyCredited?: boolean;
 };
 
-type WalletRateResponse = {
-  localAmount: number;
-  currency: string;
-};
-
 // ─── VerifyBanner ─────────────────────────────────────────────────
 const VerifyBanner = ({ txId, onSuccess }: { txId: string; onSuccess: () => void }) => {
   const qc = useQueryClient();
-  const [attempts, setAttempts] = useState(0);
   const MAX = 20;
   const attemptsRef = useRef(0);
   const [maxAttemptsReached, setMaxAttemptsReached] = useState(false);

@@ -12,7 +12,6 @@ import {
   X,
   Mail,
   Loader2,
-  ChevronRight,
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';

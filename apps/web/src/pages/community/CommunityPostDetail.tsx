@@ -105,7 +105,7 @@ const CommunityPostDetail = () => {
   );
 
   const { post, comments } = data || {};
-  const isAuthor = user?._id === post?.author?._id;
+  const isAuthor = user?.id === post?.author?._id;
 
   return (
     <DashboardShell>
