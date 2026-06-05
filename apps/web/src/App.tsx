@@ -31,6 +31,7 @@ import ReceiptDetail from './pages/ReceiptDetail';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import Services from './pages/Services';
 import Wallet from './pages/Wallet';
+import WorkersManagement from './pages/WorkersManagement';
 
 // --- STAFF / ENGINEER PAGES (/staff/*) ---
 import StaffDashboard from './pages/staff/StaffDashboard';
@@ -133,6 +134,7 @@ function App() {
           <Route path="/dashboard" element={<OwnerRoute><Dashboard /></OwnerRoute>} />
           <Route path="/dashboard/finance" element={<OwnerRoute><Finance /></OwnerRoute>} />
           <Route path="/dashboard/workforce" element={<OwnerRoute><Workforce /></OwnerRoute>} />
+          <Route path="/dashboard/workers-management" element={<OwnerRoute><WorkersManagement /></OwnerRoute>} />
           <Route path="/dashboard/attendance" element={<OwnerRoute><Attendance /></OwnerRoute>} />
           <Route path="/dashboard/timesheets" element={<OwnerRoute><Timesheets /></OwnerRoute>} />
           <Route path="/dashboard/payroll" element={<OwnerRoute><Payroll /></OwnerRoute>} />
