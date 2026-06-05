@@ -5,7 +5,7 @@ import Proposal from '../models/Proposal';
 // @desc    Get all open tenders for the public board
 export const getAllTenders = async (req: Request, res: Response) => {
   try {
-    const tenders = await Tender.find({ status: 'Open' })
+    const tenders = await Tender.find({ status: 'Open' } as any)
       .sort({ createdAt: -1 })
       .populate('company', 'name logo');
     res.status(200).json(tenders);
@@ -23,7 +23,7 @@ export const getTenderBySlug = async (req: Request, res: Response) => {
     const { slug } = req.params;
 
     // Search by Slug (e.g., "kelly-modern-villa")
-    const tender = await Tender.findOne({ slug }).populate('company', 'name logo');
+    const tender = await Tender.findOne({ slug } as any).populate('company', 'name logo');
 
     if (!tender) {
       return res.status(404).json({ message: "Tender not found" });
@@ -49,7 +49,6 @@ export const createTender = async (req: any, res: Response) => {
     res.status(400).json({ message: error.message });
   }
 };
-
 
 /**
  * @desc    Broadcast a project from a Public Guest
@@ -98,12 +97,13 @@ export const createPublicTender = async (req: Request, res: Response) => {
     });
   }
 };
+
 export const submitProposal = async (req: any, res: Response) => {
   try {
     const { id: slugOrId } = req.params; // This is 'modern' from your URL
 
     // 1. Find the tender by SLUG first (since that's what the frontend is sending)
-    const tender = await Tender.findOne({ slug: slugOrId });
+    const tender = await Tender.findOne({ slug: slugOrId } as any);
 
     if (!tender) {
       return res.status(404).json({ message: "Project not found to bid on." });

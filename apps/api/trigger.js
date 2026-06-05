@@ -25,3 +25,8 @@
 // trigger zip fix
 // skip ts build
 // final fix
+// pull latest changes
+// pull latest changes
+// removed ebextensions
+// force deploy
+// force deploy

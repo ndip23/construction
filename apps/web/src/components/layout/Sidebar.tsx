@@ -98,7 +98,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
   });
 
   // DB-LEVEL AUTO-ADVANCE: removed
-  
+
   const isOwner = role === 'owner';
   const isWalletZero = isOwner && walletData && walletData.balance === 0;
 
@@ -167,7 +167,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={Calculator} label="BOQ Tools" path="/dashboard/boq" onNavigate={onNavigate} {...getBlockProps('/dashboard/boq')} />
             <NavItem icon={BarChart3} label="Analytics" path="/dashboard/analytics" onNavigate={onNavigate} {...getBlockProps('/dashboard/analytics')} />
             <NavItem icon={Sparkles} label="AI Hub" path="/dashboard/ai" onNavigate={onNavigate} {...getBlockProps('/dashboard/ai')} />
-            
+
             <NavItem icon={Users} label="Workers Management" path="/dashboard/workers-management" onNavigate={onNavigate} {...getBlockProps('/dashboard/workers-management')} />
             <NavItem icon={Settings} label="User Profile" path="/dashboard/settings/profile" onNavigate={onNavigate} {...getBlockProps('/dashboard/settings/profile')} />
           </>

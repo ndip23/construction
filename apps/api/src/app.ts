@@ -41,7 +41,10 @@ app.use(helmet());
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://construction-ten-zeta.vercel.app"
+  "https://construction-ten-zeta.vercel.app",
+  "https://cpromark.com",
+  "https://www.cpromark.com",
+  "https://d1q5gtvb1a02hf.cloudfront.net"
 ];
 
 app.use(cors({

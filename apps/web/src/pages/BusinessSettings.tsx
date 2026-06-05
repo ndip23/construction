@@ -304,7 +304,10 @@ const BusinessSettings = () => {
               <input
                 type="number"
                 value={effectiveFormData.receiptSettings?.defaultTaxRate || 0}
-                onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, defaultTaxRate: Number(e.target.value) } })}
+                onChange={e => setFormData({ 
+                  ...formData, 
+                  receiptSettings: { ...formData.receiptSettings, defaultTaxRate: Number(e.target.value) } 
+                })}
                 className={t.input}
               />
             </div>
@@ -313,7 +316,10 @@ const BusinessSettings = () => {
               <input
                 type="text"
                 value={effectiveFormData.receiptSettings?.taxId || ''}
-                onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, taxId: e.target.value } })}
+                onChange={e => setFormData({ 
+                  ...formData, 
+                  receiptSettings: { ...formData.receiptSettings, taxId: e.target.value } 
+                })}
                 className={t.input}
                 placeholder="Optional"
               />
@@ -323,7 +329,10 @@ const BusinessSettings = () => {
               <input
                 type="text"
                 value={effectiveFormData.receiptSettings?.whatsappNumber || ''}
-                onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, whatsappNumber: e.target.value } })}
+                onChange={e => setFormData({ 
+                  ...formData, 
+                  receiptSettings: { ...formData.receiptSettings, whatsappNumber: e.target.value } 
+                })}
                 className={t.input}
                 placeholder="+237..."
               />
@@ -333,7 +342,10 @@ const BusinessSettings = () => {
               <input
                 type="text"
                 value={effectiveFormData.receiptSettings?.defaultPaymentTerms || ''}
-                onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, defaultPaymentTerms: e.target.value } })}
+                onChange={e => setFormData({ 
+                  ...formData, 
+                  receiptSettings: { ...formData.receiptSettings, defaultPaymentTerms: e.target.value } 
+                })}
                 className={t.input}
                 placeholder="e.g. Due on receipt"
               />
@@ -342,7 +354,10 @@ const BusinessSettings = () => {
               <label className={t.label + ' block px-1'}>Layout Format</label>
               <select
                 value={effectiveFormData.receiptSettings?.format || 'standard'}
-                onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, format: e.target.value as 'standard' | 'modern' | 'minimal' } })}
+                onChange={e => setFormData({ 
+                  ...formData, 
+                  receiptSettings: { ...formData.receiptSettings, format: e.target.value as 'standard' | 'modern' | 'minimal' } 
+                })}
                 className={t.input}
               >
                 <option value="standard">Standard</option>
@@ -356,13 +371,19 @@ const BusinessSettings = () => {
                 <input
                   type="color"
                   value={effectiveFormData.receiptSettings?.themeColor || '#000000'}
-                  onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, themeColor: e.target.value } })}
+                  onChange={e => setFormData({ 
+                    ...formData, 
+                    receiptSettings: { ...formData.receiptSettings, themeColor: e.target.value } 
+                  })}
                   className="w-12 h-12 rounded cursor-pointer border-0 p-0"
                 />
                 <input
                   type="text"
                   value={effectiveFormData.receiptSettings?.themeColor || '#000000'}
-                  onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, themeColor: e.target.value } })}
+                  onChange={e => setFormData({ 
+                    ...formData, 
+                    receiptSettings: { ...formData.receiptSettings, themeColor: e.target.value } 
+                  })}
                   className={t.input}
                 />
               </div>
@@ -372,7 +393,10 @@ const BusinessSettings = () => {
               <input
                 type="text"
                 value={effectiveFormData.receiptSettings?.signature || ''}
-                onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, signature: e.target.value } })}
+                onChange={e => setFormData({ 
+                  ...formData, 
+                  receiptSettings: { ...formData.receiptSettings, signature: e.target.value } 
+                })}
                 className={t.input}
                 placeholder="John Doe or https://..."
               />

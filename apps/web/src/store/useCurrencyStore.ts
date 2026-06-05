@@ -37,7 +37,9 @@ interface CurrencyState {
 }
 
 const DEFAULT_CURRENCY = SUPPORTED_CURRENCIES[0]; // XAF
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+
+// ✅ FIXED: Using HTTPS and CloudFront
+const API_URL = import.meta.env.VITE_API_URL || 'https://d12e8wwao0hlhx.cloudfront.net/api/v1';
 
 export const useCurrencyStore = create<CurrencyState>()(
   persist(
