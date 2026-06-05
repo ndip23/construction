@@ -14,21 +14,25 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - name: Install dependencies
-        run: |
-          cd apps/web
-          yarn install
+        run: cd apps/web && yarn install
+
       - name: Build
-        run: |
-          cd apps/web
-          yarn build
+        run: cd apps/web && yarn build
+
       - name: Deploy to S3
-        uses: jakejarvis/s3-sync-action@v0.5.1
-        with:
-          args: --delete
         env:
-          AWS_S3_BUCKET: construction-frontend-990521646564
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: eu-north-1
-          SOURCE_DIR: apps/web/dist
+          AWS_DEFAULT_REGION: eu-north-1
+        run: |
+          aws s3 sync apps/web/dist/ s3://construction-frontend-990521646564 --delete
+
+      - name: Invalidate CloudFront
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          aws cloudfront create-invalidation --distribution-id E2ZYHOCPS2ESA8 --paths "/*"
