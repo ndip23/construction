@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Building2, Briefcase, Store,
   ClipboardList, FileText, Calculator, Landmark,
   Users, Sparkles, Files, Settings, Crown, HardHat, ShieldCheck, BarChart3, LogOut,
-  Inbox, Lock, Wallet, Receipt, KeyRound
+  Inbox, Lock, Wallet, Receipt, KeyRound, Radar
 } from 'lucide-react';
 
 interface NavItemProps {
@@ -150,6 +150,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={Building2} label="Business Profile" path="/dashboard/settings/business" onNavigate={onNavigate} />
             <NavItem icon={Inbox} label="Inquiries" path="/dashboard/inquiries" onNavigate={onNavigate} badge={summary?.msgCount} />
             <NavItem icon={Store} label="Marketplace" path="/dashboard/marketplace" onNavigate={onNavigate} badge={summary?.orderCount} />
+            <NavItem icon={Radar} label="Tenders" path="/dashboard/opportunities" onNavigate={onNavigate} />
             <NavItem icon={ClipboardList} label="Opportunities" path="/dashboard/tenders" onNavigate={onNavigate} badge={summary?.tenderCount} />
             <NavItem icon={Landmark} label="Finance & Reports" path="/dashboard/finance" onNavigate={onNavigate} />
             <NavItem icon={FileText} label="Invoices" path="/dashboard/invoices" onNavigate={onNavigate} />

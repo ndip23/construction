@@ -23,9 +23,14 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({ receipt, company
   
   const HeaderBlock = () => (
     <div className="flex flex-col gap-2">
-      <h1 className="text-4xl font-black tracking-tighter" style={{ color: themeColor }}>
-        {company.name}
-      </h1>
+      <div className="flex items-center gap-4 mb-2">
+        {company.logo && (
+          <img src={company.logo} alt={company.name} className="h-12 w-auto object-contain rounded-lg" />
+        )}
+        <h1 className="text-4xl font-black tracking-tighter" style={{ color: themeColor }}>
+          {company.name}
+        </h1>
+      </div>
       <div className="text-sm font-medium text-gray-500 space-y-1">
         {company.address && <p>{company.address}</p>}
         {company.email && <p>{company.email}</p>}
@@ -97,13 +102,13 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({ receipt, company
              <img src={settings.letterheadUrl} alt="Letterhead" className="w-full h-auto mb-8 rounded-lg" />
           )}
           
+          <div className="mb-12 border-b-2 border-gray-100 pb-8">
+            <BillToBlock />
+          </div>
+
           <div className="flex justify-between items-start mb-16">
              <HeaderBlock />
              <ReceiptInfoBlock />
-          </div>
-
-          <div className="mb-12">
-            <BillToBlock />
           </div>
 
           <table className="w-full mb-8">
@@ -176,18 +181,23 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({ receipt, company
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-16 mb-20">
+        <div className="grid grid-cols-2 gap-16 mb-16 border-b border-gray-100 pb-8">
           <div>
-            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 border-b border-gray-100 pb-2">From</h3>
-            <p className="text-lg font-bold text-gray-900">{company.name}</p>
-            <p className="text-sm text-gray-500 mt-2 leading-relaxed">{company.address}</p>
-            <p className="text-sm text-gray-500">{company.email}</p>
-          </div>
-          <div>
-            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 border-b border-gray-100 pb-2">To</h3>
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 border-b border-gray-100 pb-2">To (Customer)</h3>
             <p className="text-lg font-bold text-gray-900">{receipt.client?.name}</p>
             <p className="text-sm text-gray-500 mt-2 leading-relaxed">{receipt.client?.address}</p>
             <p className="text-sm text-gray-500">{receipt.client?.email}</p>
+          </div>
+          <div>
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 border-b border-gray-100 pb-2">From</h3>
+            <div className="flex items-center gap-3 mb-3">
+              {company.logo && (
+                 <img src={company.logo} alt={company.name} className="h-10 w-auto object-contain rounded-lg" />
+              )}
+              <p className="text-lg font-bold text-gray-900">{company.name}</p>
+            </div>
+            <p className="text-sm text-gray-500 leading-relaxed">{company.address}</p>
+            <p className="text-sm text-gray-500">{company.email}</p>
           </div>
         </div>
 
@@ -238,9 +248,22 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({ receipt, company
          <img src={settings.letterheadUrl} alt="Letterhead" className="w-full h-auto mb-8" />
       )}
       
+      <div className="mb-8 border-b-2 border-gray-200 pb-6 bg-gray-50 p-6 rounded-xl">
+        <h3 className="text-sm font-bold text-gray-900 mb-2 uppercase border-b border-gray-200 pb-2">Billed To (Customer)</h3>
+        <p className="text-lg font-bold text-gray-800">{receipt.client?.name}</p>
+        <p className="text-sm text-gray-600">{receipt.client?.email}</p>
+        <p className="text-sm text-gray-600">{receipt.client?.phone}</p>
+        <p className="text-sm text-gray-600">{receipt.client?.address}</p>
+      </div>
+
       <div className="flex justify-between border-b-2 pb-8 mb-8" style={{ borderBottomColor: themeColor }}>
          <div className="flex-1">
-           <h1 className="text-3xl font-bold text-gray-900 mb-2">{company.name}</h1>
+           <div className="flex items-center gap-4 mb-4">
+             {company.logo && (
+               <img src={company.logo} alt={company.name} className="h-12 w-auto object-contain rounded-lg" />
+             )}
+             <h1 className="text-3xl font-bold text-gray-900">{company.name}</h1>
+           </div>
            <div className="text-sm text-gray-600 space-y-1">
              <p>{company.address}</p>
              <p>{company.email} | {company.phone}</p>
@@ -252,14 +275,6 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({ receipt, company
            <p className="text-sm text-gray-600"><span className="font-bold mr-2">No:</span> {receipt.receiptNumber}</p>
            <p className="text-sm text-gray-600"><span className="font-bold mr-2">Date:</span> {new Date(receipt.createdAt).toLocaleDateString()}</p>
          </div>
-      </div>
-
-      <div className="mb-8">
-        <h3 className="text-sm font-bold text-gray-900 mb-2 uppercase border-b pb-2">Billed To</h3>
-        <p className="text-lg font-bold text-gray-800">{receipt.client?.name}</p>
-        <p className="text-sm text-gray-600">{receipt.client?.email}</p>
-        <p className="text-sm text-gray-600">{receipt.client?.phone}</p>
-        <p className="text-sm text-gray-600">{receipt.client?.address}</p>
       </div>
 
       <table className="w-full mb-8 border-collapse">
