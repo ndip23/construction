@@ -195,15 +195,15 @@ const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose
 
         {/* Country selector */}
         <div className="mb-5">
-          <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1.5 flex items-center gap-2">
+          <label className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-1.5 flex items-center gap-2">
             Your Payment Country
-            {isCurrencyLocked && <Lock size={12} className="text-white/30" />}
+            {isCurrencyLocked && <Lock size={12} className="text-black/30" />}
           </label>
           <select
             value={countryCode}
             disabled={isCurrencyLocked}
             onChange={(e) => setCountryCode(e.target.value)}
-            className="w-full px-4 py-3.5 bg-white/5 rounded-2xl text-sm font-medium text-white border border-white/5 outline-none focus:ring-2 focus:ring-primary/30 appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-4 py-3.5 bg-white/5 rounded-2xl text-sm font-medium text-black border border-black/5 outline-none focus:ring-2 focus:ring-primary/30 appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {COUNTRIES.map((c) => (
               <option key={c.code} value={c.code} className="bg-white">{c.label}</option>
@@ -216,14 +216,14 @@ const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose
 
         {/* Quick amounts */}
         <div className="mb-5">
-          <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1.5 block">Quick Select (USD)</label>
+          <label className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-1.5 block">Quick Select (USD)</label>
           <div className="grid grid-cols-3 gap-2">
             {QUICK_USD.map((a) => (
               <button
                 key={a}
                 type="button"
                 onClick={() => setUsdAmount(String(a))}
-                className={`py-3 rounded-xl font-black text-sm transition-all ${String(a) === usdAmount ? 'bg-primary text-brand-navy' : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/5'}`}
+                className={`py-3 rounded-xl font-black text-sm transition-all ${String(a) === usdAmount ? 'bg-primary text-brand-navy' : 'bg-white/5 text-black/60 hover:bg-white/10 border border-black/5'}`}
               >
                 ${a}
               </button>
@@ -233,16 +233,16 @@ const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose
 
         {/* Custom amount */}
         <div className="mb-5">
-          <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1.5 block">Custom Amount (USD)</label>
+          <label className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-1.5 block">Custom Amount (USD)</label>
           <div className="relative">
-            <DollarSign size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" />
+            <DollarSign size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/30" />
             <input
               type="number"
               min="1"
               placeholder="Enter amount in USD"
               value={usdAmount}
               onChange={(e) => setUsdAmount(e.target.value)}
-              className="w-full pl-10 pr-4 py-3.5 bg-white/5 rounded-2xl text-sm font-medium text-white placeholder-white/25 border border-white/5 outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full pl-10 pr-4 py-3.5 bg-white/5 rounded-2xl text-sm font-medium text-black placeholder-black/25 border border-black/5 outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
         </div>
@@ -259,7 +259,6 @@ const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose
               <div className="flex items-center justify-between mb-2 gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-[0.22em] text-foreground/40 font-black">Local payment preview</p>
-                  <p className="text-sm text-foreground/60">Approximate amount you will pay in your selected country.</p>
                 </div>
                 {loadingRate ? (
                   <Loader2 size={20} className="text-primary animate-spin" />
@@ -271,9 +270,6 @@ const TopUpModal = ({ onClose, initialCountryCode, isCurrencyLocked }: { onClose
                     <p className="text-xs text-foreground/40">for ${usdValue.toFixed(2)} USD</p>
                   </div>
                 )}
-              </div>
-              <div className="rounded-2xl bg-white/5 p-3 border border-white/5 text-[11px] text-foreground/50">
-                Deposit stored as USD. Payment is collected in the local currency shown above.
               </div>
             </motion.div>
           )}
