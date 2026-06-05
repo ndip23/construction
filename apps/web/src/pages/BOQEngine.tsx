@@ -738,12 +738,17 @@ const BOQEngine = () => {
   const vatRate = getVatByCurrency(currency.code);
   const vatAmount = subtotal * vatRate;
 
+  const { data: myCompany } = useQuery({
+    queryKey: ['my-company'],
+    queryFn: async () => (await apiClient.get('/auth/company/profile')).data
+  });
+
   // Money formatted for the PDF. Use the currency code (Latin) rather than the
   // symbol, since jsPDF's default font cannot render glyphs like ₦ / GH₵ / E£.
   const moneyPdf = (usd: number) =>
     `${Number(fromUSD(usd || 0)).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${currency.code}`;
 
-  const exportPDF = () => {
+  const exportPDF = async () => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
     const marginX = 40;
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -755,32 +760,78 @@ const BOQEngine = () => {
     // --- Branded navy header band ---
     doc.setFillColor(...NAVY);
     doc.rect(0, 0, pageWidth, 96, 'F');
-    // Yellow "BH" logo mark
-    doc.setFillColor(...YELLOW);
-    doc.roundedRect(marginX, 30, 36, 36, 7, 7, 'F');
-    doc.setTextColor(...NAVY);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(15);
-    doc.text('BH', marginX + 8, 54);
+    
+    let textStartX = marginX + 50;
+
+    if (myCompany?.logo) {
+      try {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.src = myCompany.logo;
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+        
+        // Calculate aspect ratio to fit inside 40x40 bounding box
+        const ratio = Math.min(40 / img.width, 40 / img.height);
+        const w = img.width * ratio;
+        const h = img.height * ratio;
+        // Center vertically in the 30-70 Y range (middle is 50)
+        doc.addImage(img, 'PNG', marginX, 50 - (h / 2), w, h);
+        textStartX = marginX + w + 14;
+      } catch (err) {
+        // Fallback to BH block if image fails to load
+        doc.setFillColor(...YELLOW);
+        doc.roundedRect(marginX, 30, 36, 36, 7, 7, 'F');
+        doc.setTextColor(...NAVY);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(15);
+        doc.text('BH', marginX + 8, 54);
+      }
+    } else {
+      // Yellow "BH" logo mark
+      doc.setFillColor(...YELLOW);
+      doc.roundedRect(marginX, 30, 36, 36, 7, 7, 'F');
+      doc.setTextColor(...NAVY);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(15);
+      doc.text('BH', marginX + 8, 54);
+    }
+
     // Brand name + document title
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(17);
-    doc.text(company, marginX + 50, 48);
+    doc.text(company, textStartX, 48);
     doc.setTextColor(...YELLOW);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
-    doc.text('BILL OF QUANTITIES', marginX + 50, 63);
+    doc.text('BILL OF QUANTITIES', textStartX, 63);
     // Right-aligned meta in header
     doc.setTextColor(200, 210, 220);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8.5);
     doc.text(`Generated  ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`, rightX, 44, { align: 'right' });
     doc.text(`Currency  ${currency.code}`, rightX, 57, { align: 'right' });
-    doc.text(`Status  All items verified`, rightX, 70, { align: 'right' });
+    // --- Customer & Project Block ---
+    doc.setTextColor(148, 163, 184);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('BILLED TO (CUSTOMER)', marginX, 115);
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(11);
+    doc.text(scopedProject?.clientName || 'General Client', marginX, 128);
+
+    doc.setTextColor(148, 163, 184);
+    doc.setFontSize(8);
+    doc.text('PROJECT DETAILS', marginX + 250, 115);
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(11);
+    doc.text(scopedProjectName || 'General Project', marginX + 250, 128);
 
     // --- Items table (branded) ---
     autoTable(doc, {
-      startY: 120,
+      startY: 150,
       head: [['#', 'Description', 'Unit', 'Qty', 'Rate', 'Line Total']],
       body: items.map((item: any, i: number) => [
         String(i + 1),

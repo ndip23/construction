@@ -9,7 +9,7 @@ import { TourModal } from '../components/dashboard/TourModal';
 import apiClient from '../api/client';
 import { t } from '../theme';
 import {
-  Briefcase, ClipboardList, FileText, Users,
+  Briefcase, ClipboardList, FileText, Users, Radar,
   BarChart, Sparkles, MapPin, Store, Building2, Calculator, ArrowRight,
   Wallet, FolderKanban, CheckCircle2, TrendingUp, Plus, Receipt, MessageSquare, Inbox
 } from 'lucide-react';
@@ -185,11 +185,19 @@ const Dashboard = () => {
           />
 
           <DashboardCard
+            icon={Radar}
+            title="Tenders"
+            desc="Discover new leads and business tenders."
+            path="/dashboard/opportunities"
+            delay={0.15}
+          />
+
+          <DashboardCard
             icon={ClipboardList}
             title="Opportunities"
-            desc="Browse open tenders and submit bids."
+            desc="Browse open opportunities and submit bids."
             path="/dashboard/tenders"
-            delay={0.15}
+            delay={0.18}
           />
 
           <DashboardCard

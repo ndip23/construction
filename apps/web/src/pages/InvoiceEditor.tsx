@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { useAuthStore } from '../store/useAuthStore';
 import apiClient from '../api/client';
@@ -18,6 +18,11 @@ const InvoiceEditor = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuthStore(); // Pulling your real company branding
+
+  const { data: company } = useQuery({
+    queryKey: ['my-company'],
+    queryFn: async () => (await apiClient.get('/auth/company/profile')).data
+  });
 
   // 1. STATE FOR DYNAMIC DATA
   const [items, setItems] = useState([
@@ -168,26 +173,35 @@ const InvoiceEditor = () => {
           <section className="w-full lg:w-1/2 bg-background rounded-2xl sm:rounded-[3rem] p-4 sm:p-10 flex justify-center overflow-x-auto overflow-y-auto custom-scrollbar shadow-inner min-h-[320px] lg:min-h-0">
             <motion.div layout className="w-full max-w-[595px] min-h-[600px] sm:min-h-[842px] bg-card shadow-2xl p-6 sm:p-14 flex flex-col shrink-0">
               
-              {/* AUTOMATIC BRANDING FROM AUTH STORE */}
-              <div className="flex justify-between items-start mb-16">
+              {/* CUSTOMER INFORMATION AT THE TOP */}
+              <div className="mb-10 border-b border-border pb-6 bg-muted/20 p-6 rounded-2xl">
+                <p className="text-[9px] font-black uppercase tracking-widest text-foreground/50 mb-2">Billed to (Customer)</p>
+                <h4 className="font-black text-foreground text-lg uppercase">{client.name || 'Recipient Name'}</h4>
+                <p className="text-xs text-brand-muted leading-relaxed mt-1">{client.address || 'Recipient Address'}</p>
+              </div>
+
+              {/* AUTOMATIC BRANDING FROM AUTH STORE & COMPANY */}
+              <div className="flex justify-between items-start mb-12">
                 <div>
-                  <div className="w-14 h-14 bg-background rounded-2xl flex items-center justify-center text-foreground font-black text-xl italic mb-6">
-                    {user?.company?.charAt(0) || 'B'}
+                  <div className="flex items-center gap-4 mb-4">
+                    {company?.logo ? (
+                      <img src={company.logo} alt={company.name} className="h-12 w-auto object-contain rounded-lg" />
+                    ) : (
+                      <div className="w-12 h-12 bg-background rounded-2xl flex items-center justify-center text-foreground font-black text-xl italic">
+                        {user?.company?.charAt(0) || 'B'}
+                      </div>
+                    )}
+                    <div>
+                      <h2 className="text-xl font-black text-foreground">{user?.company || 'My Company'}</h2>
+                      <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-tighter italic mt-0.5">BuildHub Premium Member</p>
+                    </div>
                   </div>
-                  <h2 className="text-xl font-black text-foreground">{user?.company || 'My Company'}</h2>
-                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-tighter italic">BuildHub Premium Member</p>
                 </div>
                 <div className="text-right">
                   <h1 className="text-5xl font-light text-foreground/15 uppercase tracking-tighter mb-4">Invoice</h1>
                   <p className="text-sm font-black text-foreground">#DRAFT-{new Date().getFullYear()}</p>
                   <p className="text-[10px] text-muted-foreground font-bold mt-1 uppercase tracking-widest">{new Date().toLocaleDateString()}</p>
                 </div>
-              </div>
-
-              <div className="mb-12">
-                <p className="text-[9px] font-black uppercase tracking-widest text-foreground/35 mb-2">Billed to</p>
-                <h4 className="font-black text-foreground text-sm uppercase">{client.name || 'Recipient Name'}</h4>
-                <p className="text-[10px] text-brand-muted w-2/3 leading-relaxed mt-1">{client.address || 'Recipient Address'}</p>
               </div>
 
               <table className="w-full mb-12">
