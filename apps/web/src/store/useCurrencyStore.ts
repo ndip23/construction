@@ -37,7 +37,7 @@ interface CurrencyState {
 }
 
 const DEFAULT_CURRENCY = SUPPORTED_CURRENCIES[0]; // XAF
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const API_URL = import.meta.env.VITE_API_URL || 'http://Construction-backend-env.eba-mjnpxcdm.eu-north-1.elasticbeanstalk.com/api/v1';
 
 export const useCurrencyStore = create<CurrencyState>()(
   persist(

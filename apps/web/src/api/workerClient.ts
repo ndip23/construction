@@ -3,7 +3,7 @@ import axios from 'axios';
 // Dedicated client for the worker portal — uses 'workerToken' so it never
 // touches the manager session's 'token' in localStorage.
 const workerClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1',
+  baseURL: import.meta.env.VITE_API_URL || 'http://Construction-backend-env.eba-mjnpxcdm.eu-north-1.elasticbeanstalk.com/api/v1',
 });
 
 workerClient.interceptors.request.use((config) => {
