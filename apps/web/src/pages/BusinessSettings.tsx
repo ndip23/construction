@@ -227,6 +227,20 @@ const BusinessSettings = () => {
           </div>
         </div>
 
+        {/* MANAGE SERVICES */}
+        <div className="bg-primary/10 border border-primary/20 rounded-[3.5rem] p-12 mb-12 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+          <div>
+            <h3 className="text-2xl font-black text-foreground">Business Services</h3>
+            <p className={t.muted}>Manage the services your company offers on the public directory.</p>
+          </div>
+          <button
+            onClick={() => window.location.href = '/dashboard/services'}
+            className="flex items-center gap-2 bg-primary text-brand-navy px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-yellow whitespace-nowrap"
+          >
+            Manage Services
+          </button>
+        </div>
+
         {/* GALLERY */}
         <div className="bg-card border border-border rounded-[3.5rem] p-12 shadow-sm">
           <div className="flex justify-between items-center mb-10 px-2">

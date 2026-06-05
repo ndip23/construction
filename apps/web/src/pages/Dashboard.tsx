@@ -9,7 +9,7 @@ import { TourModal } from '../components/dashboard/TourModal';
 import apiClient from '../api/client';
 import { t } from '../theme';
 import {
-  Briefcase, Wrench, ClipboardList, FileText,
+  Briefcase, ClipboardList, FileText, Users,
   BarChart, Sparkles, MapPin, Store, Building2, Calculator, ArrowRight,
   Wallet, FolderKanban, CheckCircle2, TrendingUp, Plus, Receipt, MessageSquare, Inbox
 } from 'lucide-react';
@@ -169,7 +169,7 @@ const Dashboard = () => {
           <DashboardCard
             icon={Building2}
             title="Business"
-            desc="Manage your company profile and operations."
+            desc="Manage your company profile and services."
             path="/dashboard/settings/business"
             delay={0.05}
             isPrimary={true}
@@ -186,7 +186,7 @@ const Dashboard = () => {
 
           <DashboardCard
             icon={ClipboardList}
-            title="Tenders"
+            title="Opportunities"
             desc="Browse open tenders and submit bids."
             path="/dashboard/tenders"
             delay={0.15}
@@ -251,18 +251,18 @@ const Dashboard = () => {
           />
 
           <DashboardCard
-            icon={Wrench}
-            title="Services"
-            desc="Configure your service offerings and public profile."
-            path="/dashboard/services"
-            delay={0.55}
-          />
-
-          <DashboardCard
             icon={Inbox}
             title="Inquiries"
             desc="Manage directory leads and client messages."
             path="/dashboard/inquiries"
+            delay={0.55}
+          />
+
+          <DashboardCard
+            icon={Users}
+            title="Workers Management"
+            desc="Payroll, attendance, timesheets, tasks and your team."
+            path="/dashboard/workers-management"
             delay={0.6}
           />
 
