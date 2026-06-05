@@ -29,6 +29,7 @@ import taskRoutes from './routes/taskRoutes';
 import workerAuthRoutes from './routes/workerAuthRoutes';
 import receiptRoutes from './routes/receiptRoutes';
 import superAdminRoutes from './routes/superAdminRoutes';
+import communityRoutes from './routes/communityRoutes';
 
 import { errorHandler } from './middleware/errorMiddleware';
 
@@ -91,6 +92,7 @@ app.use('/api/v1/payroll', payrollRoutes);
 app.use('/api/v1/tasks', taskRoutes);
 app.use('/api/v1/worker', workerAuthRoutes);
 app.use('/api/v1/receipts', receiptRoutes);
+app.use('/api/v1/community', communityRoutes);
 
 // 4. HEALTH CHECK ROUTE
 app.get('/health', (req, res) => {
