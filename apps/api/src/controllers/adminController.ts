@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import Company from '../models/Company';
-import Invoice from '../models/Invoice'; // CRITICAL: Added missing import
+import Invoice from '../models/Invoice';
 import User from '../models/User';
 import Tender from '../models/Tender';
 import Settings from '../models/Settings';
@@ -19,7 +19,7 @@ export const getPendingCompanies = async (req: Request, res: Response) => {
 export const verifyCompany = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { status } = req.body; // 'verified' or 'rejected'
+    const { status } = req.body;
     
     const company = await Company.findByIdAndUpdate(id, { status }, { new: true });
     res.status(200).json({ message: `Company is now ${status}`, company });
@@ -75,7 +75,7 @@ export const getActivityLogs = async (req: Request, res: Response) => {
         type: "Registration"
       })),
       ...recentTenders.map(t => ({
-        message: `New Tender: ${t.title} published by ${t.company?.name || 'Private Client'}`,
+        message: `New Tender: ${t.title} published by ${(t.company as any)?.name || 'Private Client'}`,
         timestamp: "Recent",
         region: t.location,
         type: "Marketplace"
@@ -87,6 +87,7 @@ export const getActivityLogs = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Activity stream disconnected" });
   }
 };
+
 /**
  * @desc    Get all registered companies on the platform
  * @route   GET /api/v1/admin/companies
@@ -105,6 +106,7 @@ export const getAllCompanies = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to retrieve global company list." });
   }
 };
+
 /**
  * @desc    Get detailed platform analytics for charts
  * @route   GET /api/v1/admin/analytics
@@ -140,6 +142,7 @@ export const getAnalytics = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to process platform big data." });
   }
 };
+
 /**
  * @desc    Get Global Platform Settings
  * @route   GET /api/v1/admin/settings
@@ -163,7 +166,7 @@ export const getSettings = async (req: Request, res: Response) => {
  */
 export const updateSettings = async (req: Request, res: Response) => {
   try {
-    const updatedSettings = await Settings.findOneAndUpdate({}, req.body, {
+    const updatedSettings = await Settings.findOneAndUpdate({} as any, req.body, {
       new: true,
       upsert: true // Creates it if it's missing
     });

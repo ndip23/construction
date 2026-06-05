@@ -153,6 +153,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={Store} label="Marketplace" path="/dashboard/marketplace" onNavigate={onNavigate} badge={summary?.orderCount} />
             <NavItem icon={Radar} label="Tenders" path="/dashboard/opportunities" onNavigate={onNavigate} />
             <NavItem icon={ClipboardList} label="Opportunities" path="/dashboard/tenders" onNavigate={onNavigate} badge={summary?.tenderCount} />
+            <NavItem icon={MessageSquare} label="Community" path="/dashboard/community" onNavigate={onNavigate} />
             <NavItem icon={Landmark} label="Finance & Reports" path="/dashboard/finance" onNavigate={onNavigate} />
             <NavItem icon={FileText} label="Invoices" path="/dashboard/invoices" onNavigate={onNavigate} />
             <NavItem icon={Receipt} label="Smart Receipts" path="/dashboard/receipts" onNavigate={onNavigate} />
