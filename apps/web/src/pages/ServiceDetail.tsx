@@ -87,7 +87,7 @@ const ServiceDetail = () => {
                 {service.company?.isVerified && (
                   <div className="flex items-center gap-2 text-emerald-600">
                     <ShieldCheck size={18} />
-                    <span>BuildHub Certified</span>
+                    <span>Cpromark Certified</span>
                   </div>
                 )}
               </div>
@@ -183,7 +183,7 @@ const ServiceDetail = () => {
                     <ShieldCheck className="text-foreground" size={24} />
                   </div>
                   <div>
-                    <p className="text-xs font-black text-foreground uppercase tracking-tight">BuildHub Escrow</p>
+                    <p className="text-xs font-black text-foreground uppercase tracking-tight">Cpromark Escrow</p>
                     <p className="text-[10px] text-brand-muted mt-1 font-medium leading-relaxed">Payments are only released once the project milestones are verified by our system.</p>
                   </div>
                 </div>

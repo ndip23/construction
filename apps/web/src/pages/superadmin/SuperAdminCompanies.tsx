@@ -111,7 +111,7 @@ const SuperAdminCompanies = () => {
 
   const handleExport = () => {
     exportToCSV(
-      `buildhub-companies-${Date.now()}`,
+      `cpromark-companies-${Date.now()}`,
       companies ?? [],
       [
         { key: 'name', label: 'Name' },

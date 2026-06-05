@@ -156,11 +156,11 @@ const SuperAdminOverview = () => {
       ['Wallet float', data.walletFloat.toLocaleString()],
     ];
     exportTableToPDF({
-      title: 'BuildHub — Platform Report',
+      title: 'Cpromark — Platform Report',
       subtitle: 'Superadmin Console • Global Snapshot',
       head: ['Metric', 'Value'],
       body,
-      filename: `buildhub-platform-report-${Date.now()}.pdf`,
+      filename: `cpromark-platform-report-${Date.now()}.pdf`,
     });
   };
 
@@ -176,7 +176,7 @@ const SuperAdminOverview = () => {
               </div>
               <h1 className={t.h2}>Platform Control</h1>
             </div>
-            <p className={t.muted}>BuildHub Superadmin Console • Global Overview</p>
+            <p className={t.muted}>Cpromark Superadmin Console • Global Overview</p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             <button

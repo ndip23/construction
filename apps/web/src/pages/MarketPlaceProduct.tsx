@@ -175,7 +175,7 @@ const MarketplaceProduct = () => {
             </div>
             
             <div className="mt-8 flex items-center gap-2 justify-center lg:justify-start text-[10px] font-black text-foreground/35 uppercase tracking-widest">
-              <CheckCircle2 size={12} className="text-emerald-500" /> Secure BuildHub Transaction
+              <CheckCircle2 size={12} className="text-emerald-500" /> Secure Cpromark Transaction
             </div>
           </motion.div>
         </div>

@@ -1,4 +1,4 @@
-// ─── BuildHub Unified Theme ────────────────────────────────────────────────
+// ─── Cpromark Unified Theme ────────────────────────────────────────────────
 // Import from this file instead of writing raw Tailwind strings inline.
 // All class strings here are hand-typed — zero regex contamination.
 

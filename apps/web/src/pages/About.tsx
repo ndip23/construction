@@ -23,7 +23,7 @@ const About = () => {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-dim">Construction</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
-            BuildHub is the premier platform connecting contractors, suppliers, and engineering professionals across the globe. We streamline operations from the ground up.
+            Cpromark is the premier platform connecting contractors, suppliers, and engineering professionals across the globe. We streamline operations from the ground up.
           </p>
         </motion.div>
 

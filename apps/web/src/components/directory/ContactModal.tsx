@@ -39,7 +39,7 @@ export const ContactModal = ({ isOpen, onClose, company }: ContactModalProps) =>
       
       if (company.phone) {
         const clean = company.phone.replace(/[^0-9]/g, '');
-        let text = `Hello ${company.name}, I found your profile on BuildHub Africa.\n\n`;
+        let text = `Hello ${company.name}, I found your profile on Cpromark Africa.\n\n`;
         text += `*New Inquiry:*\n`;
         text += `Name: ${form.clientName}\n`;
         if (form.phone) text += `Phone: ${form.phone}\n`;

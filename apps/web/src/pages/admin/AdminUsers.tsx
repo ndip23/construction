@@ -41,7 +41,7 @@ const AdminUsers = () => {
           <div>
             <h1 className="text-3xl font-black text-foreground tracking-tight">Registered Companies</h1>
             <p className="text-sm text-muted-foreground font-medium italic underline underline-offset-4 decoration-blue-600/30">
-               Managing {companies?.length || 0} business entities on the BuildHub network.
+               Managing {companies?.length || 0} business entities on the Cpromark network.
             </p>
           </div>
           
@@ -155,7 +155,7 @@ const AdminUsers = () => {
 
         {/* BOTTOM METRICS */}
         <div className="mt-8 flex flex-col md:flex-row items-center justify-between px-4 gap-4 opacity-50">
-            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em]">BuildHub Africa • Master Directory v4.2</p>
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em]">Cpromark Africa • Master Directory v4.2</p>
             <div className="flex items-center gap-6">
                <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full" />

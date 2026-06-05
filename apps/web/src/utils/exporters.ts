@@ -1,4 +1,4 @@
-// ─── BuildHub Export Utilities ─────────────────────────────────────────────
+// ─── Cpromark Export Utilities ─────────────────────────────────────────────
 // CSV + PDF export helpers shared across the superadmin dashboard.
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';

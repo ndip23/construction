@@ -66,7 +66,7 @@ const AccountSettings = () => {
           <div className="flex-1">
             <h2 className="text-2xl font-black text-brand-navy">{user?.name}</h2>
             <p className="text-sm text-muted-foreground font-medium capitalize">
-                {user?.role} • BuildHub Workspace User
+                {user?.role} • Cpromark Workspace User
             </p>
             <div className="flex items-center gap-2 mt-3">
                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
@@ -146,7 +146,7 @@ const AccountSettings = () => {
             <div className="p-8 bg-rose-50 rounded-[2.5rem] border border-rose-100 flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
                 <h4 className="font-black text-rose-900 text-lg">Danger Zone</h4>
-                <p className="text-xs text-rose-400 font-medium max-w-sm">Revoke your access to BuildHub. This action is irreversible.</p>
+                <p className="text-xs text-rose-400 font-medium max-w-sm">Revoke your access to Cpromark. This action is irreversible.</p>
               </div>
               <button 
                 onClick={logout}

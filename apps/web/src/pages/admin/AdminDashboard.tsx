@@ -42,7 +42,7 @@ const AdminDashboard = () => {
                 Master Control: {user?.name}
               </h1>
             </div>
-            <p className="text-sm text-muted-foreground font-medium">BuildHub Governance Console • Session: Encrypted</p>
+            <p className="text-sm text-muted-foreground font-medium">Cpromark Governance Console • Session: Encrypted</p>
           </div>
 
           <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-600">
