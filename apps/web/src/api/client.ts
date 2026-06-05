@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 
 const apiClient = axios.create({
   // Pulls from your .env file
-  baseURL: import.meta.env.VITE_API_URL || 'http://Construction-backend-env.eba-mjnpxcdm.eu-north-1.elasticbeanstalk.com/api/v1',
+  baseURL: import.meta.env.VITE_API_URL || 'http://Pressing-prod-env.eba-3f9xgw3m.eu-north-1.elasticbeanstalk.com/api/v1',
 });
 
 // 1. REQUEST INTERCEPTOR: Inject Token
