@@ -23,23 +23,21 @@ export const register = async (req: Request, res: Response) => {
     if (existingUser) return res.status(400).json({ message: "Email already in use." });
 
     const hashedPassword = await bcrypt.hash(password, 12);
-    // SECURITY: never trust a client-supplied role. Public registration can
-    // ONLY ever create a tenant 'owner'. Platform roles (admin/superadmin) are
-    // provisioned out-of-band via the seed script — never through this endpoint.
     const user = new User({ name, email, password: hashedPassword, role: 'owner' });
     await user.save();
 
     const company = new Company({
       name: companyName, city, country, owner: user._id, status: 'pending'
     });
-    await company.save(); // Model middleware handles slug generation
+    await company.save();
 
     user.company = company._id as any;
     await user.save();
 
     const token = jwt.sign(
       { id: user._id, role: user.role, companyId: company._id, slug: company.slug },
-      process.env.JWT_SECRET!, { expiresIn: '7d' }
+      process.env.JWT_SECRET!,
+      { expiresIn: '7d' }
     );
 
     res.status(201).json({
@@ -52,7 +50,7 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-// Fire-and-forget audit of a login attempt — never block/break login on failure.
+// Fire-and-forget audit of a login attempt
 const recordLogin = async (data: any) => {
   try { await LoginEvent.create({ kind: 'manager', ...data }); }
   catch (e) { console.error('[loginEvent]', (e as Error).message); }
@@ -84,18 +82,19 @@ export const login = async (req: Request, res: Response) => {
 
     const token = jwt.sign(
       { id: user._id, role: user.role, companyId: companyDoc?._id, slug: companyDoc?.slug },
-      process.env.JWT_SECRET!, { expiresIn: '7d' }
+      process.env.JWT_SECRET!,
+      { expiresIn: '7d' }
     );
 
     res.status(200).json({
       token,
       user: {
-         id: user._id,
-    name: user.name,
-    role: user.role,
-    companyId: companyDoc?._id,
-    company: companyDoc?.name,
-    slug: companyDoc?.slug
+        id: user._id,
+        name: user.name,
+        role: user.role,
+        companyId: companyDoc?._id,
+        company: companyDoc?.name,
+        slug: companyDoc?.slug
       }
     });
   } catch (error) {
@@ -120,7 +119,7 @@ const getAuthorizedCompany = async (req: any, slug?: string) => {
   return company;
 };
 
-// @desc    Get logged-in user's company profile (slug-safe)
+// @desc    Get logged-in user's company profile
 export const getMyCompanyProfile = async (req: any, res: Response) => {
   try {
     const company = await getAuthorizedCompany(req);
@@ -131,7 +130,7 @@ export const getMyCompanyProfile = async (req: any, res: Response) => {
   }
 };
 
-// @desc    Get Company by Slug (Fixes 404)
+// @desc    Get Company by Slug
 export const getCompanyBySlug = async (req: any, res: Response) => {
   try {
     const company = await getAuthorizedCompany(req, req.params.slug);
@@ -152,8 +151,6 @@ export const updateCompanyBySlug = async (req: any, res: Response) => {
       return res.status(403).json({ message: "Unauthorized update attempt." });
     }
 
-    // SECURITY: whitelist editable fields. Never spread req.body — that let an
-    // owner set status:'verified' (self-approve), walletBalance, owner, slug, etc.
     const allowed = ['name', 'phone', 'website', 'sector', 'address', 'city',
       'country', 'countryCode', 'currency', 'email', 'logo', 'portfolio', 'receiptSettings'];
     const update: Record<string, any> = {};
@@ -180,13 +177,12 @@ export const getSummary = async (req: any, res: Response) => {
       Order.find({ company: companyId })
     ]);
 
-    const totalIncome = invoices.filter(i => i.status === 'Paid').reduce((acc, curr) => acc + (curr.totalAmount || 0), 0);
-    const outstanding = invoices.filter(i => i.status === 'Pending').reduce((acc, curr) => acc + (curr.totalAmount || 0), 0);
-    const totalExpenses = orders.reduce((acc, curr) => acc + (curr.amount || 0), 0);
+    const totalIncome = invoices.filter((i: any) => i.status === 'Paid').reduce((acc: number, curr: any) => acc + (curr.totalAmount || 0), 0);
+    const outstanding = invoices.filter((i: any) => i.status === 'Pending').reduce((acc: number, curr: any) => acc + (curr.totalAmount || 0), 0);
+    const totalExpenses = orders.reduce((acc: number, curr: any) => acc + (curr.amount || 0), 0);
 
-    // Calculate Dynamic Expense Breakdown based on Orders
     const expensesByCategory: Record<string, number> = {};
-    orders.forEach(order => {
+    orders.forEach((order: any) => {
       const name = order.itemName || 'Misc';
       expensesByCategory[name] = (expensesByCategory[name] || 0) + (order.amount || 0);
     });
@@ -197,7 +193,7 @@ export const getSummary = async (req: any, res: Response) => {
     }).sort((a, b) => b.value - a.value).slice(0, 4);
 
     if (expenseBreakdown.length === 0) {
-      expenseBreakdown = []; // Will handle zero-state in UI
+      expenseBreakdown = [];
     }
 
     res.status(200).json({
@@ -222,10 +218,10 @@ export const getFinanceInsights = async (req: any, res: Response) => {
       Service.find({ company: companyId }).limit(5)
     ]);
 
-    const totalIncome = invoices.filter(i => i.status === 'Paid').reduce((acc, curr) => acc + (curr.totalAmount || 0), 0);
-    const outstanding = invoices.filter(i => i.status === 'Pending').reduce((acc, curr) => acc + (curr.totalAmount || 0), 0);
-    const totalExpenses = orders.reduce((acc, curr) => acc + (curr.amount || 0), 0);
-    const serviceNames = services.map(s => s.name).join(', ') || 'No specific services listed yet';
+    const totalIncome = invoices.filter((i: any) => i.status === 'Paid').reduce((acc: number, curr: any) => acc + (curr.totalAmount || 0), 0);
+    const outstanding = invoices.filter((i: any) => i.status === 'Pending').reduce((acc: number, curr: any) => acc + (curr.totalAmount || 0), 0);
+    const totalExpenses = orders.reduce((acc: number, curr: any) => acc + (curr.amount || 0), 0);
+    const serviceNames = services.map((s: any) => s.name).join(', ') || 'No specific services listed yet';
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ message: "AI Integration not configured" });
@@ -233,8 +229,7 @@ export const getFinanceInsights = async (req: any, res: Response) => {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-    const prompt = `
-You are a top-tier construction financial analyst.
+    const prompt = `You are a top-tier construction financial analyst.
 Review the following real financial data for a construction company named "${company?.name || 'Company'}":
 - Total Income (Paid Invoices): $${totalIncome}
 - Outstanding Invoices: $${outstanding}
@@ -243,30 +238,25 @@ Review the following real financial data for a construction company named "${com
 - Top Services Provided: ${serviceNames}
 - Total Invoice Count: ${invoices.length}
 
-You must return a strictly formatted JSON object with exactly the following 6 keys. Do not include markdown blocks (\`\`\`json) or any outside text. Just the raw JSON. If they have $0 in values, calculate a score of 0 and strongly advise them to start listing services and making transactions.
+You must return a strictly formatted JSON object with exactly the following 6 keys. Do not include markdown blocks or any outside text. Just the raw JSON.
 {
-  "performanceScore": "An integer between 0 and 100 representing their financial health based on income vs expenses, outstanding debt, and service volume. Ensure it is a Number.",
-  "scoreSuggestion": "1 specific sentence on exactly what to do to increase their performance score.",
-  "productROI": "Analyze the return on investment based on their listed products and units. 2 sentences.",
-  "serviceProjection": "Project expected income based on the types of services listed. 2 sentences.",
-  "investmentStrategy": "Provide suggestions on where to invest money. If $0 profit, suggest how to secure jobs. 2 sentences.",
-  "operationalRisk": "Analyze risk factors (e.g., zero presence, overdue invoices). 2 sentences."
+  "performanceScore": "An integer between 0 and 100",
+  "scoreSuggestion": "1 specific sentence",
+  "productROI": "2 sentences",
+  "serviceProjection": "2 sentences",
+  "investmentStrategy": "2 sentences",
+  "operationalRisk": "2 sentences"
 }`;
 
     const result = await model.generateContent(prompt);
     let textResult = result.response.text().trim();
-    if (textResult.startsWith('\`\`\`json')) {
-      textResult = textResult.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
-    } else if (textResult.startsWith('\`\`\`')) {
-      textResult = textResult.replace(/\`\`\`/g, '').trim();
-    }
+    textResult = textResult.replace(/```json/g, '').replace(/```/g, '').trim();
 
     let insights;
     try {
       insights = JSON.parse(textResult);
     } catch (e) {
       console.error("Failed to parse Gemini JSON:", textResult);
-      // Fallback object
       insights = {
         performanceScore: 0,
         scoreSuggestion: "Data parsing error. Please try again.",
@@ -283,6 +273,7 @@ You must return a strictly formatted JSON object with exactly the following 6 ke
     res.status(500).json({ message: "Failed to generate financial insights." });
   }
 };
+
 export const updateCompanyLogo = async (req: any, res: Response) => {
   try {
     if (!req.file) return res.status(400).json({ message: "No image file provided" });
@@ -344,7 +335,7 @@ export const deleteCompanyPortfolioImage = async (req: any, res: Response) => {
     const company = await getAuthorizedCompany(req, req.params.slug);
     if (!company) return res.status(403).json({ message: "Unauthorized update attempt." });
 
-    company.portfolio = (company.portfolio || []).filter((url) => url !== imageUrl);
+    company.portfolio = (company.portfolio || []).filter((url: string) => url !== imageUrl);
     await company.save();
 
     res.status(200).json({ message: "Image removed from portfolio", portfolio: company.portfolio });
@@ -352,7 +343,8 @@ export const deleteCompanyPortfolioImage = async (req: any, res: Response) => {
     res.status(500).json({ message: "Failed to remove image" });
   }
 };
-// @desc    Update company profile using JWT companyId (no slug needed — safe for new accounts)
+
+// @desc    Update company profile using JWT companyId
 export const updateMyCompanyProfile = async (req: any, res: Response) => {
   try {
     const companyId = req.user?.companyId;
@@ -380,7 +372,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'User not found with this email.' });
 
-    // Generate reset token (valid for 1 hour)
     const resetToken = jwt.sign(
       { id: user._id, type: 'password_reset' },
       process.env.JWT_SECRET!,
@@ -389,7 +380,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     res.status(200).json({
       message: 'Password reset token issued. Check your email.',
-      resetToken // In production, send this via email
+      resetToken
     });
   } catch (error) {
     res.status(500).json({ message: 'Forgot password request failed.' });
@@ -406,7 +397,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 
     let decoded: any;
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET!);
+      decoded = jwt.verify(token as string, process.env.JWT_SECRET!);
     } catch {
       return res.status(400).json({ message: 'Invalid or expired reset token.' });
     }

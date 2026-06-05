@@ -12,9 +12,9 @@ export const getOverview = async (req: any, res: Response) => {
     const companyId = req.user.companyId;
 
     const [projects, boqs, feedback] = await Promise.all([
-      Project.find({ company: companyId }).lean(),
-      BOQ.find({ company: companyId }).lean(),
-      PriceFeedback.find({ company: companyId }).lean(),
+      Project.find({ company: companyId } as any).lean(),
+      BOQ.find({ company: companyId } as any).lean(),
+      PriceFeedback.find({ company: companyId } as any).lean(),
     ]);
 
     // --- Projects by status + budgets ---
@@ -50,7 +50,7 @@ export const getOverview = async (req: any, res: Response) => {
 
     // --- Top projects by BOQ value (for the bar chart) ---
     const topProjects = projects
-      .map((p) => ({
+      .map((p: any) => ({
         name: p.name,
         budget: p.budget || 0,
         spent: p.spent || 0,

@@ -50,10 +50,10 @@ export const getInquiryStats = async (req: any, res: Response) => {
     let impressions = 0;
     let clicks = 0;
 
-    activities.forEach(activity => {
+    for (const activity of activities) {
       if (activity.action === 'impression') impressions++;
-      if (activity.action === 'whatsapp_click' || activity.action === 'click') clicks++;
-    });
+      if (activity.action === 'whatsapp_click' || (activity.action as string) === 'click') clicks++;
+    }
 
     const ctaRate = impressions > 0 ? ((clicks / impressions) * 100).toFixed(1) : "0.0";
 
@@ -108,12 +108,12 @@ export const getAiInsights = async (req: any, res: Response) => {
 
     let impressions = 0;
     let clicks = 0;
-    activities.forEach(a => {
+    for (const a of activities) {
       if (a.action === 'impression') impressions++;
-      if (a.action === 'whatsapp_click' || a.action === 'click') clicks++;
-    });
+      if (a.action === 'whatsapp_click' || (a.action as string) === 'click') clicks++;
+    }
 
-    const inquiryData = inquiries.map(i => ({
+    const inquiryData = inquiries.map((i: any) => ({
       message: i.message,
       location: i.location,
       date: i.createdAt
@@ -149,8 +149,8 @@ Return ONLY valid JSON without any markdown formatting blocks like \`\`\`json.
 
     const result = await model.generateContent(prompt);
     let text = result.response.text().trim();
-    if (text.startsWith('\`\`\`json')) text = text.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
-    if (text.startsWith('\`\`\`')) text = text.replace(/\`\`\`/g, '').trim();
+    if (text.startsWith('```json')) text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    if (text.startsWith('```')) text = text.replace(/```/g, '').trim();
 
     const parsed = JSON.parse(text);
     res.status(200).json(parsed);

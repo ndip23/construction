@@ -12,11 +12,6 @@ type OppInput = Partial<IOpportunity>;
 
 const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-/**
- * Upserts a list of opportunity inputs by externalId.
- * Fills in isConstruction/category via heuristics if missing.
- * Returns { ingested, bySource }.
- */
 async function upsertOpportunities(items: OppInput[]) {
   let ingested = 0;
   const bySource: Record<string, number> = {};
@@ -34,7 +29,8 @@ async function upsertOpportunities(items: OppInput[]) {
       item.category = guessCategory(text);
     }
 
-    await Opportunity.updateOne(
+    // Use (Opportunity as any) to bypass TypeScript strict typing
+    await (Opportunity as any).updateOne(
       { externalId: item.externalId },
       { $set: item },
       { upsert: true }
@@ -48,10 +44,6 @@ async function upsertOpportunities(items: OppInput[]) {
   return { ingested, bySource };
 }
 
-/**
- * @desc    Ingest opportunities from all connectors (owner only)
- * @route   POST /api/v1/opportunities/ingest
- */
 export const ingestOpportunities = async (req: any, res: Response) => {
   try {
     const items = await runAllConnectors();
@@ -63,13 +55,8 @@ export const ingestOpportunities = async (req: any, res: Response) => {
   }
 };
 
-/**
- * @desc    Discover opportunities with filters + personalized match score
- * @route   GET /api/v1/opportunities
- */
 export const getOpportunities = async (req: any, res: Response) => {
   try {
-    // On first ever load, pull from the live sources (World Bank + JSearch).
     const count = await Opportunity.estimatedDocumentCount();
     if (count === 0) {
       await upsertOpportunities(await runAllConnectors());
@@ -87,7 +74,6 @@ export const getOpportunities = async (req: any, res: Response) => {
       filter.$or = [{ title: rx }, { description: rx }];
     }
 
-    // Load the requesting user's company for scoring context.
     let company: any = null;
     if (req.user?.companyId) {
       company = await Company.findById(req.user.companyId)
