@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Building2, Briefcase, Store,
   ClipboardList, FileText, Calculator, Landmark,
   Users, Sparkles, Files, Settings, Crown, HardHat, ShieldCheck, BarChart3, LogOut,
-  Inbox, Wrench, Lock, Wallet, Radar, Receipt, Clock, CalendarClock, Banknote, ListChecks, KeyRound
+  Inbox, Lock, Wallet, Receipt, KeyRound
 } from 'lucide-react';
 
 interface NavItemProps {
@@ -148,22 +148,17 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={Briefcase} label="Projects" path="/dashboard/projects" onNavigate={onNavigate} />
             <NavItem icon={Wallet} label="Wallet" path="/dashboard/wallet" onNavigate={onNavigate} />
             <NavItem icon={Building2} label="Business Profile" path="/dashboard/settings/business" onNavigate={onNavigate} />
-            <NavItem icon={Wrench} label="My Services" path="/dashboard/services" onNavigate={onNavigate} />
             <NavItem icon={Inbox} label="Inquiries" path="/dashboard/inquiries" onNavigate={onNavigate} badge={summary?.msgCount} />
             <NavItem icon={Store} label="Marketplace" path="/dashboard/marketplace" onNavigate={onNavigate} badge={summary?.orderCount} />
-            <NavItem icon={ClipboardList} label="Tenders & Jobs" path="/dashboard/tenders" onNavigate={onNavigate} badge={summary?.tenderCount} />
-            <NavItem icon={Radar} label="Tenders" path="/dashboard/opportunities" onNavigate={onNavigate} />
+            <NavItem icon={ClipboardList} label="Opportunities" path="/dashboard/tenders" onNavigate={onNavigate} badge={summary?.tenderCount} />
             <NavItem icon={Landmark} label="Finance & Reports" path="/dashboard/finance" onNavigate={onNavigate} />
             <NavItem icon={FileText} label="Invoices" path="/dashboard/invoices" onNavigate={onNavigate} />
             <NavItem icon={Receipt} label="Smart Receipts" path="/dashboard/receipts" onNavigate={onNavigate} />
-            <NavItem icon={Users} label="Workers & Team" path="/dashboard/workforce" onNavigate={onNavigate} />
-            <NavItem icon={Clock} label="Attendance" path="/dashboard/attendance" onNavigate={onNavigate} />
-            <NavItem icon={CalendarClock} label="Timesheets" path="/dashboard/timesheets" onNavigate={onNavigate} />
-            <NavItem icon={Banknote} label="Payroll" path="/dashboard/payroll" onNavigate={onNavigate} />
-            <NavItem icon={ListChecks} label="Tasks" path="/dashboard/tasks" onNavigate={onNavigate} />
             <NavItem icon={Calculator} label="BOQ Tools" path="/dashboard/boq" onNavigate={onNavigate} />
             <NavItem icon={BarChart3} label="Analytics" path="/dashboard/analytics" onNavigate={onNavigate} />
             <NavItem icon={Sparkles} label="AI Hub" path="/dashboard/ai" onNavigate={onNavigate} />
+            
+            <NavItem icon={Users} label="Workers Management" path="/dashboard/workers-management" onNavigate={onNavigate} />
             <NavItem icon={Settings} label="User Profile" path="/dashboard/settings/profile" onNavigate={onNavigate} />
           </>
         )}
