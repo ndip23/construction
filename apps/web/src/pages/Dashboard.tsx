@@ -106,16 +106,15 @@ const DashboardCard = ({
 const Dashboard = () => {
   const { user } = useAuthStore();
   const { getHasSeenTour } = useOnboardingStore();
-  // Remove unused fromUSD - only keep format if you use it
   const { format } = useCurrencyStore();
   const navigate = useNavigate();
   const [showWalletModal, setShowWalletModal] = useState(false);
 
-  // Fetch overview data - remove unused variables
+  // Prefetch overview data (kept for future use, explicitly unused to avoid TS error)
   useQuery<Overview>({
     queryKey: ['analytics-overview'],
     queryFn: async () => (await apiClient.get('/analytics/overview')).data,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 
   // Fetch wallet balance
@@ -123,8 +122,8 @@ const Dashboard = () => {
     queryKey: ['wallet-balance'],
     queryFn: async () => (await apiClient.get('/wallet/balance')).data,
     enabled: user?.role === 'owner',
-    refetchInterval: 60000, // 1 minute
-    staleTime: 30000, // 30 seconds
+    refetchInterval: 60000,
+    staleTime: 30000,
   });
 
   // Memoized balance calculation
@@ -187,7 +186,7 @@ const Dashboard = () => {
             </p>
           </motion.div>
 
-          {/* Optional: Display wallet balance for owner */}
+          {/* Display wallet balance for owner */}
           {user?.role === 'owner' && balance !== null && balance > 0 && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
