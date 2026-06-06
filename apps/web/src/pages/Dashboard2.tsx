@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion} from 'framer-motion';
 import { Skeleton } from '../components/ui/Skeleton'; // Assuming your skeleton is here
@@ -9,12 +10,12 @@ import {
   Briefcase, Wrench, ClipboardList, 
   FileText, Plus, ChevronRight, 
   BarChart, Sparkles, MapPin, Store, Building2, Calculator,
-  Loader2, TrendingUp, MessageCircle
+  Loader2, TrendingUp, MessageCircle, Lock, Wallet
 } from 'lucide-react';
 
 // --- SUB-COMPONENT: SHIMMERING STAT CARD ---
 const StatCard = ({ icon: Icon, title, value, sub, iconBg, iconColor, isLoading }: any) => (
-  <div className="bg-card border border-border p-5 rounded-3xl border border-border flex gap-4 shadow-sm hover:shadow-md transition-all">
+  <div className="bg-card border border-border p-5 rounded-3xl flex gap-4 shadow-sm hover:shadow-md transition-all">
     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${iconBg} ${iconColor}`}>
       {isLoading ? <Loader2 size={18} className="animate-spin opacity-20" /> : <Icon size={20} />}
     </div>
@@ -30,15 +31,32 @@ const StatCard = ({ icon: Icon, title, value, sub, iconBg, iconColor, isLoading 
   </div>
 );
 
-// --- SUB-COMPONENT: QUICK ACCESS LINK ---
-const QuickAccess = ({ icon: Icon, label, bg, path }: any) => (
-  <Link to={path} className="flex flex-col items-center gap-2 cursor-pointer group shrink-0">
-    <div className={`w-14 h-14 rounded-[1.25rem] flex items-center justify-center ${bg} text-foreground shadow-sm transition-all group-hover:scale-110 group-hover:shadow-lg group-hover:-translate-y-1`}>
-      <Icon size={22} />
-    </div>
-    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter group-hover:text-primary transition-colors">{label}</span>
-  </Link>
-);
+const QuickAccess = ({ icon: Icon, label, bg, path, locked, onLockedClick }: any) => {
+  return (
+    <Link 
+      to={path} 
+      onClick={(e) => {
+        if (locked) {
+          e.preventDefault();
+          if (onLockedClick) onLockedClick();
+        }
+      }}
+      className={`flex flex-col items-center gap-2 cursor-pointer group shrink-0 relative ${locked ? 'opacity-50' : ''}`}
+    >
+      <div className={`w-14 h-14 rounded-[1.25rem] flex items-center justify-center ${bg} text-foreground shadow-sm transition-all group-hover:scale-[1.02] ${!locked && 'group-hover:scale-110 group-hover:shadow-lg group-hover:-translate-y-1'}`}>
+        <Icon size={22} />
+        {locked && (
+          <div className="absolute -top-2 -right-2 bg-background rounded-full p-1 shadow-sm border border-border">
+            <Lock size={12} className="text-foreground/40" />
+          </div>
+        )}
+      </div>
+      <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${locked ? 'text-muted-foreground' : 'text-muted-foreground group-hover:text-primary'}`}>{label}</span>
+    </Link>
+  );
+};
+
+
 
 const Dashboard = () => {
   const { user } = useAuthStore();
@@ -61,6 +79,29 @@ const Dashboard = () => {
     }
   });
 
+  const [showWalletModal, setShowWalletModal] = useState(false);
+  const navigate = useNavigate();
+
+  const { data: walletData, isLoading: walletLoading } = useQuery({
+    queryKey: ['wallet-balance'],
+    queryFn: async () => (await apiClient.get('/wallet/balance')).data,
+    enabled: user?.role === 'owner',
+    refetchInterval: 60000,
+  });
+
+  const getBalance = () => {
+    if (walletData) return Number(walletData.balance || 0);
+    if (summary) return Number(summary.balance || 0);
+    return null;
+  };
+
+  const balance = getBalance();
+  const isWalletZero = user?.role === 'owner' && (walletLoading || (balance !== null && balance <= 0));
+
+  const handleLockedClick = () => {
+    setShowWalletModal(true);
+  };
+
   return (
     <DashboardShell>
       <div className="max-w-[1600px] mx-auto pb-20">
@@ -72,7 +113,7 @@ const Dashboard = () => {
                 Good morning, {user?.name?.split(' ')[0] || 'Member'} 👋
             </h1>
             <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-1 italic">
-                {user?.company || "Cpromark Workspace"} • Premium Tier
+                {user?.company || "Cprohub Workspace"} • Premium Tier
             </p>
           </motion.div>
           
@@ -83,22 +124,28 @@ const Dashboard = () => {
              <Link 
                 to="/dashboard/projects/new" 
                 className="bg-primary text-brand-navy px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-yellow hover:scale-[1.02] hover:scale-[1.02] transition-all flex items-center gap-2"
+                onClick={(e) => {
+                  if (isWalletZero) {
+                    e.preventDefault();
+                    handleLockedClick();
+                  }
+                }}
              >
                <Plus size={16} /> New Project
              </Link>
           </div>
         </div>
   {/* QUICK ACCESS BAR */}
-        <div className="bg-card border border-border p-10 rounded-[3rem] border border-border flex justify-between shadow-premium mb-10 overflow-x-auto no-scrollbar gap-10">
-          <QuickAccess icon={Building2} label="Inquiries" bg="bg-background" path="/dashboard/inquiries" />
-          <QuickAccess icon={Store} label="Market" bg="bg-emerald-500" path="/dashboard/marketplace" />
-          <QuickAccess icon={ClipboardList} label="Tenders" bg="bg-orange-500" path="/dashboard/tenders" />
-          <QuickAccess icon={FileText} label="Invoices" bg="bg-purple-600" path="/dashboard/invoices" />
-          <QuickAccess icon={Calculator} label="BOQ Tool" bg="bg-rose-500" path="/dashboard/boq" />
-          <QuickAccess icon={Briefcase} label="Projects" bg="bg-indigo-600" path="/dashboard/projects" />
-          <QuickAccess icon={Wrench} label="Services" bg="bg-primary" path="/dashboard/services" />
-          <QuickAccess icon={Sparkles} label="AI Hub" bg="bg-violet-600" path="/dashboard/ai" />
-          <QuickAccess icon={BarChart} label="Reports" bg="bg-rose-600" path="/dashboard/finance" />
+        <div className="bg-card border border-border p-10 rounded-[3rem] flex justify-between shadow-premium mb-10 overflow-x-auto no-scrollbar gap-10">
+          <QuickAccess icon={Building2} label="Inquiries" bg="bg-background" path="/dashboard/inquiries" locked={isWalletZero} onLockedClick={handleLockedClick} />
+          <QuickAccess icon={Store} label="Market" bg="bg-emerald-500" path="/dashboard/marketplace" locked={isWalletZero} onLockedClick={handleLockedClick} />
+          <QuickAccess icon={ClipboardList} label="Tenders" bg="bg-orange-500" path="/dashboard/tenders" locked={isWalletZero} onLockedClick={handleLockedClick} />
+          <QuickAccess icon={FileText} label="Invoices" bg="bg-purple-600" path="/dashboard/invoices" locked={isWalletZero} onLockedClick={handleLockedClick} />
+          <QuickAccess icon={Calculator} label="BOQ Tool" bg="bg-rose-500" path="/dashboard/boq" locked={isWalletZero} onLockedClick={handleLockedClick} />
+          <QuickAccess icon={Briefcase} label="Projects" bg="bg-indigo-600" path="/dashboard/projects" locked={isWalletZero} onLockedClick={handleLockedClick} />
+          <QuickAccess icon={Wrench} label="Services" bg="bg-primary" path="/dashboard/services" locked={isWalletZero} onLockedClick={handleLockedClick} />
+          <QuickAccess icon={Sparkles} label="AI Hub" bg="bg-violet-600" path="/dashboard/ai" locked={isWalletZero} onLockedClick={handleLockedClick} />
+          <QuickAccess icon={BarChart} label="Reports" bg="bg-rose-600" path="/dashboard/finance" locked={isWalletZero} onLockedClick={handleLockedClick} />
         </div>
 
         {/* TOP STATS GRID (WITH SKELETONS) */}
@@ -214,6 +261,40 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* WALLET MODAL */}
+      {showWalletModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setShowWalletModal(false)} />
+          <div className="relative bg-card border border-border w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl overflow-hidden flex flex-col items-center text-center">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-500 to-amber-300" />
+            <div className="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500 mb-6">
+              <Wallet size={32} />
+            </div>
+            <h2 className="text-2xl font-black text-foreground mb-2">Wallet Empty</h2>
+            <p className="text-muted-foreground font-medium mb-8">
+              Your wallet balance is currently 0. Please top up your wallet to access this feature and continue using platform services.
+            </p>
+            <div className="flex gap-3 w-full">
+              <button 
+                onClick={() => setShowWalletModal(false)}
+                className="flex-1 py-4 bg-muted hover:bg-muted/80 text-foreground rounded-2xl font-black text-xs uppercase tracking-widest transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => {
+                  setShowWalletModal(false);
+                  navigate('/dashboard/wallet');
+                }}
+                className="flex-1 py-4 bg-primary hover:bg-primary-dim text-brand-navy rounded-2xl font-black text-xs uppercase tracking-widest shadow-yellow transition-all"
+              >
+                Top Up Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardShell>
   );
 };

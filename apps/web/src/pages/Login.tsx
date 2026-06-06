@@ -46,9 +46,9 @@ const Login = () => {
       >
         {/* Logo */}
         <div className="text-center mb-10">
-          <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-brand-navy font-black italic mx-auto mb-6 shadow-yellow text-xl">B</div>
-          <h2 className="text-3xl font-black text-foreground mb-2 tracking-tighter">Welcome back</h2>
-          <p className="text-foreground/40 text-sm font-medium">Access your construction workspace.</p>
+          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center font-black text-brand-navy text-2xl italic mx-auto mb-6 shadow-lg">CP</div>
+          <h2 className="text-3xl font-black text-foreground mb-2 tracking-tighter">Welcome to Cpromark</h2>
+          <p className="text-foreground/40 text-sm font-medium">Access your professional workspace.</p>
         </div>
 
         {error && (

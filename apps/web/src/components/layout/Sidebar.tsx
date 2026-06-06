@@ -9,7 +9,7 @@ import {
   LayoutDashboard, Building2, Briefcase, Store,
   ClipboardList, FileText, Calculator, Landmark,
   Users, Sparkles, Files, Settings, Crown, HardHat, ShieldCheck, BarChart3, LogOut,
-  Inbox, Lock, Wallet, Receipt, KeyRound, Radar, MessageSquare
+  Lock, Wallet, Receipt, KeyRound, Radar, MessageSquare
 } from 'lucide-react';
 
 interface NavItemProps {
@@ -122,8 +122,8 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
     <aside className="w-[min(280px,85vw)] sm:w-[260px] h-[100dvh] bg-background text-foreground flex flex-col p-4 overflow-y-auto no-scrollbar border-r border-border/5">
       {/* LOGO */}
       <div className="flex items-center gap-3 mb-8 px-2">
-        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-black text-brand-navy text-xs italic">CP</div>
-        <h2 className="text-lg font-bold tracking-tight text-foreground">Cpromark</h2>
+        <img src="/cprohub-logo.jpeg" alt="Cprohub" className="w-8 h-8 rounded-lg bg-white p-0.5 object-contain shadow-sm" />
+        <h2 className="text-lg font-black tracking-tighter text-foreground italic">Cprohub</h2>
       </div>
 
       {/* Setup banner is hidden when navLocked is false */}
@@ -273,13 +273,13 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
               Your wallet balance is currently 0. Please top up your wallet to access this feature and continue using platform services.
             </p>
             <div className="flex gap-3 w-full">
-              <button 
+              <button
                 onClick={() => setShowWalletModal(false)}
                 className="flex-1 py-4 bg-muted hover:bg-muted/80 text-foreground rounded-2xl font-black text-xs uppercase tracking-widest transition-colors"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setShowWalletModal(false);
                   navigate('/dashboard/wallet');

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../api/client';
-import { Loader2, AlertCircle, HardHat, Phone, Lock } from 'lucide-react';
+import { Loader2, AlertCircle, Phone, Lock } from 'lucide-react';
 import { InstallPWA } from '../../components/InstallPWA';
 
 const WorkerLogin = () => {
@@ -50,9 +50,7 @@ const WorkerLogin = () => {
       >
         {/* Logo + heading */}
         <div className="text-center mb-10">
-          <div className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center text-brand-navy mx-auto mb-6 shadow-yellow">
-            <HardHat size={40} strokeWidth={2.5} />
-          </div>
+          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center font-black text-brand-navy text-2xl italic mx-auto mb-6 shadow-lg">CP</div>
           <h1 className="text-3xl font-black text-white mb-2 tracking-tight">Worker Sign In</h1>
           <p className="text-white/50 text-sm font-medium">Enter your phone and PIN</p>
         </div>
@@ -129,7 +127,7 @@ const WorkerLogin = () => {
           <InstallPWA className="inline-flex items-center justify-center gap-2 bg-white/10 border border-white/20 text-white px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/15 transition-all" />
         </div>
 
-        <p className="mt-6 text-center text-xs text-white/30 font-bold uppercase tracking-widest">
+        <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mt-8 text-center">
           Cpromark Worker Portal
         </p>
       </motion.div>
