@@ -1,50 +1,55 @@
-name: Deploy Construction Backend
+name: Deploy Backend to Elastic Beanstalk
 
 on:
   push:
-    branches: [main, master]
+    branches: [ main ]
     paths:
       - 'apps/api/**'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
-        run: cd apps/api && yarn install --ignore-engines
-
-      - name: Build TypeScript
-        run: cd apps/api && yarn build
-
-      - name: Create deployment package
         run: |
           cd apps/api
-          zip -r deploy.zip dist package.json yarn.lock
+          yarn install
+
+      - name: Build TypeScript
+        run: |
+          cd apps/api
+          yarn build
+
+      - name: Create clean deployment package
+        run: |
+          cd apps/api
+          mkdir -p deploy-package
+          cp -r dist deploy-package/
+          cp package.json deploy-package/
+          cp yarn.lock deploy-package/
+          cd deploy-package
+          zip -r ../deploy.zip .
+          cd ..
+          rm -rf deploy-package
+          echo "✅ Created deploy.zip with only dist/, package.json, yarn.lock"
+          unzip -l deploy.zip | head -20
 
       - name: Deploy to Elastic Beanstalk
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: eu-north-1
-        run: |
-          VERSION="deploy-$(date +'%Y%m%d-%H%M%S')"
-          echo "Version: $VERSION"
-          
-          aws s3 cp apps/api/deploy.zip s3://elasticbeanstalk-eu-north-1-990521646564/$VERSION.zip
-          
-          aws elasticbeanstalk create-application-version \
-            --application-name pressing-prod \
-            --version-label $VERSION \
-            --source-bundle S3Bucket="elasticbeanstalk-eu-north-1-990521646564",S3Key="$VERSION.zip"
-          
-          echo "Waiting for version to be processed..."
-          sleep 15
-          
-          aws elasticbeanstalk update-environment \
-            --environment-name Pressing-prod-env \
-            --version-label $VERSION
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: pressing-prod
+          environment_name: Pressing-prod-env
+          version_label: ${{ github.sha }}
+          region: eu-north-1
+          deployment_package: apps/api/deploy.zip
