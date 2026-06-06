@@ -169,10 +169,6 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={Building2} label="Business Profile" path="/dashboard/settings/business" onNavigate={onNavigate} {...getBlockProps('/dashboard/settings/business')} />
             <NavItem icon={Inbox} label="Buisness Directory" path="/dashboard/inquiries" onNavigate={onNavigate} badge={summary?.msgCount} {...getBlockProps('/dashboard/inquiries')} />
             <NavItem icon={Store} label="Buisness Marketplace" path="/dashboard/marketplace" onNavigate={onNavigate} badge={summary?.orderCount} {...getBlockProps('/dashboard/marketplace')} />
-=======
-            <NavItem icon={Building2} label="Business Directory" path="/dashboard/inquiries" onNavigate={onNavigate} badge={summary?.msgCount} {...getBlockProps('/dashboard/inquiries')} />
-            <NavItem icon={Store} label="Marketplace" path="/dashboard/marketplace" onNavigate={onNavigate} badge={summary?.orderCount} {...getBlockProps('/dashboard/marketplace')} />
->>>>>>> dcd96c06e495ce981b74d667def5138d0095a84b
             <NavItem icon={Radar} label="Tenders" path="/dashboard/opportunities" onNavigate={onNavigate} {...getBlockProps('/dashboard/opportunities')} />
             <NavItem icon={ClipboardList} label="Opportunities" path="/dashboard/tenders" onNavigate={onNavigate} badge={summary?.tenderCount} {...getBlockProps('/dashboard/tenders')} />
             <NavItem icon={MessageSquare} label="Community" path="/dashboard/community" onNavigate={onNavigate} {...getBlockProps('/dashboard/community')} />
