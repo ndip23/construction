@@ -126,19 +126,19 @@ const Dashboard = () => {
             </p>
           </motion.div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-            <div className="flex items-center gap-2 bg-muted px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-foreground/50 w-full sm:w-auto justify-center">
+          {/*<div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+           <div className="flex items-center gap-2 bg-muted px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-foreground/50 w-full sm:w-auto justify-center">
               <MapPin size={16} className="text-primary" />
               {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
             </div>
             <Link to="/dashboard/projects/new" className="bg-primary text-foreground hover:bg-primary-dim transition-all shadow-md px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 w-full sm:w-auto">
               <Plus size={18} /> New Project
             </Link>
-          </div>
+          </div>*/}
         </div>
 
-        {/* LIVE KPI ROW */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        
+        {/*<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           <KpiCard
             icon={Wallet}
             label="Total BOQ Value"
@@ -167,7 +167,7 @@ const Dashboard = () => {
             sub={budget ? money(budget.spent) : ' '}
             tint="bg-amber-500/10 text-amber-400"
           />
-        </div>
+        </div>*/}
 
         {/* GRID LAYOUT */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
@@ -192,8 +192,8 @@ const Dashboard = () => {
 
           <DashboardCard
             icon={Radar}
-            title="Tenders"
-            desc="Discover new leads and business tenders."
+            title="Scraper"
+            desc="Discover new leads and scrapes business tenders."
             path="/dashboard/opportunities"
             delay={0.15}
           />
@@ -242,8 +242,8 @@ const Dashboard = () => {
 
           <DashboardCard
             icon={Store}
-            title="Marketplace"
-            desc="Buy & sell heavy equipment and materials."
+            title="Buisness Marketplace"
+            desc="Sell heavy equipment and materials."
             path="/dashboard/marketplace"
             delay={0.4}
           />
@@ -266,7 +266,7 @@ const Dashboard = () => {
 
           <DashboardCard
             icon={Inbox}
-            title="Inquiries"
+            title="Buisness Directory"
             desc="Manage directory leads and client messages."
             path="/dashboard/inquiries"
             delay={0.55}
