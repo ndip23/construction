@@ -38,9 +38,7 @@ const BusinessSettings = () => {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const logoInputRef = useRef<HTMLInputElement>(null);
-  const galleryInputRef = useRef<HTMLInputElement>(null);
   const [tempLogo, setTempLogo] = useState<string | null>(null);
-  const [tempGallery, setTempGallery] = useState<string[]>([]);
   const [formData, setFormData] = useState<Partial<CompanyProfile>>({});
 
   const getPersistedSlug = () => {
@@ -86,7 +84,6 @@ const BusinessSettings = () => {
   };
 
   useEffect(() => { return () => { if (tempLogo) URL.revokeObjectURL(tempLogo); }; }, [tempLogo]);
-  useEffect(() => { return () => { tempGallery.forEach(url => URL.revokeObjectURL(url)); }; }, [tempGallery]);
 
   const logoPreview = tempLogo || company?.logo;
 
@@ -104,33 +101,6 @@ const BusinessSettings = () => {
       await queryClient.invalidateQueries({ queryKey: ['company-profile'] });
       toast.success('Logo Updated', { id: tid });
     } catch { toast.dismiss(tid); setTempLogo(null); }
-  };
-
-  const handleGalleryChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files ?? []);
-    if (!selectedFiles.length || !companySlug) return;
-    const localUrls = selectedFiles.map(f => URL.createObjectURL(f));
-    setTempGallery(prev => [...prev, ...localUrls]);
-    e.target.value = '';
-    const fd = new FormData();
-    selectedFiles.forEach(f => fd.append('files', f, f.name));
-    const tid = toast.loading('Uploading portfolio...');
-    try {
-      await apiClient.post(`/auth/company/${companySlug}/gallery`, fd);
-      await queryClient.invalidateQueries({ queryKey: ['company-profile'] });
-      setTempGallery([]);
-      toast.success('Portfolio Updated', { id: tid });
-    } catch { toast.dismiss(tid); setTempGallery([]); }
-  };
-
-  const deleteImage = async (imageUrl: string) => {
-    if (!companySlug) { toast.error('Missing company slug.'); return; }
-    const tid = toast.loading('Removing image...');
-    try {
-      await apiClient.delete(`/auth/company/${companySlug}/gallery`, { data: { imageUrl } });
-      await queryClient.invalidateQueries({ queryKey: ['company-profile'] });
-      toast.success('Image Removed', { id: tid });
-    } catch (err) { toast.error(getApiErrorMessage(err, 'Delete failed'), { id: tid }); }
   };
 
   const updateMutation = useMutation({
@@ -166,6 +136,11 @@ const BusinessSettings = () => {
   return (
     <DashboardShell>
       <div className="max-w-6xl mx-auto pb-40">
+        <header className="mb-10">
+          <h1 className="text-4xl font-black tracking-tight text-foreground">Edit Business Profile</h1>
+          <p className="text-muted-foreground mt-2 font-medium">Update your business details for the public directory.</p>
+        </header>
+
         {/* PROFILE CARD */}
         <div className="bg-card border border-border rounded-[3.5rem] overflow-hidden mb-12 shadow-sm">
           <div className="h-48 bg-background relative overflow-hidden">
@@ -219,199 +194,6 @@ const BusinessSettings = () => {
                 Save Profile
               </button>
             </div>
-          </div>
-        </div>
-
-        {/* MANAGE SERVICES */}
-        <div className="bg-primary/10 border border-primary/20 rounded-[3.5rem] p-12 mb-12 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            <h3 className="text-2xl font-black text-foreground">Business Services</h3>
-            <p className={t.muted}>Manage the services your company offers on the public directory.</p>
-          </div>
-          <button
-            onClick={() => window.location.href = '/dashboard/services'}
-            className="flex items-center gap-2 bg-primary text-brand-navy px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-yellow whitespace-nowrap"
-          >
-            Manage Services
-          </button>
-        </div>
-
-        {/* GALLERY */}
-        <div className="bg-card border border-border rounded-[3.5rem] p-12 shadow-sm">
-          <div className="flex justify-between items-center mb-10 px-2">
-            <div>
-              <h3 className="text-2xl font-black text-foreground">Project Showcase</h3>
-              <p className={t.muted}>Visual evidence of your completed construction works.</p>
-            </div>
-            <button
-              onClick={() => galleryInputRef.current?.click()}
-              className={t.btnPrimary + ' flex items-center gap-2'}
-            >
-              <Plus size={16} /> Add Work
-            </button>
-            <input type="file" multiple ref={galleryInputRef} className="hidden" onChange={handleGalleryChange} accept="image/*" />
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <AnimatePresence mode="popLayout">
-              {company?.portfolio?.map((url: string) => (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  key={url}
-                  className="aspect-square rounded-[2.5rem] overflow-hidden relative group bg-muted border border-border"
-                >
-                  <img src={url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Portfolio" />
-                  <div
-                    onClick={() => deleteImage(url)}
-                    className="absolute inset-0 bg-rose-600/80 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center cursor-pointer"
-                  >
-                    <Trash2 className="text-foreground" size={28} />
-                    <span className="text-[10px] text-foreground font-black mt-2 uppercase tracking-widest">Remove</span>
-                  </div>
-                </motion.div>
-              ))}
-              {tempGallery.map((url, i) => (
-                <div key={`temp-${i}`} className="aspect-square rounded-[2.5rem] overflow-hidden relative border-2 border-primary/20 bg-muted">
-                  <img src={url} className="w-full h-full object-cover opacity-40 blur-[1px]" alt="Uploading" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Loader2 className="animate-spin text-primary" size={32} />
-                  </div>
-                </div>
-              ))}
-            </AnimatePresence>
-            <div
-              onClick={() => galleryInputRef.current?.click()}
-              className="aspect-square rounded-[2.5rem] border-2 border-dashed border-border flex flex-col items-center justify-center text-foreground/15 cursor-pointer hover:border-primary hover:text-primary transition-all hover:bg-muted/30"
-            >
-              <Plus size={40} className="mb-2" />
-              <span className="text-[9px] font-black uppercase tracking-widest">Add Files</span>
-            </div>
-          </div>
-        </div>
-
-        {/* SMART RECEIPT SETTINGS */}
-        <div className="bg-card border border-border rounded-[3.5rem] p-12 shadow-sm mt-12">
-          <div className="mb-10 px-2">
-            <h3 className="text-2xl font-black text-foreground">Smart Receipt Settings</h3>
-            <p className={t.muted}>Configure the default layout, tax, and branding for your generated receipts.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-1">
-              <label className={t.label + ' block px-1'}>Default Tax Rate (%)</label>
-              <input
-                type="number"
-                value={effectiveFormData.receiptSettings?.defaultTaxRate || 0}
-                onChange={e => setFormData({ 
-                  ...formData, 
-                  receiptSettings: { ...formData.receiptSettings, defaultTaxRate: Number(e.target.value) } 
-                })}
-                className={t.input}
-              />
-            </div>
-            <div className="space-y-1">
-              <label className={t.label + ' block px-1'}>Tax ID / VAT Number</label>
-              <input
-                type="text"
-                value={effectiveFormData.receiptSettings?.taxId || ''}
-                onChange={e => setFormData({ 
-                  ...formData, 
-                  receiptSettings: { ...formData.receiptSettings, taxId: e.target.value } 
-                })}
-                className={t.input}
-                placeholder="Optional"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className={t.label + ' block px-1'}>WhatsApp Number (for receipts)</label>
-              <input
-                type="text"
-                value={effectiveFormData.receiptSettings?.whatsappNumber || ''}
-                onChange={e => setFormData({ 
-                  ...formData, 
-                  receiptSettings: { ...formData.receiptSettings, whatsappNumber: e.target.value } 
-                })}
-                className={t.input}
-                placeholder="+237..."
-              />
-            </div>
-            <div className="space-y-1">
-              <label className={t.label + ' block px-1'}>Default Payment Terms</label>
-              <input
-                type="text"
-                value={effectiveFormData.receiptSettings?.defaultPaymentTerms || ''}
-                onChange={e => setFormData({ 
-                  ...formData, 
-                  receiptSettings: { ...formData.receiptSettings, defaultPaymentTerms: e.target.value } 
-                })}
-                className={t.input}
-                placeholder="e.g. Due on receipt"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className={t.label + ' block px-1'}>Layout Format</label>
-              <select
-                value={effectiveFormData.receiptSettings?.format || 'standard'}
-                onChange={e => setFormData({ 
-                  ...formData, 
-                  receiptSettings: { ...formData.receiptSettings, format: e.target.value as 'standard' | 'modern' | 'minimal' } 
-                })}
-                className={t.input}
-              >
-                <option value="standard">Standard</option>
-                <option value="modern">Modern (Bordered)</option>
-                <option value="minimal">Minimal (Clean)</option>
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className={t.label + ' block px-1'}>Theme Color</label>
-              <div className="flex gap-2 items-center">
-                <input
-                  type="color"
-                  value={effectiveFormData.receiptSettings?.themeColor || '#000000'}
-                  onChange={e => setFormData({ 
-                    ...formData, 
-                    receiptSettings: { ...formData.receiptSettings, themeColor: e.target.value } 
-                  })}
-                  className="w-12 h-12 rounded cursor-pointer border-0 p-0"
-                />
-                <input
-                  type="text"
-                  value={effectiveFormData.receiptSettings?.themeColor || '#000000'}
-                  onChange={e => setFormData({ 
-                    ...formData, 
-                    receiptSettings: { ...formData.receiptSettings, themeColor: e.target.value } 
-                  })}
-                  className={t.input}
-                />
-              </div>
-            </div>
-            <div className="space-y-1 col-span-1 md:col-span-2">
-              <label className={t.label + ' block px-1'}>Digital Signature (Name or Image URL)</label>
-              <input
-                type="text"
-                value={effectiveFormData.receiptSettings?.signature || ''}
-                onChange={e => setFormData({ 
-                  ...formData, 
-                  receiptSettings: { ...formData.receiptSettings, signature: e.target.value } 
-                })}
-                className={t.input}
-                placeholder="John Doe or https://..."
-              />
-            </div>
-          </div>
-          
-          <div className="mt-8 flex justify-end">
-            <button
-              onClick={() => updateMutation.mutate(effectiveFormData as any)}
-              disabled={!companySlug || isUpdating}
-              className="flex items-center justify-center gap-3 bg-primary text-brand-navy rounded-2xl font-black text-xs uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all px-8 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isUpdating ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-              Save Settings
-            </button>
           </div>
         </div>
       </div>
