@@ -150,58 +150,7 @@ const Dashboard = () => {
               {user?.company || 'Cprohub Workspace'} • Premium Tier
             </p>
           </motion.div>
-
-          {/*<div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-           <div className="flex items-center gap-2 bg-muted px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-foreground/50 w-full sm:w-auto justify-center">
-              <MapPin size={16} className="text-primary" />
-              {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-            </div>
-            <Link 
-              to="/dashboard/projects/new" 
-              onClick={(e) => {
-                if (isWalletZero) {
-                  e.preventDefault();
-                  handleLockedClick();
-                }
-              }}
-              className="bg-primary text-foreground hover:bg-primary-dim transition-all shadow-md px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 w-full sm:w-auto"
-            >
-              <Plus size={18} /> New Project
-            </Link>
-          </div>*/}
         </div>
-
-        
-        {/*<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-          <KpiCard
-            icon={Wallet}
-            label="Total BOQ Value"
-            value={boq ? money(boq.totalValue) : '—'}
-            sub={boq ? `${boq.itemsVerified} verified` : ' '}
-            tint="bg-primary-pale text-primary"
-          />
-          <KpiCard
-            icon={FolderKanban}
-            label="Active Projects"
-            value={projects ? projects.total : '—'}
-            sub={projects ? `${projects.byStatus['In Progress'] || 0} in progress` : ' '}
-            tint="bg-indigo-500/10 text-indigo-400"
-          />
-          <KpiCard
-            icon={CheckCircle2}
-            label="Verification Rate"
-            value={boq ? `${Math.round(boq.verificationRate * 100)}%` : '—'}
-            sub={boq ? `${boq.itemsVerified}/${boq.itemsTotal} items` : ' '}
-            tint="bg-emerald-500/10 text-emerald-400"
-          />
-          <KpiCard
-            icon={TrendingUp}
-            label="Budget Used"
-            value={budget ? `${Math.round(budget.utilization * 100)}%` : '—'}
-            sub={budget ? money(budget.spent) : ' '}
-            tint="bg-amber-500/10 text-amber-400"
-          />
-        </div>*/}
 
         {/* GRID LAYOUT */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
@@ -284,7 +233,7 @@ const Dashboard = () => {
 
           <DashboardCard
             icon={Store}
-            title="Buisness Marketplace"
+            title="Business Marketplace"
             desc="Sell heavy equipment and materials."
             path="/dashboard/marketplace"
             delay={0.4}
@@ -311,11 +260,7 @@ const Dashboard = () => {
 
           <DashboardCard
             icon={Inbox}
-<<<<<<< HEAD
-            title="Buisness Directory"
-=======
             title="Business Directory"
->>>>>>> dcd96c06e495ce981b74d667def5138d0095a84b
             desc="Manage directory leads and client messages."
             path="/dashboard/inquiries"
             delay={0.55}

@@ -9,7 +9,7 @@ import {
   LayoutDashboard, Building2, Briefcase, Store,
   ClipboardList, FileText, Calculator, Landmark,
   Users, Sparkles, Files, Settings, Crown, HardHat, ShieldCheck, BarChart3, LogOut,
-  Lock, Wallet, Receipt, KeyRound, Radar, MessageSquare
+  Lock, Wallet, Receipt, KeyRound, Radar, MessageSquare, Inbox
 } from 'lucide-react';
 
 interface NavItemProps {
@@ -24,7 +24,6 @@ interface NavItemProps {
 }
 
 const NavItem = ({ icon: Icon, label, path, badge, onNavigate, locked, blockNavigation, onBlockNavigation }: NavItemProps) => {
-  // If locked is true, it shows the padlock. We are passing 'false' to this now.
   if (locked) {
     return (
       <div className="flex items-center justify-between px-4 py-2.5 rounded-xl mb-0.5 opacity-35 cursor-not-allowed select-none">
@@ -106,8 +105,6 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
     refetchInterval: 60000,
   });
 
-  // DB-LEVEL AUTO-ADVANCE: removed
-
   const isOwner = role === 'owner';
   const isWalletZero = isOwner && walletData && walletData.balance === 0;
 
@@ -125,8 +122,6 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
         <img src="/cprohub-logo.jpeg" alt="Cprohub" className="w-8 h-8 rounded-lg bg-white p-0.5 object-contain shadow-sm" />
         <h2 className="text-lg font-black tracking-tighter text-foreground italic">Cprohub</h2>
       </div>
-
-      {/* Setup banner is hidden when navLocked is false */}
 
       <nav className="flex-1">
         {/* ADMIN */}
@@ -165,14 +160,9 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" onNavigate={onNavigate} {...getBlockProps('/dashboard')} />
             <NavItem icon={Briefcase} label="Projects" path="/dashboard/projects" onNavigate={onNavigate} {...getBlockProps('/dashboard/projects')} />
             <NavItem icon={Wallet} label="Wallet" path="/dashboard/wallet" onNavigate={onNavigate} {...getBlockProps('/dashboard/wallet')} />
-<<<<<<< HEAD
             <NavItem icon={Building2} label="Business Profile" path="/dashboard/settings/business" onNavigate={onNavigate} {...getBlockProps('/dashboard/settings/business')} />
-            <NavItem icon={Inbox} label="Buisness Directory" path="/dashboard/inquiries" onNavigate={onNavigate} badge={summary?.msgCount} {...getBlockProps('/dashboard/inquiries')} />
-            <NavItem icon={Store} label="Buisness Marketplace" path="/dashboard/marketplace" onNavigate={onNavigate} badge={summary?.orderCount} {...getBlockProps('/dashboard/marketplace')} />
-=======
-            <NavItem icon={Building2} label="Business Directory" path="/dashboard/inquiries" onNavigate={onNavigate} badge={summary?.msgCount} {...getBlockProps('/dashboard/inquiries')} />
+            <NavItem icon={Inbox} label="Business Directory" path="/dashboard/inquiries" onNavigate={onNavigate} badge={summary?.msgCount} {...getBlockProps('/dashboard/inquiries')} />
             <NavItem icon={Store} label="Marketplace" path="/dashboard/marketplace" onNavigate={onNavigate} badge={summary?.orderCount} {...getBlockProps('/dashboard/marketplace')} />
->>>>>>> dcd96c06e495ce981b74d667def5138d0095a84b
             <NavItem icon={Radar} label="Tenders" path="/dashboard/opportunities" onNavigate={onNavigate} {...getBlockProps('/dashboard/opportunities')} />
             <NavItem icon={ClipboardList} label="Opportunities" path="/dashboard/tenders" onNavigate={onNavigate} badge={summary?.tenderCount} {...getBlockProps('/dashboard/tenders')} />
             <NavItem icon={MessageSquare} label="Community" path="/dashboard/community" onNavigate={onNavigate} {...getBlockProps('/dashboard/community')} />
@@ -182,7 +172,6 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={Calculator} label="BOQ Tools" path="/dashboard/boq" onNavigate={onNavigate} {...getBlockProps('/dashboard/boq')} />
             <NavItem icon={BarChart3} label="Analytics" path="/dashboard/analytics" onNavigate={onNavigate} {...getBlockProps('/dashboard/analytics')} />
             <NavItem icon={Sparkles} label="AI Hub" path="/dashboard/ai" onNavigate={onNavigate} {...getBlockProps('/dashboard/ai')} />
-
             <NavItem icon={Users} label="Workers Management" path="/dashboard/workers-management" onNavigate={onNavigate} {...getBlockProps('/dashboard/workers-management')} />
             <NavItem icon={Settings} label="User Profile" path="/dashboard/settings/profile" onNavigate={onNavigate} {...getBlockProps('/dashboard/settings/profile')} />
           </>
@@ -210,7 +199,6 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
           </button>
         </div>
       </nav>
-
 
       {/* IDENTITY CARD */}
       <div className="mt-auto pt-4 space-y-3 shrink-0">
@@ -259,6 +247,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
           )}
         </div>
       </div>
+
       {/* WALLET MODAL */}
       {showWalletModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
