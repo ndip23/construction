@@ -146,14 +146,14 @@ export const trackDirectoryActivity = async (req: Request, res: Response) => {
         };
         const currency = (company as any).currency || (company as any).countryCode || 'XAF';
         const rate = FALLBACK[currency] || 600;
-        const deductionAmountLocal = Math.ceil(0.50 * rate);
+        const deductionAmountLocal = Math.ceil(0.20 * rate);
 
-        (company as any).walletBalance = ((company as any).walletBalance || 0) - 0.50;
+        (company as any).walletBalance = ((company as any).walletBalance || 0) - 0.20;
         (company as any).walletHistory = (company as any).walletHistory || [];
         (company as any).walletHistory.push({
           type: 'debit',
           amount: deductionAmountLocal,
-          amountUSD: 0.50,
+          amountUSD: 0.20,
           currency: currency,
           note: 'Directory Lead Profile View (PPC)',
           date: new Date(),
