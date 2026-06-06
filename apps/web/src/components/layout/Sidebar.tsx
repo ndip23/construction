@@ -165,7 +165,6 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" onNavigate={onNavigate} {...getBlockProps('/dashboard')} />
             <NavItem icon={Briefcase} label="Projects" path="/dashboard/projects" onNavigate={onNavigate} {...getBlockProps('/dashboard/projects')} />
             <NavItem icon={Wallet} label="Wallet" path="/dashboard/wallet" onNavigate={onNavigate} {...getBlockProps('/dashboard/wallet')} />
-<<<<<<< HEAD
             <NavItem icon={Building2} label="Business Profile" path="/dashboard/settings/business" onNavigate={onNavigate} {...getBlockProps('/dashboard/settings/business')} />
             <NavItem icon={Inbox} label="Buisness Directory" path="/dashboard/inquiries" onNavigate={onNavigate} badge={summary?.msgCount} {...getBlockProps('/dashboard/inquiries')} />
             <NavItem icon={Store} label="Buisness Marketplace" path="/dashboard/marketplace" onNavigate={onNavigate} badge={summary?.orderCount} {...getBlockProps('/dashboard/marketplace')} />
