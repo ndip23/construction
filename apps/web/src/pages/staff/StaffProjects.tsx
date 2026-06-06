@@ -121,7 +121,7 @@ const StaffProjects = () => {
 
         {/* COMPLIANCE FOOTER */}
         <div className="mt-20 pt-8 border-t border-border text-center flex items-center justify-center gap-8 opacity-40">
-            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em]">BuildHub ISO 9001:2015 Compliant</p>
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em]">Cpromark ISO 9001:2015 Compliant</p>
             <div className="w-1.5 h-1.5 bg-muted rounded-full" />
             <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em]">Engineering Standard v4.2</p>
         </div>

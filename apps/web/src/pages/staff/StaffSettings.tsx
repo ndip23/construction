@@ -116,7 +116,7 @@ const StaffSettings = () => {
 
         {/* COMPLIANCE FOOTER */}
         <div className="mt-20 pt-8 border-t border-border text-center opacity-40">
-            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em]">BuildHub Staff Security Protocol • v4.2.1</p>
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em]">Cpromark Staff Security Protocol • v4.2.1</p>
         </div>
       </div>
     </DashboardShell>

@@ -103,7 +103,7 @@ const SuperAdminAudit = () => {
       target: e.targetLabel || '',
       ip: e.ip || '',
     }));
-    exportToCSV(`buildhub-audit-${Date.now()}`, rows, [
+    exportToCSV(`cpromark-audit-${Date.now()}`, rows, [
       { key: 'time', label: 'Time' },
       { key: 'actor', label: 'Actor' },
       { key: 'action', label: 'Action' },

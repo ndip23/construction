@@ -128,7 +128,7 @@ const StaffDocuments = () => {
 
         {/* BOTTOM TECH FOOTER */}
         <div className="mt-20 pt-8 border-t border-border flex justify-between items-center opacity-50 px-4">
-            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em]">BuildHub Cloud Security • 256-bit Encryption</p>
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em]">Cpromark Cloud Security • 256-bit Encryption</p>
             <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em]">Storage Zone: CEMAC-AFR-01</p>
         </div>
       </div>

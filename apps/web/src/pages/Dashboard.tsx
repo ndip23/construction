@@ -83,7 +83,7 @@ const DashboardCard = ({ icon: Icon, title, desc, path, delay, isPrimary, classN
 
 const Dashboard = () => {
   const { user } = useAuthStore();
-  const { getStep } = useOnboardingStore();
+  const { getHasSeenTour } = useOnboardingStore();
   const { fromUSD, format } = useCurrencyStore();
   const money = (usd: number) => format(fromUSD(usd || 0));
 
@@ -96,10 +96,16 @@ const Dashboard = () => {
   const projects = data?.projects;
   const budget = data?.budget;
 
+  const { data: walletData } = useQuery({
+    queryKey: ['wallet-balance'],
+    queryFn: async () => (await apiClient.get('/wallet/balance')).data,
+    enabled: user?.role === 'owner',
+  });
+
   return (
     <DashboardShell>
       <AnimatePresence>
-        {user?.id && getStep(user.id) === 'tour' && (
+        {user?.id && user.role === 'owner' && walletData && walletData.balance > 0 && !getHasSeenTour(user.id) && (
           <TourModal />
         )}
       </AnimatePresence>
@@ -116,7 +122,7 @@ const Dashboard = () => {
               Good morning, {user?.name?.split(' ')[0] || 'Member'} 👋
             </h1>
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-2">
-              {user?.company || 'BuildHub'} • Premium Tier
+              {user?.company || 'Cpromark'} • Premium Tier
             </p>
           </motion.div>
 

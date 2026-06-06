@@ -7,7 +7,7 @@ import confetti from 'canvas-confetti';
 
 const TOUR_STEPS = [
   {
-    title: 'Welcome to BuildHub! 🎉',
+    title: 'Welcome to Cpromark! 🎉',
     description: "You've successfully completed your workspace setup. Your public profile is live and you're ready to start receiving leads. Let's take a quick tour of your new command center.",
     icon: Flag,
     color: 'text-primary',
@@ -38,7 +38,7 @@ const TOUR_STEPS = [
 
 export const TourModal = () => {
   const { user } = useAuthStore();
-  const { advance } = useOnboardingStore();
+  const { markTourSeen } = useOnboardingStore();
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleNext = () => {
@@ -57,7 +57,7 @@ export const TourModal = () => {
 
   const handleComplete = () => {
     if (user?.id) {
-      advance(user.id);
+      markTourSeen(user.id);
       confetti({
         particleCount: 150,
         spread: 70,

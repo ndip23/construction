@@ -60,7 +60,7 @@ const AdminSettings = () => {
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
           <div>
             <h1 className="text-4xl font-black text-foreground tracking-tight">Global Configuration</h1>
-            <p className="text-sm text-muted-foreground font-medium italic underline underline-offset-4 decoration-blue-600/20">Master controls for BuildHub Africa Infrastructure.</p>
+            <p className="text-sm text-muted-foreground font-medium italic underline underline-offset-4 decoration-blue-600/20">Master controls for Cpromark Africa Infrastructure.</p>
           </div>
           <button 
             onClick={() => saveMutation.mutate(settings)}
@@ -157,7 +157,7 @@ const AdminSettings = () => {
           </div>
 
           <div className="pt-10 flex items-center justify-center gap-4 text-foreground/35 font-black text-[9px] uppercase tracking-[0.4em]">
-             <ShieldCheck size={14} /> Global Encryption Active • BuildHub Admin v4.2
+             <ShieldCheck size={14} /> Global Encryption Active • Cpromark Admin v4.2
           </div>
         </div>
       </div>

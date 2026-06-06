@@ -53,7 +53,7 @@ const PublicMarketplace = () => {
                 <span className="text-primary">Marketplace</span>
               </h1>
               <p className="text-lg text-muted-foreground font-medium max-w-xl leading-relaxed">
-                Source high-grade materials and heavy equipment directly from BuildHub verified suppliers. Instant procurement for your sites.
+                Source high-grade materials and heavy equipment directly from Cpromark verified suppliers. Instant procurement for your sites.
               </p>
             </motion.div>
 

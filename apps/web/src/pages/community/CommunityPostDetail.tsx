@@ -214,7 +214,7 @@ const CommunityPostDetail = () => {
                 
                 <div>
                   <h4 className="font-bold text-sm text-foreground flex items-center flex-wrap gap-2">
-                    {comment.isAi ? 'BuildHub AI Assistant' : comment.author?.name}
+                    {comment.isAi ? 'Cpromark AI Assistant' : comment.author?.name}
                     {comment.isAi && <span className="bg-primary-pale text-primary px-2 py-0.5 rounded text-[9px] uppercase tracking-widest">AI Expert</span>}
                     {!comment.isAi && comment.author?.communityRole && comment.author.communityRole !== 'New Member' && (
                       <span className="bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded text-[9px] uppercase tracking-widest border border-emerald-500/20">

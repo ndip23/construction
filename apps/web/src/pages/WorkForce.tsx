@@ -177,7 +177,7 @@ const Workforce = () => {
                     <HardHat size={32} />
                   </div>
                   <h2 className="text-2xl font-black text-foreground tracking-tight">Onboard Member</h2>
-                  <p className={t.label + ' block mt-1'}>BuildHub Professional Registry</p>
+                  <p className={t.label + ' block mt-1'}>Cpromark Professional Registry</p>
                 </div>
                 <div className="space-y-4">
                   <div>

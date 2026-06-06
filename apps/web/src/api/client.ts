@@ -46,7 +46,7 @@ apiClient.interceptors.response.use(
   (error) => {
     // Handle Network Errors (Server offline)
     if (!error.response) {
-      toast.error("BuildHub Server is unreachable. Check your connection.");
+      toast.error("Cpromark Server is unreachable. Check your connection.");
       return Promise.reject(error);
     }
 
@@ -56,7 +56,7 @@ apiClient.interceptors.response.use(
     // Handle Expired or Invalid Tokens
     if (status === 401) {
       localStorage.removeItem('token');
-      localStorage.removeItem('buildhub-storage');
+      localStorage.removeItem('cpromark-storage');
       // Only redirect if not already on login page
       if (!window.location.pathname.includes('/login')) {
         toast.error("Session expired. Please log in again.");

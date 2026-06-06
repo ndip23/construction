@@ -240,7 +240,7 @@ const AIAssistant = () => {
             <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
               <Sparkles size={24} />
             </div>
-            <h1 className="text-3xl font-black text-foreground tracking-tight italic">BuildHub AI</h1>
+            <h1 className="text-3xl font-black text-foreground tracking-tight italic">Cpromark AI</h1>
           </div>
           <button
             onClick={() => setMessages([])}

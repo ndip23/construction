@@ -188,7 +188,7 @@ const Analytics = () => {
             <h3 className={`${t.label} mb-5 flex items-center gap-2`}><Brain size={14} className="text-purple-400" /> AI Learning</h3>
             {learning.total === 0 ? (
               <p className="text-sm text-muted-foreground font-medium">
-                No AI feedback yet. As you accept, edit, or reject AI prices, BuildHub learns your corrections and feeds them into future estimates.
+                No AI feedback yet. As you accept, edit, or reject AI prices, Cpromark learns your corrections and feeds them into future estimates.
               </p>
             ) : (
               <>

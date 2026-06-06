@@ -75,7 +75,7 @@ export const useCurrencyStore = create<CurrencyState>()(
       },
     }),
     {
-      name: 'buildhub-currency',
+      name: 'cpromark-currency',
       // Only persist the chosen currency; re-fetch live rates fresh each session
       partialize: (state) => ({ currency: state.currency }) as any,
     }

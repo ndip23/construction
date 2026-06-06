@@ -145,7 +145,7 @@ const AdminVerifications = () => {
 
         {/* COMPLIANCE FOOTER */}
         <div className="mt-20 pt-8 border-t border-border flex justify-between items-center opacity-40 px-6">
-            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em]">BuildHub Platform Governance • Ruler Access Level</p>
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em]">Cpromark Platform Governance • Ruler Access Level</p>
             <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em]">Node: AFR-VERIFY-01</p>
         </div>
       </div>

@@ -5,8 +5,8 @@ export const PublicFooter = () => (
     <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-4 gap-10">
       <div>
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-black text-brand-navy text-xs italic">BH</div>
-          <span className="font-black text-foreground text-base">BuildHub</span>
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-black text-brand-navy text-xs italic">CP</div>
+          <span className="font-black text-foreground text-base">Cpromark</span>
         </div>
         <p className="text-foreground/40 text-sm leading-relaxed">The operating system for Africa's construction industry.</p>
       </div>
@@ -28,7 +28,7 @@ export const PublicFooter = () => (
       ))}
     </div>
     <div className="border-t border-border px-6 py-6 text-center text-foreground/20 text-xs font-medium">
-      © {new Date().getFullYear()} BuildHub Africa. All rights reserved.
+      © {new Date().getFullYear()} Cpromark Africa. All rights reserved.
     </div>
   </footer>
 );

@@ -193,7 +193,7 @@ const InvoiceEditor = () => {
                     )}
                     <div>
                       <h2 className="text-xl font-black text-foreground">{user?.company || 'My Company'}</h2>
-                      <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-tighter italic mt-0.5">BuildHub Premium Member</p>
+                      <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-tighter italic mt-0.5">Cpromark Premium Member</p>
                     </div>
                   </div>
                 </div>
@@ -241,7 +241,7 @@ const InvoiceEditor = () => {
               </div>
 
               <motion.div layout className="mt-20 pt-10 border-t border-border text-center">
-                <p className="text-[9px] text-foreground/35 font-bold uppercase tracking-[0.3em]">BuildHub Digital Document • Securing African Infrastructure</p>
+                <p className="text-[9px] text-foreground/35 font-bold uppercase tracking-[0.3em]">Cpromark Digital Document • Securing African Infrastructure</p>
               </motion.div>
             </motion.div>
           </section>

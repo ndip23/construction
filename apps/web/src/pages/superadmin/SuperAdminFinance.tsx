@@ -52,7 +52,7 @@ const SuperAdminFinance = () => {
       status: inv.status,
       date: inv.createdAt ? new Date(inv.createdAt).toLocaleDateString() : '',
     }));
-    exportToCSV(`buildhub-invoices-${Date.now()}`, rows, [
+    exportToCSV(`cpromark-invoices-${Date.now()}`, rows, [
       { key: 'invoiceNumber', label: 'Invoice Number' },
       { key: 'company', label: 'Company' },
       { key: 'totalAmount', label: 'Total Amount' },
