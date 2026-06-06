@@ -4,7 +4,7 @@ import { DashboardShell } from '../components/layout/DashboardShell';
 import axios from 'axios';
 import apiClient from '../api/client';
 import { useAuthStore } from '../store/useAuthStore';
-import { Camera, Save, MapPin, Loader2, Plus, Trash2, CheckCircle2 } from 'lucide-react';
+import { Camera, Save, MapPin, Loader2, Plus, Trash2, CheckCircle2, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { t } from '../theme';
@@ -34,7 +34,7 @@ interface CompanyProfile {
   };
 }
 
-const BusinessSettings = () => {
+const DirectoryManager = () => {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -42,6 +42,8 @@ const BusinessSettings = () => {
   const [tempLogo, setTempLogo] = useState<string | null>(null);
   const [tempGallery, setTempGallery] = useState<string[]>([]);
   const [formData, setFormData] = useState<Partial<CompanyProfile>>({});
+  const [activeTab, setActiveTab] = useState<'services' | 'showcase' | 'profile'>('services');
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
 
   const getPersistedSlug = () => {
     try {
@@ -84,6 +86,15 @@ const BusinessSettings = () => {
       format: formData.receiptSettings?.format !== undefined ? formData.receiptSettings.format : company?.receiptSettings?.format ?? 'standard',
     }
   };
+
+  const isProfileComplete = !!(company?.city && company?.phone && company?.address);
+
+  useEffect(() => {
+    if (!isLoading && company && !isProfileComplete) {
+      setShowCompletionModal(true);
+      setActiveTab('profile');
+    }
+  }, [isLoading, company, isProfileComplete]);
 
   useEffect(() => { return () => { if (tempLogo) URL.revokeObjectURL(tempLogo); }; }, [tempLogo]);
   useEffect(() => { return () => { tempGallery.forEach(url => URL.revokeObjectURL(url)); }; }, [tempGallery]);
@@ -166,8 +177,41 @@ const BusinessSettings = () => {
   return (
     <DashboardShell>
       <div className="max-w-6xl mx-auto pb-40">
-        {/* PROFILE CARD */}
-        <div className="bg-card border border-border rounded-[3.5rem] overflow-hidden mb-12 shadow-sm">
+        <header className="mb-10">
+          <h1 className="text-4xl font-black tracking-tight text-foreground">Directory Profile</h1>
+          <p className="text-muted-foreground mt-2 font-medium">Manage how your business appears to clients on the public directory.</p>
+        </header>
+
+        {/* TABS */}
+        <div className="flex flex-wrap items-center gap-2 mb-10 bg-muted/30 p-2 rounded-[2rem] max-w-fit">
+          <button
+            onClick={() => setActiveTab('services')}
+            className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
+              activeTab === 'services' ? 'bg-primary text-brand-navy shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+            }`}
+          >
+            Manage Your Services
+          </button>
+          <button
+            onClick={() => setActiveTab('showcase')}
+            className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
+              activeTab === 'showcase' ? 'bg-primary text-brand-navy shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+            }`}
+          >
+            Project Showcase
+          </button>
+          <button
+            onClick={() => setActiveTab('profile')}
+            className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
+              activeTab === 'profile' ? 'bg-primary text-brand-navy shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+            }`}
+          >
+            Edit Business Profile
+          </button>
+        </div>
+
+        {activeTab === 'profile' && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-[3.5rem] overflow-hidden mb-12 shadow-sm">
           <div className="h-48 bg-background relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-yellow/10 to-transparent" />
           </div>
@@ -220,10 +264,11 @@ const BusinessSettings = () => {
               </button>
             </div>
           </div>
-        </div>
+        </motion.div>
+        )}
 
-        {/* MANAGE SERVICES */}
-        <div className="bg-primary/10 border border-primary/20 rounded-[3.5rem] p-12 mb-12 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+        {activeTab === 'services' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-primary/10 border border-primary/20 rounded-[3.5rem] p-12 mb-12 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
             <h3 className="text-2xl font-black text-foreground">Business Services</h3>
             <p className={t.muted}>Manage the services your company offers on the public directory.</p>
@@ -234,10 +279,11 @@ const BusinessSettings = () => {
           >
             Manage Services
           </button>
-        </div>
+        </motion.div>
+        )}
 
-        {/* GALLERY */}
-        <div className="bg-card border border-border rounded-[3.5rem] p-12 shadow-sm">
+        {activeTab === 'showcase' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-[3.5rem] p-12 shadow-sm">
           <div className="flex justify-between items-center mb-10 px-2">
             <div>
               <h3 className="text-2xl font-black text-foreground">Project Showcase</h3>
@@ -289,134 +335,41 @@ const BusinessSettings = () => {
               <span className="text-[9px] font-black uppercase tracking-widest">Add Files</span>
             </div>
           </div>
-        </div>
+        </motion.div>
+        )}
 
-        {/* SMART RECEIPT SETTINGS */}
-        <div className="bg-card border border-border rounded-[3.5rem] p-12 shadow-sm mt-12">
-          <div className="mb-10 px-2">
-            <h3 className="text-2xl font-black text-foreground">Smart Receipt Settings</h3>
-            <p className={t.muted}>Configure the default layout, tax, and branding for your generated receipts.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-1">
-              <label className={t.label + ' block px-1'}>Default Tax Rate (%)</label>
-              <input
-                type="number"
-                value={effectiveFormData.receiptSettings?.defaultTaxRate || 0}
-                onChange={e => setFormData({ 
-                  ...formData, 
-                  receiptSettings: { ...formData.receiptSettings, defaultTaxRate: Number(e.target.value) } 
-                })}
-                className={t.input}
-              />
-            </div>
-            <div className="space-y-1">
-              <label className={t.label + ' block px-1'}>Tax ID / VAT Number</label>
-              <input
-                type="text"
-                value={effectiveFormData.receiptSettings?.taxId || ''}
-                onChange={e => setFormData({ 
-                  ...formData, 
-                  receiptSettings: { ...formData.receiptSettings, taxId: e.target.value } 
-                })}
-                className={t.input}
-                placeholder="Optional"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className={t.label + ' block px-1'}>WhatsApp Number (for receipts)</label>
-              <input
-                type="text"
-                value={effectiveFormData.receiptSettings?.whatsappNumber || ''}
-                onChange={e => setFormData({ 
-                  ...formData, 
-                  receiptSettings: { ...formData.receiptSettings, whatsappNumber: e.target.value } 
-                })}
-                className={t.input}
-                placeholder="+237..."
-              />
-            </div>
-            <div className="space-y-1">
-              <label className={t.label + ' block px-1'}>Default Payment Terms</label>
-              <input
-                type="text"
-                value={effectiveFormData.receiptSettings?.defaultPaymentTerms || ''}
-                onChange={e => setFormData({ 
-                  ...formData, 
-                  receiptSettings: { ...formData.receiptSettings, defaultPaymentTerms: e.target.value } 
-                })}
-                className={t.input}
-                placeholder="e.g. Due on receipt"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className={t.label + ' block px-1'}>Layout Format</label>
-              <select
-                value={effectiveFormData.receiptSettings?.format || 'standard'}
-                onChange={e => setFormData({ 
-                  ...formData, 
-                  receiptSettings: { ...formData.receiptSettings, format: e.target.value as 'standard' | 'modern' | 'minimal' } 
-                })}
-                className={t.input}
+        {/* COMPLETION MODAL */}
+        <AnimatePresence>
+          {showCompletionModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-background/90 backdrop-blur-md" />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className="relative bg-card border border-border rounded-[3rem] p-10 max-w-lg w-full text-center shadow-2xl overflow-hidden"
               >
-                <option value="standard">Standard</option>
-                <option value="modern">Modern (Bordered)</option>
-                <option value="minimal">Minimal (Clean)</option>
-              </select>
+                <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-primary to-amber-400" />
+                <div className="w-20 h-20 bg-primary/10 text-primary rounded-3xl flex items-center justify-center mx-auto mb-6">
+                  <AlertCircle size={40} />
+                </div>
+                <h2 className="text-3xl font-black text-foreground mb-3 tracking-tight">Profile Incomplete</h2>
+                <p className="text-muted-foreground font-medium mb-8 text-sm leading-relaxed">
+                  Before you can access the directory features and get discovered by clients, you need to complete your business profile.
+                </p>
+                <button
+                  onClick={() => setShowCompletionModal(false)}
+                  className="w-full bg-primary text-brand-navy py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all"
+                >
+                  Complete Profile Now
+                </button>
+              </motion.div>
             </div>
-            <div className="space-y-1">
-              <label className={t.label + ' block px-1'}>Theme Color</label>
-              <div className="flex gap-2 items-center">
-                <input
-                  type="color"
-                  value={effectiveFormData.receiptSettings?.themeColor || '#000000'}
-                  onChange={e => setFormData({ 
-                    ...formData, 
-                    receiptSettings: { ...formData.receiptSettings, themeColor: e.target.value } 
-                  })}
-                  className="w-12 h-12 rounded cursor-pointer border-0 p-0"
-                />
-                <input
-                  type="text"
-                  value={effectiveFormData.receiptSettings?.themeColor || '#000000'}
-                  onChange={e => setFormData({ 
-                    ...formData, 
-                    receiptSettings: { ...formData.receiptSettings, themeColor: e.target.value } 
-                  })}
-                  className={t.input}
-                />
-              </div>
-            </div>
-            <div className="space-y-1 col-span-1 md:col-span-2">
-              <label className={t.label + ' block px-1'}>Digital Signature (Name or Image URL)</label>
-              <input
-                type="text"
-                value={effectiveFormData.receiptSettings?.signature || ''}
-                onChange={e => setFormData({ 
-                  ...formData, 
-                  receiptSettings: { ...formData.receiptSettings, signature: e.target.value } 
-                })}
-                className={t.input}
-                placeholder="John Doe or https://..."
-              />
-            </div>
-          </div>
-          
-          <div className="mt-8 flex justify-end">
-            <button
-              onClick={() => updateMutation.mutate(effectiveFormData as any)}
-              disabled={!companySlug || isUpdating}
-              className="flex items-center justify-center gap-3 bg-primary text-brand-navy rounded-2xl font-black text-xs uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all px-8 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isUpdating ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-              Save Settings
-            </button>
-          </div>
-        </div>
+          )}
+        </AnimatePresence>
+
       </div>
     </DashboardShell>
   );
 };
 
-export default BusinessSettings;
+export default DirectoryManager;
