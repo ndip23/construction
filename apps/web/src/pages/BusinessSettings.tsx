@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
-import axios from 'axios';
+
 import apiClient from '../api/client';
 import { useAuthStore } from '../store/useAuthStore';
-import { Camera, Save, MapPin, Loader2, Plus, Trash2, CheckCircle2 } from 'lucide-react';
+import { Camera, Save, MapPin, Loader2, CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
 import { t } from '../theme';
 
 interface CompanyProfile {
@@ -48,12 +47,6 @@ const BusinessSettings = () => {
       const parsed = JSON.parse(raw);
       return parsed?.user?.slug || parsed?.state?.user?.slug;
     } catch { return undefined; }
-  };
-
-  const getApiErrorMessage = (err: unknown, fallback: string) => {
-    if (axios.isAxiosError(err)) return (err.response?.data as { message?: string })?.message || fallback;
-    if (err instanceof Error) return err.message;
-    return fallback;
   };
 
   const { data: company, isLoading } = useQuery<CompanyProfile>({
