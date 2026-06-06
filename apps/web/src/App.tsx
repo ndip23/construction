@@ -66,7 +66,7 @@ import TenderBoard from './pages/TenderBoard';
 import Opportunities from './pages/Opportunities';
 import Attendance from './pages/Attendance';
 import Timesheets from './pages/Timesheets';
-import Payroll from './pages/Payroll';
+
 import Tasks from './pages/Tasks';
 import WorkerLogin from './pages/worker/WorkerLogin';
 import WorkerHome from './pages/worker/WorkerHome';
