@@ -18,12 +18,15 @@ jobs:
       - name: Install dependencies
         run: cd apps/api && yarn install --ignore-engines
 
+      - name: Build TypeScript
+        run: cd apps/api && yarn build
+
       - name: Create deployment package
         run: |
           cd apps/api
-          zip -r deploy.zip . -x "node_modules/*"
+          zip -r deploy.zip dist package.json yarn.lock
 
-      - name: Deploy to Elastic Beanstalk via AWS CLI
+      - name: Deploy to Elastic Beanstalk
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
