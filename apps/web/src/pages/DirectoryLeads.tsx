@@ -1,14 +1,54 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import apiClient from '../api/client';
-import { User, MapPin, Loader2, Inbox, Eye, MousePointerClick, TrendingUp, Sparkles, ChevronDown, Mail, Phone } from 'lucide-react';
+import { User, MapPin, Loader2, Inbox, Eye, MousePointerClick, TrendingUp, Sparkles, ChevronDown, Mail, Phone, Store, Briefcase, Building2, AlertCircle, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom';
 import { t, statusBadge } from '../theme';
+
+const DashboardCard = ({ icon: Icon, title, desc, path, delay, isPrimary, className }: any) => (
+  <Link to={path} className={`group block relative overflow-hidden rounded-[2rem] border transition-all duration-300 hover:-translate-y-1 ${
+    isPrimary
+      ? 'bg-foreground text-background border-foreground shadow-xl'
+      : 'bg-card text-foreground border-border shadow-sm hover:shadow-lg'
+  } ${className || ''}`}>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.4 }}
+      className="relative z-10 h-full p-5 sm:p-8 flex flex-col justify-between"
+    >
+      <div className="flex justify-between items-start mb-4 sm:mb-6">
+        <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-[1rem] flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${
+          isPrimary ? 'bg-background/10 text-primary' : 'bg-muted text-foreground'
+        }`}>
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+        </div>
+        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 transform translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 ${
+          isPrimary ? 'bg-primary text-foreground' : 'bg-foreground text-background'
+        }`}>
+          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+        </div>
+      </div>
+      <div>
+        <h3 className="text-lg sm:text-xl font-black mb-1 sm:mb-2 tracking-tight">{title}</h3>
+        <p className={`text-[11px] sm:text-[13px] font-medium leading-relaxed ${
+          isPrimary ? 'text-background/80' : 'text-muted-foreground'
+        }`}>{desc}</p>
+      </div>
+    </motion.div>
+    {isPrimary && (
+      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary/30 to-transparent rounded-full blur-3xl -mr-10 -mt-10" />
+    )}
+  </Link>
+);
 
 const DirectoryLeads = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
 
   const { data: leads, isLoading } = useQuery({
     queryKey: ['inquiries'],
@@ -32,15 +72,87 @@ const DirectoryLeads = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['inquiries'] }),
   });
 
+  const { data: company, isLoading: companyLoading } = useQuery({
+    queryKey: ['company-profile'],
+    queryFn: async () => (await apiClient.get('/auth/company/profile')).data,
+  });
+
+  useEffect(() => {
+    if (!companyLoading && company) {
+      const isComplete = !!(company.phone || company.address || company.city);
+      if (!isComplete && !showCompletionModal) {
+        setShowCompletionModal(true);
+      }
+    }
+  }, [company, companyLoading, showCompletionModal]);
+
   return (
     <DashboardShell>
-      <div className="max-w-[1600px] mx-auto pb-20">
+      <div className="max-w-[1600px] mx-auto pb-20 relative">
+        {/* COMPLETION MODAL */}
+        <AnimatePresence>
+          {showCompletionModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-background/90 backdrop-blur-md" />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className="relative bg-card border border-border rounded-[3rem] p-10 max-w-lg w-full text-center shadow-2xl overflow-hidden"
+              >
+                <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-primary to-amber-400" />
+                <div className="w-20 h-20 bg-primary/10 text-primary rounded-3xl flex items-center justify-center mx-auto mb-6">
+                  <AlertCircle size={40} />
+                </div>
+                <h2 className="text-3xl font-black text-foreground mb-3 tracking-tight">Profile Incomplete</h2>
+                <p className="text-muted-foreground font-medium mb-8 text-sm leading-relaxed">
+                  Before you can access the directory features and get discovered by clients, you need to complete your business profile.
+                </p>
+                <button
+                  onClick={() => {
+                    setShowCompletionModal(false);
+                    navigate('/dashboard/settings/business');
+                  }}
+                  className="w-full bg-primary text-brand-navy py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all"
+                >
+                  Complete Profile Now
+                </button>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
         <header className="mb-10 flex justify-between items-end">
           <div>
-            <h1 className={t.h1 + ' text-3xl'}>Inquiries & Activity</h1>
+            <h1 className={t.h1 + ' text-3xl'}>Business Directory</h1>
             <p className={t.muted + ' italic mt-1'}>Client inquiries and public directory performance.</p>
           </div>
         </header>
+
+        {/* QUICK LINKS GRID */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 mb-12">
+          <DashboardCard
+            icon={Store}
+            title="Manage Services"
+            desc="Control the services your company offers."
+            path="/dashboard/services"
+            delay={0.05}
+            isPrimary={true}
+          />
+          <DashboardCard
+            icon={Briefcase}
+            title="Project Showcase"
+            desc="Add visual evidence of your completed works."
+            path="/dashboard/showcase"
+            delay={0.1}
+          />
+          <DashboardCard
+            icon={Building2}
+            title="Edit Business Profile"
+            desc="Update your company's core directory details."
+            path="/dashboard/settings/business"
+            delay={0.15}
+          />
+        </div>
 
         {insightsLoading && (
           <div className="mb-10 bg-card border border-border p-8 rounded-[2.5rem] flex items-center justify-center shadow-sm">
