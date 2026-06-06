@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
@@ -8,13 +8,13 @@ import { useOnboardingStore } from '../store/useOnboardingStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { TourModal } from '../components/dashboard/TourModal';
 import apiClient from '../api/client';
-import { t } from '../theme';
 import {
   Briefcase, ClipboardList, FileText, Users, Radar,
-  BarChart, Sparkles, MapPin, Store, Building2, Calculator, ArrowRight,
-  Wallet, FolderKanban, CheckCircle2, TrendingUp, Plus, Receipt, MessageSquare, Inbox
+  BarChart, Sparkles, Store, Building2, Calculator, ArrowRight,
+  Wallet, Receipt, MessageSquare, Inbox
 } from 'lucide-react';
 
+// Types
 interface Overview {
   projects: { total: number; byStatus: Record<string, number> };
   budget: { total: number; spent: number; utilization: number };
@@ -25,20 +25,30 @@ interface Overview {
   };
 }
 
-const KpiCard = ({ icon: Icon, label, value, sub, tint }: any) => (
-  <div className={`${t.statCard} flex flex-col gap-3`}>
-    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${tint}`}>
-      <Icon size={20} />
-    </div>
-    <div>
-      <p className="text-2xl font-black text-foreground leading-none">{value}</p>
-      <p className={`mt-1.5 ${t.label}`}>{label}</p>
-      {sub && <p className="text-[11px] font-bold text-muted-foreground mt-1">{sub}</p>}
-    </div>
-  </div>
-);
+interface DashboardCardProps {
+  icon: React.ElementType;
+  title: string;
+  desc: string;
+  path: string;
+  delay: number;
+  isPrimary?: boolean;
+  className?: string;
+  locked?: boolean;
+  onLockedClick?: () => void;
+}
 
-const DashboardCard = ({ icon: Icon, title, desc, path, delay, isPrimary, className, locked, onLockedClick }: any) => (
+// Dashboard Card Component
+const DashboardCard = ({ 
+  icon: Icon, 
+  title, 
+  desc, 
+  path, 
+  delay, 
+  isPrimary = false, 
+  className = '', 
+  locked = false, 
+  onLockedClick 
+}: DashboardCardProps) => (
   <Link 
     to={path} 
     onClick={(e) => {
@@ -47,12 +57,14 @@ const DashboardCard = ({ icon: Icon, title, desc, path, delay, isPrimary, classN
         if (onLockedClick) onLockedClick();
       }
     }}
-    className={`group block relative overflow-hidden rounded-[2rem] border transition-all duration-300 ${locked ? 'opacity-50' : 'hover:-translate-y-1'} ${
-    isPrimary
-      ? 'bg-foreground text-background border-foreground shadow-xl'
-      : 'bg-card text-foreground border-border shadow-sm hover:shadow-lg'
-  } ${className}`}>
-
+    className={`group block relative overflow-hidden rounded-[2rem] border transition-all duration-300 ${
+      locked ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-1'
+    } ${
+      isPrimary
+        ? 'bg-foreground text-background border-foreground shadow-xl'
+        : 'bg-card text-foreground border-border shadow-sm hover:shadow-lg'
+    } ${className}`}
+  >
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -68,7 +80,7 @@ const DashboardCard = ({ icon: Icon, title, desc, path, delay, isPrimary, classN
         <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 transform translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 ${
           isPrimary ? 'bg-primary text-foreground' : 'bg-foreground text-background'
         }`}>
-           <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
       </div>
 
@@ -90,71 +102,111 @@ const DashboardCard = ({ icon: Icon, title, desc, path, delay, isPrimary, classN
   </Link>
 );
 
+// Main Dashboard Component
 const Dashboard = () => {
   const { user } = useAuthStore();
   const { getHasSeenTour } = useOnboardingStore();
-  const { fromUSD, format } = useCurrencyStore();
-  const money = (usd: number) => format(fromUSD(usd || 0));
+  // Remove unused fromUSD - only keep format if you use it
+  const { format } = useCurrencyStore();
+  const navigate = useNavigate();
+  const [showWalletModal, setShowWalletModal] = useState(false);
 
-  const { data } = useQuery<Overview>({
+  // Fetch overview data - remove unused variables
+  useQuery<Overview>({
     queryKey: ['analytics-overview'],
     queryFn: async () => (await apiClient.get('/analytics/overview')).data,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  const boq = data?.boq;
-  const projects = data?.projects;
-  const budget = data?.budget;
-
+  // Fetch wallet balance
   const { data: walletData, isLoading: walletLoading } = useQuery({
     queryKey: ['wallet-balance'],
     queryFn: async () => (await apiClient.get('/wallet/balance')).data,
     enabled: user?.role === 'owner',
-    refetchInterval: 60000,
+    refetchInterval: 60000, // 1 minute
+    staleTime: 30000, // 30 seconds
   });
 
-  const getBalance = () => {
-    if (walletData) return Number(walletData.balance || 0);
+  // Memoized balance calculation
+  const balance = useMemo(() => {
+    if (walletData && !walletLoading) {
+      return Number(walletData.balance || 0);
+    }
     return null;
-  };
+  }, [walletData, walletLoading]);
 
-  const balance = getBalance();
   const isWalletZero = user?.role === 'owner' && (walletLoading || (balance !== null && balance <= 0));
 
-  const [showWalletModal, setShowWalletModal] = useState(false);
-  const navigate = useNavigate();
+  // Format currency for display
+  const formattedBalance = useMemo(() => {
+    if (balance !== null && format) {
+      return format(balance);
+    }
+    return 'Loading...';
+  }, [balance, format]);
 
   const handleLockedClick = () => {
     setShowWalletModal(true);
   };
 
+  // Get greeting based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
+
   return (
     <DashboardShell>
       <AnimatePresence>
-        {user?.id && user.role === 'owner' && walletData && walletData.balance > 0 && !getHasSeenTour(user.id) && (
+        {user?.id && user.role === 'owner' && walletData?.balance > 0 && !getHasSeenTour(user.id) && (
           <TourModal />
         )}
       </AnimatePresence>
+      
       <div className="max-w-[1600px] mx-auto pb-20">
-
         {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12 border-b border-border pb-8">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }} 
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             <div className="flex items-center gap-2 mb-3">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Workspace Active</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                Workspace Active
+              </span>
             </div>
             <h1 className="text-4xl font-black text-foreground tracking-tight leading-tight">
-              Good morning, {user?.name?.split(' ')[0] || 'Member'} 👋
+              {getGreeting()}, {user?.name?.split(' ')[0] || 'Member'} 👋
             </h1>
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-2">
               {user?.company || 'Cprohub Workspace'} • Premium Tier
             </p>
           </motion.div>
+
+          {/* Optional: Display wallet balance for owner */}
+          {user?.role === 'owner' && balance !== null && balance > 0 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-card border border-border rounded-2xl p-4"
+            >
+              <div className="flex items-center gap-3">
+                <Wallet className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Wallet Balance</p>
+                  <p className="text-xl font-black text-foreground">{formattedBalance}</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </div>
 
-        {/* GRID LAYOUT */}
+        {/* DASHBOARD CARDS GRID */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
-
           <DashboardCard
             icon={Building2}
             title="Business"
@@ -163,7 +215,8 @@ const Dashboard = () => {
             delay={0.05}
             isPrimary={true}
             className="sm:col-span-2 lg:col-span-2 xl:col-span-2"
-            locked={isWalletZero} onLockedClick={handleLockedClick}
+            locked={isWalletZero} 
+            onLockedClick={handleLockedClick}
           />
 
           <DashboardCard
@@ -172,16 +225,18 @@ const Dashboard = () => {
             desc="Generate professional Bills of Quantities."
             path="/dashboard/boq"
             delay={0.1}
-            locked={isWalletZero} onLockedClick={handleLockedClick}
+            locked={isWalletZero} 
+            onLockedClick={handleLockedClick}
           />
 
           <DashboardCard
             icon={Radar}
             title="Scraper"
-            desc="Discover new leads and scrapes business tenders."
+            desc="Discover new leads and business tenders."
             path="/dashboard/opportunities"
             delay={0.15}
-            locked={isWalletZero} onLockedClick={handleLockedClick}
+            locked={isWalletZero} 
+            onLockedClick={handleLockedClick}
           />
 
           <DashboardCard
@@ -190,7 +245,8 @@ const Dashboard = () => {
             desc="Browse open opportunities and submit bids."
             path="/dashboard/tenders"
             delay={0.18}
-            locked={isWalletZero} onLockedClick={handleLockedClick}
+            locked={isWalletZero} 
+            onLockedClick={handleLockedClick}
           />
 
           <DashboardCard
@@ -201,16 +257,18 @@ const Dashboard = () => {
             delay={0.2}
             isPrimary={true}
             className="sm:col-span-2 lg:col-span-2"
-            locked={isWalletZero} onLockedClick={handleLockedClick}
+            locked={isWalletZero} 
+            onLockedClick={handleLockedClick}
           />
 
           <DashboardCard
             icon={Receipt}
             title="Smart Receipts"
-            desc="Generate, track, and download professional smart receipts."
+            desc="Generate, track, and download professional receipts."
             path="/dashboard/receipts"
             delay={0.25}
-            locked={isWalletZero} onLockedClick={handleLockedClick}
+            locked={isWalletZero} 
+            onLockedClick={handleLockedClick}
           />
 
           <DashboardCard
@@ -219,16 +277,18 @@ const Dashboard = () => {
             desc="Connect and share with construction professionals."
             path="/dashboard/community"
             delay={0.3}
-            locked={isWalletZero} onLockedClick={handleLockedClick}
+            locked={isWalletZero} 
+            onLockedClick={handleLockedClick}
           />
 
           <DashboardCard
             icon={Briefcase}
             title="Project Pulse"
-            desc="Monitor ongoing site operations, track progress, and manage daily field reports."
+            desc="Monitor ongoing site operations and daily field reports."
             path="/dashboard/projects"
             delay={0.35}
-            locked={isWalletZero} onLockedClick={handleLockedClick}
+            locked={isWalletZero} 
+            onLockedClick={handleLockedClick}
           />
 
           <DashboardCard
@@ -237,25 +297,28 @@ const Dashboard = () => {
             desc="Sell heavy equipment and materials."
             path="/dashboard/marketplace"
             delay={0.4}
-            locked={isWalletZero} onLockedClick={handleLockedClick}
+            locked={isWalletZero} 
+            onLockedClick={handleLockedClick}
           />
 
           <DashboardCard
             icon={FileText}
             title="Invoices"
-            desc="Create, send, and track financial invoices instantly."
+            desc="Create, send, and track financial invoices."
             path="/dashboard/invoices"
             delay={0.45}
-            locked={isWalletZero} onLockedClick={handleLockedClick}
+            locked={isWalletZero} 
+            onLockedClick={handleLockedClick}
           />
 
           <DashboardCard
             icon={BarChart}
             title="Analytics"
-            desc="Live BOQ value, verification, budgets, and AI adoption."
+            desc="Live BOQ value, budgets, and AI adoption metrics."
             path="/dashboard/analytics"
             delay={0.5}
-            locked={isWalletZero} onLockedClick={handleLockedClick}
+            locked={isWalletZero} 
+            onLockedClick={handleLockedClick}
           />
 
           <DashboardCard
@@ -264,54 +327,69 @@ const Dashboard = () => {
             desc="Manage directory leads and client messages."
             path="/dashboard/inquiries"
             delay={0.55}
-            locked={isWalletZero} onLockedClick={handleLockedClick}
+            locked={isWalletZero} 
+            onLockedClick={handleLockedClick}
           />
 
           <DashboardCard
             icon={Users}
             title="Workers Management"
-            desc="Payroll, attendance, timesheets, tasks and your team."
+            desc="Payroll, attendance, timesheets, and team tasks."
             path="/dashboard/workers-management"
             delay={0.6}
-            locked={isWalletZero} onLockedClick={handleLockedClick}
+            locked={isWalletZero} 
+            onLockedClick={handleLockedClick}
           />
-
         </div>
 
         {/* WALLET MODAL */}
-        {showWalletModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setShowWalletModal(false)} />
-            <div className="relative bg-card border border-border w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl overflow-hidden flex flex-col items-center text-center">
-              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-500 to-amber-300" />
-              <div className="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500 mb-6">
-                <Wallet size={32} />
-              </div>
-              <h2 className="text-2xl font-black text-foreground mb-2">Wallet Empty</h2>
-              <p className="text-muted-foreground font-medium mb-8">
-                Your wallet balance is currently 0. Please top up your wallet to access this feature and continue using platform services.
-              </p>
-              <div className="flex gap-3 w-full">
-                <button 
-                  onClick={() => setShowWalletModal(false)}
-                  className="flex-1 py-4 bg-muted hover:bg-muted/80 text-foreground rounded-2xl font-black text-xs uppercase tracking-widest transition-colors"
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={() => {
-                    setShowWalletModal(false);
-                    navigate('/dashboard/wallet');
-                  }}
-                  className="flex-1 py-4 bg-primary hover:bg-primary-dim text-brand-navy rounded-2xl font-black text-xs uppercase tracking-widest shadow-yellow transition-all"
-                >
-                  Top Up Now
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
+        <AnimatePresence>
+          {showWalletModal && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            >
+              <div 
+                className="absolute inset-0 bg-background/80 backdrop-blur-sm" 
+                onClick={() => setShowWalletModal(false)} 
+              />
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="relative bg-card border border-border w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl overflow-hidden flex flex-col items-center text-center"
+              >
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-500 to-amber-300" />
+                <div className="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500 mb-6">
+                  <Wallet size={32} />
+                </div>
+                <h2 className="text-2xl font-black text-foreground mb-2">Wallet Empty</h2>
+                <p className="text-muted-foreground font-medium mb-8">
+                  Your wallet balance is currently 0. Please top up your wallet to access features and continue using platform services.
+                </p>
+                <div className="flex gap-3 w-full">
+                  <button 
+                    onClick={() => setShowWalletModal(false)}
+                    className="flex-1 py-4 bg-muted hover:bg-muted/80 text-foreground rounded-2xl font-black text-xs uppercase tracking-widest transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setShowWalletModal(false);
+                      navigate('/dashboard/wallet');
+                    }}
+                    className="flex-1 py-4 bg-primary hover:bg-primary-dim text-brand-navy rounded-2xl font-black text-xs uppercase tracking-widest shadow-yellow transition-all"
+                  >
+                    Top Up Now
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </DashboardShell>
   );
