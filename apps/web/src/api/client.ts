@@ -33,14 +33,14 @@ apiClient.interceptors.request.use((config) => {
 // 2. RESPONSE INTERCEPTOR: Global Notifications
 apiClient.interceptors.response.use(
   (response) => {
-    // Only show success toast if the backend sends a specific "message" 
+    // Only show success toast if the backend sends a specific "message"
     // and it's a data-changing request (POST, PUT, DELETE)
     const isDataChange = ['post', 'put', 'delete'].includes(response.config.method || '');
-    
+
     if (isDataChange && response.data?.message) {
       toast.success(response.data.message);
     }
-    
+
     return response;
   },
   (error) => {
