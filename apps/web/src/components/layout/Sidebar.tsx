@@ -165,8 +165,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" onNavigate={onNavigate} {...getBlockProps('/dashboard')} />
             <NavItem icon={Briefcase} label="Projects" path="/dashboard/projects" onNavigate={onNavigate} {...getBlockProps('/dashboard/projects')} />
             <NavItem icon={Wallet} label="Wallet" path="/dashboard/wallet" onNavigate={onNavigate} {...getBlockProps('/dashboard/wallet')} />
-            <NavItem icon={Building2} label="Directory" path="/dashboard/directory" onNavigate={onNavigate} {...getBlockProps('/dashboard/directory')} />
-            <NavItem icon={Inbox} label="Inquiries" path="/dashboard/inquiries" onNavigate={onNavigate} badge={summary?.msgCount} {...getBlockProps('/dashboard/inquiries')} />
+            <NavItem icon={Building2} label="Business Directory" path="/dashboard/inquiries" onNavigate={onNavigate} badge={summary?.msgCount} {...getBlockProps('/dashboard/inquiries')} />
             <NavItem icon={Store} label="Marketplace" path="/dashboard/marketplace" onNavigate={onNavigate} badge={summary?.orderCount} {...getBlockProps('/dashboard/marketplace')} />
             <NavItem icon={Radar} label="Tenders" path="/dashboard/opportunities" onNavigate={onNavigate} {...getBlockProps('/dashboard/opportunities')} />
             <NavItem icon={ClipboardList} label="Opportunities" path="/dashboard/tenders" onNavigate={onNavigate} badge={summary?.tenderCount} {...getBlockProps('/dashboard/tenders')} />

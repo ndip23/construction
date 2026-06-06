@@ -266,7 +266,7 @@ const Dashboard = () => {
 
           <DashboardCard
             icon={Inbox}
-            title="Inquiries"
+            title="Business Directory"
             desc="Manage directory leads and client messages."
             path="/dashboard/inquiries"
             delay={0.55}
