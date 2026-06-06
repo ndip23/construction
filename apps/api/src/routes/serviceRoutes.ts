@@ -117,7 +117,7 @@ router.delete('/:id', protect, async (req: any, res) => {
   }
 });
 
-// POST /services/:id/click — deduct $0.50 from company wallet for a click
+// POST /services/:id/click — deduct $0.20 from company wallet for a click
 router.post('/:id/click', async (req, res) => {
   try {
     const service = await Service.findById(req.params.id);
@@ -132,14 +132,14 @@ router.post('/:id/click', async (req, res) => {
     
     const currency = (company as any).currency || 'XAF';
     const rate = FALLBACK[currency] || 600;
-    const deductionAmount = Math.ceil(0.50 * rate);
+    const deductionAmount = Math.ceil(0.20 * rate);
 
     (company as any).walletBalance = ((company as any).walletBalance || 0) - deductionAmount;
     (company as any).walletHistory = (company as any).walletHistory || [];
     (company as any).walletHistory.push({
       type: 'debit',
       amount: deductionAmount,
-      amountUSD: 0.50,
+      amountUSD: 0.20,
       currency: currency,
       note: `Directory click on service: ${service.name}`,
       date: new Date(),

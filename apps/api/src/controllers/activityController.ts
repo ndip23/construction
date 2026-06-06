@@ -40,7 +40,7 @@ export const generateMockTraffic = async (req: Request, res: Response) => {
     
     const mockData = [];
     for (let i = 0; i < 200; i++) {
-      const isSearch = Math.random() > 0.5;
+      const isSearch = Math.random() > 0.2;
       const action = isSearch ? 'search' : actions[Math.floor(Math.random() * actions.length)];
       
       mockData.push({

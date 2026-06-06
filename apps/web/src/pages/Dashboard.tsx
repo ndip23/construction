@@ -11,7 +11,7 @@ import apiClient from '../api/client';
 import {
   Briefcase, ClipboardList, FileText, Users, Radar,
   BarChart, Sparkles, Store, Building2, Calculator, ArrowRight,
-  Wallet, Receipt, MessageSquare, Inbox
+  Wallet, Receipt, MessageSquare
 } from 'lucide-react';
 
 // Types
@@ -57,13 +57,11 @@ const DashboardCard = ({
         if (onLockedClick) onLockedClick();
       }
     }}
-    className={`group block relative overflow-hidden rounded-[2rem] border transition-all duration-300 ${
-      locked ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-1'
-    } ${
-      isPrimary
-        ? 'bg-foreground text-background border-foreground shadow-xl'
-        : 'bg-card text-foreground border-border shadow-sm hover:shadow-lg'
-    } ${className}`}
+   className={`group block relative overflow-hidden rounded-[2rem] border transition-all duration-300 hover:-translate-y-1 ${
+  isPrimary
+    ? 'bg-foreground text-background border-foreground shadow-xl'
+    : 'bg-card text-foreground border-border shadow-sm hover:shadow-lg'
+} ${className}`}
   >
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -208,12 +206,22 @@ const Dashboard = () => {
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
           <DashboardCard
             icon={Building2}
-            title="Business"
+            title="Business Directory"
             desc="Manage your company profile and services."
-            path="/dashboard/settings/business"
+            path="/dashboard/inquiries"
             delay={0.05}
             isPrimary={true}
             className="sm:col-span-2 lg:col-span-2 xl:col-span-2"
+            locked={isWalletZero} 
+            onLockedClick={handleLockedClick}
+          />
+
+          <DashboardCard
+            icon={Store}
+            title="Business Marketplace"
+            desc="Sell heavy equipment and materials."
+            path="/dashboard/marketplace"
+            delay={0.4}
             locked={isWalletZero} 
             onLockedClick={handleLockedClick}
           />
@@ -290,15 +298,6 @@ const Dashboard = () => {
             onLockedClick={handleLockedClick}
           />
 
-          <DashboardCard
-            icon={Store}
-            title="Business Marketplace"
-            desc="Sell heavy equipment and materials."
-            path="/dashboard/marketplace"
-            delay={0.4}
-            locked={isWalletZero} 
-            onLockedClick={handleLockedClick}
-          />
 
           <DashboardCard
             icon={FileText}
@@ -316,16 +315,6 @@ const Dashboard = () => {
             desc="Live BOQ value, budgets, and AI adoption metrics."
             path="/dashboard/analytics"
             delay={0.5}
-            locked={isWalletZero} 
-            onLockedClick={handleLockedClick}
-          />
-
-          <DashboardCard
-            icon={Inbox}
-            title="Business Directory"
-            desc="Manage directory leads and client messages."
-            path="/dashboard/inquiries"
-            delay={0.55}
             locked={isWalletZero} 
             onLockedClick={handleLockedClick}
           />
