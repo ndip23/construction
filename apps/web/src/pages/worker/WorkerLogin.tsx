@@ -130,7 +130,7 @@ const WorkerLogin = () => {
         </div>
 
         <p className="mt-6 text-center text-xs text-white/30 font-bold uppercase tracking-widest">
-          BuildHub Worker Portal
+          Cpromark Worker Portal
         </p>
       </motion.div>
     </div>

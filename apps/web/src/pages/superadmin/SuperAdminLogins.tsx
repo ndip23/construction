@@ -88,7 +88,7 @@ const SuperAdminLogins = () => {
       reason: e.reason || '',
       ip: e.ip || '',
     }));
-    exportToCSV(`buildhub-logins-${Date.now()}`, rows, [
+    exportToCSV(`cpromark-logins-${Date.now()}`, rows, [
       { key: 'time', label: 'Time' },
       { key: 'identifier', label: 'Identifier' },
       { key: 'user', label: 'User' },

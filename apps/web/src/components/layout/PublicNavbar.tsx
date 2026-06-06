@@ -9,8 +9,8 @@ export const PublicNavbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between bg-background/80 backdrop-blur-xl border border-border rounded-2xl px-6 py-3 shadow-card">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-black text-brand-navy text-xs italic">BH</div>
-          <span className="font-black text-foreground text-base tracking-tight">BuildHub</span>
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-black text-brand-navy text-xs italic">CP</div>
+          <span className="font-black text-foreground text-base tracking-tight">Cpromark</span>
         </Link>
 
         {/* Desktop links */}

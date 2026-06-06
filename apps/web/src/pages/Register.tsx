@@ -80,7 +80,7 @@ const Register = () => {
           <div className="absolute top-[-20px] left-[-20px] w-40 h-40 bg-primary/10 blur-[80px] rounded-full" />
 
           <div className="relative z-10">
-            <div className="text-2xl font-black mb-12 italic tracking-tighter">BuildHub</div>
+            <div className="text-2xl font-black mb-12 italic tracking-tighter">Cpromark</div>
             <div className="space-y-10">
               {steps.map((item) => (
                 <div key={item.s} className={`flex gap-4 items-center transition-all duration-500 ${step >= item.s ? 'opacity-100' : 'opacity-20'}`}>
@@ -203,7 +203,7 @@ const Register = () => {
             {step === 3 && (
               <motion.div key="step3" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
                 <h2 className="text-3xl font-black text-foreground mb-2 tracking-tight">Select Specialty</h2>
-                <p className="text-muted-foreground mb-8 text-sm font-medium leading-relaxed">Choose how you will engage with the BuildHub ecosystem.</p>
+                <p className="text-muted-foreground mb-8 text-sm font-medium leading-relaxed">Choose how you will engage with the Cpromark ecosystem.</p>
                 <div className="grid grid-cols-1 gap-3">
                   {[
                     { id: 'owner', title: 'Builder / Contractor', icon: HardHat, desc: 'Manage projects, workers, and BOQs.', disabled: false },

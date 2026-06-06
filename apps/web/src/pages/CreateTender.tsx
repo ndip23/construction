@@ -48,7 +48,7 @@ const CreateTender = () => {
       <div className="max-w-3xl mx-auto pb-20">
         <header className="mb-12">
           <h1 className="text-4xl font-black text-foreground tracking-tight">Post a New Tender</h1>
-          <p className="text-sm text-muted-foreground font-medium mt-2">Publish your project requirements to receive competitive bids from verified BuildHub contractors.</p>
+          <p className="text-sm text-muted-foreground font-medium mt-2">Publish your project requirements to receive competitive bids from verified Cpromark contractors.</p>
         </header>
 
         <form className="space-y-8">

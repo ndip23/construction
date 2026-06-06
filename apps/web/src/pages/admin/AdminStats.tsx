@@ -129,7 +129,7 @@ const AdminStats = () => {
             <div>
               <p className={t.label + ' mb-1'}>AI Inference Load</p>
               <h4 className="text-2xl font-black text-foreground tracking-tighter">{analytics?.aiLoad || '14'}%</h4>
-              <p className="text-[9px] font-bold text-primary uppercase tracking-widest mt-1">BuildHub Engine v4.0</p>
+              <p className="text-[9px] font-bold text-primary uppercase tracking-widest mt-1">Cpromark Engine v4.0</p>
             </div>
           </div>
 

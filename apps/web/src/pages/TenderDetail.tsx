@@ -66,7 +66,7 @@ const TenderDetail = () => {
                    </div>
                    <div>
                       <p className="text-sm font-black text-foreground">Verified Opportunity</p>
-                      <p className="text-xs text-muted-foreground font-medium">This project has been vetted by BuildHub admin.</p>
+                      <p className="text-xs text-muted-foreground font-medium">This project has been vetted by Cpromark admin.</p>
                    </div>
                 </div>
                 <Link 

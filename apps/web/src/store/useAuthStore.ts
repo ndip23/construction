@@ -46,7 +46,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     { 
-      name: 'buildhub-storage', 
+      name: 'cpromark-storage', 
     }
   )
 );

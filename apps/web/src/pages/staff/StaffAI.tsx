@@ -59,7 +59,7 @@ const StaffAI = () => {
               className="bg-gradient-to-br from-[#001529] to-[#002b52] p-12 md:p-16 rounded-[4rem] text-center text-foreground mb-10 shadow-2xl relative overflow-hidden shrink-0"
             >
               <BrainCircuit className="mx-auto mb-8 text-primary" size={56} />
-              <h1 className="text-4xl font-black italic tracking-tighter mb-4">BuildHub AI <span className="text-primary">Eng.</span></h1>
+              <h1 className="text-4xl font-black italic tracking-tighter mb-4">Cpromark AI <span className="text-primary">Eng.</span></h1>
               <p className="text-primary font-medium mb-12 max-w-lg mx-auto">Sarah, I'm ready to calculate material weights, draft site logs, or review technical specs.</p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl mx-auto">
@@ -141,7 +141,7 @@ const StaffAI = () => {
 
         <div className="py-4 text-center">
             <p className="text-[9px] font-black text-foreground/35 uppercase tracking-[0.3em] flex items-center justify-center gap-2">
-              <Sparkles size={10} className="text-primary" /> BuildHub Engineering Cloud • v4.0 Technical Logic
+              <Sparkles size={10} className="text-primary" /> Cpromark Engineering Cloud • v4.0 Technical Logic
             </p>
         </div>
       </div>

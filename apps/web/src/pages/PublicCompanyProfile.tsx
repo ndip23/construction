@@ -219,7 +219,7 @@ const PublicCompanyProfile = () => {
               <div className="mt-8 flex flex-col items-center gap-2">
                 <div className="flex items-center gap-1.5 text-primary">
                   <Award size={14} />
-                  <p className={t.label}>BuildHub Master Partner</p>
+                  <p className={t.label}>Cpromark Master Partner</p>
                 </div>
                 <p className="text-[9px] text-foreground/30 font-bold uppercase tracking-widest italic">
                   Member since {new Date(company.createdAt).getFullYear()}

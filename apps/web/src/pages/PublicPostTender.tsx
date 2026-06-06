@@ -60,7 +60,7 @@ const PublicPostTender = () => {
                         className="inline-flex items-center gap-2 bg-primary-pale text-primary px-4 py-2 rounded-full mb-6"
                     >
                         <Sparkles size={14} />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">BuildHub Network Broadcast</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Cpromark Network Broadcast</span>
                     </motion.div>
                     <h1 className="text-5xl md:text-6xl font-black text-foreground tracking-tighter mb-4 leading-tight">
                         Post your <span className="text-primary italic">Project.</span>
