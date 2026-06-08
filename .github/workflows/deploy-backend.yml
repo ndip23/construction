@@ -7,75 +7,32 @@ on:
       - 'apps/api/**'
   workflow_dispatch:
 
-env:
-  NODE_VERSION: '20'
-
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
-          cache-dependency-path: apps/api/yarn.lock
-
+          node-version: '20'
+      
       - name: Install dependencies
-        working-directory: apps/api
-        run: yarn install --frozen-lockfile
-
-      - name: Build TypeScript
-        working-directory: apps/api
-        run: yarn build
-
-      # CRITICAL VERIFICATION STEP
-      - name: Verify build output
-        working-directory: apps/api
         run: |
-          if [ ! -f "dist/server.js" ]; then
-            echo "❌ Build failed: dist/server.js not found!"
-            echo "Contents of dist:"
-            ls -la dist/ || echo "dist directory is empty or missing"
-            exit 1
-          fi
-          echo "✅ Build successful: dist/server.js exists"
-          echo "dist contents:"
-          ls -la dist/
-
-      # CREATE A CLEAN, LINUX-COMPATIBLE ZIP
-      - name: Create deployment package
-        working-directory: apps/api
+          cd apps/api
+          yarn install
+      
+      - name: Build
         run: |
-          # Create a fresh directory
-          mkdir -p deploy-package
-  
-          # Copy only the necessary artifacts
-          cp -r dist deploy-package/
-          cp package.json deploy-package/
-          cp yarn.lock deploy-package/
-  
-          # Create a Procfile to ensure EB knows how to start
-          echo "web: node dist/server.js" > deploy-package/Procfile
-  
-          # Create the zip from within the directory to avoid path issues
-          cd deploy-package
-          zip -r ../deploy.zip .
-          cd ..
-  
-          # Clean up
-          rm -rf deploy-package
-  
-          echo "✅ Deployment package created"
-          echo "Contents of deploy.zip:"
-          unzip -l deploy.zip
-
-      - name: Deploy to Elastic Beanstalk
+          cd apps/api
+          yarn build
+      
+      - name: Create zip
+        run: |
+          cd apps/api
+          zip -r deploy.zip dist package.json yarn.lock
+      
+      - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v22
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -85,9 +42,6 @@ jobs:
           version_label: ${{ github.sha }}
           region: eu-north-1
           deployment_package: apps/api/deploy.zip
+          use_existing_version_if_available: true
           wait_for_deployment: true
           wait_for_environment_recovery: 180
-      - name: Final status
-        run: |
-          echo "🎉 Deployment initiated! Check your environment at:"
-          echo "https://eu-north-1.console.aws.amazon.com/elasticbeanstalk/home?region=eu-north-1#/environment/dashboard?environmentName=Pressing-prod-env"
