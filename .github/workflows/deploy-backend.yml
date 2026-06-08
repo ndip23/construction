@@ -18,30 +18,59 @@ jobs:
           node-version: '20'
       
       - name: Install dependencies
-        run: |
-          cd apps/api
-          yarn install
+        working-directory: apps/api
+        run: yarn install
       
-      - name: Build
-        run: |
-          cd apps/api
-          yarn build
+      - name: Build TypeScript
+        working-directory: apps/api
+        run: yarn build
       
-      - name: Create zip
+      - name: Verify build output locally
+        working-directory: apps/api
         run: |
-          cd apps/api
-          zip -r deploy.zip dist package.json yarn.lock
+          if [ ! -f "dist/server.js" ]; then
+            echo "❌ Build failed: dist/server.js not found!"
+            echo "Contents of dist:"
+            ls -la dist/ || echo "dist directory is empty"
+            exit 1
+          fi
+          echo "✅ Build successful, dist/server.js exists"
       
-      - name: Deploy to EB
+      - name: Create deployment package
+        working-directory: apps/api
+        run: |
+          mkdir -p eb-deploy
+          cp -r dist eb-deploy/
+          cp package.json eb-deploy/
+          cp yarn.lock eb-deploy/
+          echo "web: node dist/server.js" > eb-deploy/Procfile
+          cd eb-deploy
+          zip -r ../deploy.zip .
+          cd ..
+          rm -rf eb-deploy
+      
+      - name: DEBUG - Inspect zip contents
+        working-directory: apps/api
+        run: |
+          echo "=== Full contents of deploy.zip ==="
+          unzip -l deploy.zip
+          echo "==================================="
+          if unzip -l deploy.zip | grep -q "dist/server.js"; then
+            echo "✅✅✅ server.js found in zip! ✅✅✅"
+          else
+            echo "❌❌❌ CRITICAL: server.js NOT found in zip! ❌❌❌"
+            exit 1
+          fi
+      
+      - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: pressing-prod
           environment_name: Pressing-prod-env
-          version_label: ${{ github.sha }}
+          version_label: deploy-${{ github.run_number }}-${{ github.sha }}
           region: eu-north-1
           deployment_package: apps/api/deploy.zip
-          use_existing_version_if_available: true
           wait_for_deployment: true
           wait_for_environment_recovery: 180
