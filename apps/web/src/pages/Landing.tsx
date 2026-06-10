@@ -4,7 +4,7 @@ import {
   ArrowRight, ShieldCheck, 
   CheckCircle2,  Wallet, 
   Calculator, FileText,  Users, 
-  Search, 
+  Search, X,
   Package, LayoutDashboard, BrainCircuit, Landmark
 } from 'lucide-react';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
