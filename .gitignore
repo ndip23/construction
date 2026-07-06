@@ -7,3 +7,4 @@ temp_interactive_push.bat
 # Standardized on yarn — npm lockfiles are not tracked
 package-lock.json
 **/package-lock.json
+*.zip

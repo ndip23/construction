@@ -8,11 +8,14 @@ import { Plus, Receipt, Search, Download, MessageCircle, Filter, ArrowRight } fr
 import { t, statusBadge } from '../theme';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { Settings2 } from 'lucide-react';
+import { ReceiptSettingsModal } from '../components/receipts/ReceiptSettingsModal';
 
 export default function Receipts() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const { data: receipts, isLoading } = useQuery({
     queryKey: ['receipts', user?.companyId],
@@ -49,12 +52,20 @@ export default function Receipts() {
               Generate, Track, and Manage Digital Receipts
             </p>
           </div>
-          <Link 
-            to="/dashboard/receipts/new" 
-            className="bg-primary text-brand-navy hover:bg-primary-dim transition-all shadow-yellow px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2"
-          >
-            <Plus size={18} /> New Receipt
-          </Link>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className="bg-muted text-foreground hover:bg-background border border-border transition-all shadow-sm px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2"
+            >
+              <Settings2 size={18} /> Settings
+            </button>
+            <Link 
+              to="/dashboard/receipts/new" 
+              className="bg-primary text-brand-navy hover:bg-primary-dim transition-all shadow-yellow px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2"
+            >
+              <Plus size={18} /> New Receipt
+            </Link>
+          </div>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className={`p-6 mb-8 ${t.card}`}>
@@ -172,6 +183,7 @@ export default function Receipts() {
           </div>
         )}
       </div>
+      <ReceiptSettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </DashboardShell>
   );
 }

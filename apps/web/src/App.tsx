@@ -20,6 +20,7 @@ import Dashboard from './pages/Dashboard';
 import Finance from './pages/Finance';
 import Workforce from './pages/WorkForce';
 import BusinessSettings from './pages/BusinessSettings';
+import ProjectShowcase from './pages/ProjectShowcase';
 import UserProfile from './pages/UserProfile';
 import InvoiceEditor from './pages/InvoiceEditor';
 import DirectoryLeads from './pages/DirectoryLeads';
@@ -65,7 +66,7 @@ import TenderBoard from './pages/TenderBoard';
 import Opportunities from './pages/Opportunities';
 import Attendance from './pages/Attendance';
 import Timesheets from './pages/Timesheets';
-import Payroll from './pages/Payroll';
+
 import Tasks from './pages/Tasks';
 import WorkerLogin from './pages/worker/WorkerLogin';
 import WorkerHome from './pages/worker/WorkerHome';
@@ -137,15 +138,12 @@ function App() {
           <Route path="/dashboard/workers-management" element={<OwnerRoute><WorkersManagement /></OwnerRoute>} />
           <Route path="/dashboard/attendance" element={<OwnerRoute><Attendance /></OwnerRoute>} />
           <Route path="/dashboard/timesheets" element={<OwnerRoute><Timesheets /></OwnerRoute>} />
-          <Route path="/dashboard/payroll" element={<OwnerRoute><Payroll /></OwnerRoute>} />
           <Route path="/dashboard/tasks" element={<OwnerRoute><Tasks /></OwnerRoute>} />
           <Route path="/dashboard/invoices/new" element={<OwnerRoute><InvoiceEditor /></OwnerRoute>} />
           <Route path="/dashboard/settings/business" element={<OwnerRoute><BusinessSettings /></OwnerRoute>} />
+          <Route path="/dashboard/showcase" element={<OwnerRoute><ProjectShowcase /></OwnerRoute>} />
           <Route path="/dashboard/settings/profile" element={<OwnerRoute><UserProfile /></OwnerRoute>} />
-          {/* Renamed: /dashboard/directory → /dashboard/inquiries */}
           <Route path="/dashboard/inquiries" element={<OwnerRoute><DirectoryLeads /></OwnerRoute>} />
-          {/* Keep old URL alive so nothing 404s */}
-          <Route path="/dashboard/directory" element={<Navigate to="/dashboard/inquiries" replace />} />
           <Route path="/dashboard/marketplace" element={<OwnerRoute><MarketplaceManager /></OwnerRoute>} />
           <Route path="/dashboard/invoices" element={<OwnerRoute><Invoices /></OwnerRoute>} />
           <Route path="/dashboard/receipts" element={<OwnerRoute><Receipts /></OwnerRoute>} />

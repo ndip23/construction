@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 
 // 1. ROUTE IMPORTS
 import authRoutes from './routes/authRoutes';
-import projectRoutes from './routes/ProjectRoutes'; // Ensure your filename is 'ProjectRoutes.ts'
+import projectRoutes from './routes/ProjectRoutes';
 import invoiceRoutes from './routes/invoiceRoutes';
 import marketplaceRoutes from './routes/marketplaceRoutes';
 import workforceRoutes from './routes/workforceRoutes';
@@ -44,7 +44,8 @@ const allowedOrigins = [
   "https://construction-ten-zeta.vercel.app",
   "https://cpromark.com",
   "https://www.cpromark.com",
-  "https://d1q5gtvb1a02hf.cloudfront.net"
+  "https://d1q5gtvb1a02hf.cloudfront.net",
+  "https://d12e8wwao0hlhx.cloudfront.net"
 ];
 
 app.use(cors({

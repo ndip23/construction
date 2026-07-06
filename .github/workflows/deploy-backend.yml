@@ -1,47 +1,64 @@
-name: Deploy Construction Backend
+name: Deploy Backend to Elastic Beanstalk
 
 on:
   push:
-    branches: [main, master]
+    branches: [ main ]
     paths:
       - 'apps/api/**'
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
+      
       - name: Install dependencies
-        run: cd apps/api && yarn install --ignore-engines
-
+        working-directory: apps/api
+        run: yarn install
+      
+      - name: Build TypeScript
+        working-directory: apps/api
+        run: yarn build
+      
+      - name: Verify build output
+        working-directory: apps/api
+        run: |
+          if [ ! -f "dist/server.js" ]; then
+            echo "❌ Build failed: dist/server.js not found!"
+            ls -la dist/
+            exit 1
+          fi
+          echo "✅ dist/server.js exists"
+      
       - name: Create deployment package
+        working-directory: apps/api
         run: |
-          cd apps/api
-          zip -r deploy.zip . -x "node_modules/*"
-
-      - name: Deploy to Elastic Beanstalk via AWS CLI
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: eu-north-1
-        run: |
-          VERSION="deploy-$(date +'%Y%m%d-%H%M%S')"
-          echo "Version: $VERSION"
-          
-          aws s3 cp apps/api/deploy.zip s3://elasticbeanstalk-eu-north-1-990521646564/$VERSION.zip
-          
-          aws elasticbeanstalk create-application-version \
-            --application-name pressing-prod \
-            --version-label $VERSION \
-            --source-bundle S3Bucket="elasticbeanstalk-eu-north-1-990521646564",S3Key="$VERSION.zip"
-          
-          echo "Waiting for version to be processed..."
-          sleep 15
-          
-          aws elasticbeanstalk update-environment \
-            --environment-name Pressing-prod-env \
-            --version-label $VERSION
+          mkdir -p eb-deploy
+          cp -r dist eb-deploy/
+          cp package.json eb-deploy/
+          cp yarn.lock eb-deploy/
+          echo "web: node dist/server.js" > eb-deploy/Procfile
+          cd eb-deploy
+          zip -r ../deploy.zip .
+          cd ..
+          rm -rf eb-deploy
+          echo "✅ deploy.zip created"
+          unzip -l deploy.zip | head -15
+      
+      - name: Deploy to Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: pressing-prod
+          environment_name: Pressing-prod-env
+          version_label: deploy-${{ github.run_number }}-${{ github.run_attempt }}-${{ github.sha }}
+          region: eu-north-1
+          deployment_package: apps/api/deploy.zip
+          wait_for_deployment: true
+          wait_for_environment_recovery: 180
