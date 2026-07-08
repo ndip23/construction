@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 import apiClient from '../api/client';
@@ -15,7 +16,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PublicFooter } from '../components/layout/PublicFooter';
 
 const PublicMarketplace = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || searchParams.get('keyword') || searchParams.get('material') || '');
+  const [cityTerm, setCityTerm] = useState(searchParams.get('city') || searchParams.get('location') || '');
 
   // 1. FETCH REAL MATERIALS FROM BACKEND
   const { data: products, isLoading } = useQuery({
@@ -27,10 +30,12 @@ const PublicMarketplace = () => {
   });
 
   // 2. CLIENT-SIDE SEARCH FILTER
-  const filteredProducts = products?.filter((p: any) => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    p.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = products?.filter((p: any) => {
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          p.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCity = !cityTerm || (p.city && p.city.toLowerCase().includes(cityTerm.toLowerCase()));
+    return matchesSearch && matchesCity;
+  });
 
   return (
     <div className="min-h-screen bg-card relative overflow-hidden">
@@ -60,16 +65,27 @@ const PublicMarketplace = () => {
             {/* SEARCH COMPONENT */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
-              className="w-full md:w-[450px] relative group"
+              className="w-full md:w-[500px] bg-card border border-border p-2 rounded-[2.5rem] shadow-sm flex flex-col sm:flex-row items-center gap-2 focus-within:ring-2 focus-within:ring-primary/30 transition-all"
             >
-              <div className="relative">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-foreground" size={24} />
+              <div className="flex-1 flex items-center gap-3 px-4 py-3 w-full">
+                <Search className="text-foreground/35" size={20} />
                 <input 
                   type="text" 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search materials, tools..." 
-                  className="w-full bg-card border border-border rounded-[2rem] py-6 pl-16 pr-8 shadow-sm outline-none text-foreground font-semibold focus:border-foreground transition-all text-lg" 
+                  placeholder="Search materials..." 
+                  className="w-full outline-none font-bold text-foreground text-sm bg-transparent placeholder:text-foreground/35" 
+                />
+              </div>
+              <div className="hidden sm:block w-px h-8 bg-border" />
+              <div className="flex-1 flex items-center gap-3 px-4 py-3 w-full">
+                <span className="text-primary text-xs font-black uppercase">City:</span>
+                <input 
+                  type="text" 
+                  value={cityTerm}
+                  onChange={(e) => setCityTerm(e.target.value)}
+                  placeholder="Filter by City..." 
+                  className="w-full outline-none font-bold text-foreground text-sm bg-transparent placeholder:text-foreground/35" 
                 />
               </div>
             </motion.div>

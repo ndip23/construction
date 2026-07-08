@@ -5,10 +5,10 @@ import { useAuthStore } from './store/useAuthStore';
 import { Toaster } from 'react-hot-toast';
 
 // --- PUBLIC PAGES ---
-import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import PublicDirectory from './pages/PublicDirectory';
+import Estimator from './pages/Estimator';
 import PublicCompanyProfile from './pages/PublicCompanyProfile';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -117,10 +117,11 @@ function App() {
           <Route path="/worker/home" element={<WorkerHome />} />
 
           {/* ── GUEST ROUTES ── */}
-          <Route path="/" element={isAuthenticated ? <Navigate to={getHomePath()} /> : <Landing />} />
+          <Route path="/" element={isAuthenticated ? <Navigate to={getHomePath()} /> : <Navigate to="/directory" />} />
           <Route path="/login" element={isAuthenticated ? <Navigate to={getHomePath()} /> : <Login />} />
           <Route path="/register" element={isAuthenticated ? <Navigate to={getHomePath()} /> : <Register />} />
           <Route path="/directory" element={<PublicDirectory />} />
+          <Route path="/estimator" element={<Estimator />} />
           <Route path="/marketplace" element={<PublicMarketplace />} />
           <Route path="/product/:id" element={<MarketplaceProduct />} />
           <Route path="/company/:id" element={<PublicCompanyProfile />} />

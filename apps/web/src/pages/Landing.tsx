@@ -35,19 +35,19 @@ const Landing = () => {
         
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-6xl mx-auto">
           <h1 className="text-5xl md:text-8xl font-black tracking-tighter mb-8 leading-[0.9]">
-            Get More Projects Without <br/> <span className="text-brand-yellow italic">Expensive Ads.</span>
+            Get More Construction Jobs Without <br/> <span className="text-brand-yellow italic">Paying for Ads.</span>
           </h1>
           <p className="text-lg md:text-2xl text-slate-500 mb-12 max-w-3xl mx-auto font-medium leading-relaxed">
-            The growth platform for Contractors, Engineers, and Architects. Showcase your services, attract clients, and manage your entire office from just <span className="text-brand-navy font-black">$10.</span>
+            A simple way for Contractors, Engineers, and Builders to show their work, get direct phone calls from local clients, and manage their business for just <span className="text-brand-navy font-black">$10.</span>
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <Link to="/register" className="w-full sm:w-auto bg-brand-yellow text-brand-navy px-12 py-6 rounded-[2.5rem] font-black text-sm uppercase tracking-widest shadow-yellow hover:scale-[1.02] transition-all flex items-center justify-center gap-3">
-              Create Your Company Account
+              Create Your Free Account
               <ArrowRight size={18} />
             </Link>
             <div className="flex items-center gap-3 px-8 py-5 bg-brand-yellow/10 text-brand-yellow rounded-full border border-brand-yellow/20">
                 <Wallet size={20} />
-                <span className="text-xs font-black uppercase tracking-widest text-center">Pay Only When Clients Contact You</span>
+                <span className="text-xs font-black uppercase tracking-widest text-center">Pay Only When Clients Call You</span>
             </div>
           </div>
         </motion.div>
@@ -57,13 +57,13 @@ const Landing = () => {
       <section className="py-24 px-6 bg-slate-50 relative overflow-hidden">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <div>
-                <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-8">Stop Waiting for <span className="text-brand-yellow italic">Referrals.</span></h2>
+                <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-8">Stop Waiting for <span className="text-brand-yellow italic">Friends to Recommend You.</span></h2>
                 <div className="space-y-6">
                     {[
-                        "Finding construction projects is difficult.",
-                        "Managing workers is difficult.",
-                        "Paperwork (BOQs, Receipts) consumes your time.",
-                        "Word-of-mouth is not enough to scale."
+                        "Finding new construction clients is hard.",
+                        "Keeping track of workers is stressful.",
+                        "Making cost estimates and receipts takes too much time.",
+                        "Relying on word-of-mouth limits your business growth."
                     ].map((text, i) => (
                         <div key={i} className="flex gap-4 items-center p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
                             <X className="text-rose-500" size={20} />
@@ -73,12 +73,12 @@ const Landing = () => {
                 </div>
             </div>
             <div className="bg-brand-navy p-12 rounded-[4rem] text-white shadow-2xl">
-                <h3 className="text-3xl font-black mb-6 italic underline decoration-brand-yellow underline-offset-8">The Cprohub Solution</h3>
+                <h3 className="text-3xl font-black mb-6 italic underline decoration-brand-yellow underline-offset-8">The Cpromark Solution</h3>
                 <p className="text-slate-400 font-medium leading-relaxed mb-8 text-lg">
-                    Cprohub brings everything together in one platform. Create your profile, showcase services, and use AI tools designed specifically for construction professionals.
+                    Cpromark puts everything you need in one place. Create your profile, show off your past work, and use simple tools built to run your construction business.
                 </p>
                 <div className="grid grid-cols-2 gap-4">
-                    {['Manage Projects', 'Generate BOQs', 'Attract Clients', 'AI Site Support'].map(item => (
+                    {['Organize Projects', 'Create Cost Estimates', 'Get Direct Clients', 'Easy Site Calculator'].map(item => (
                         <div key={item} className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brand-yellow">
                             <CheckCircle2 size={16} /> {item}
                         </div>
@@ -92,16 +92,16 @@ const Landing = () => {
       <section className="py-32 px-6 max-w-7xl mx-auto">
         <div className="text-center mb-24">
             <h2 className="text-4xl md:text-7xl font-black tracking-tighter mb-4">How it works.</h2>
-            <p className="text-slate-400 font-medium uppercase tracking-[0.3em] text-xs">A Simple 5-Step Process to Results</p>
+            <p className="text-slate-400 font-medium uppercase tracking-[0.3em] text-xs">Get Started in 5 Simple Steps</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
            {[
-             { n: "01", t: "Register", d: "Add company info, portfolio, certifications and contacts." },
-             { n: "02", t: "Fund", d: "Deposit $10 via MoMo (MTN/Orange), M-Pesa or Card." },
-             { n: "03", t: "Showcase", d: "List services like Civil, Electrical, Plumbing or Architecture." },
-             { n: "04", t: "Receive", d: "Get high-value client inquiries instantly on your dashboard." },
-             { n: "05", t: "Pay", d: "Only pay a small fee when a real client contacts you." },
+             { n: "01", t: "Create Account", d: "Add your phone number, list of services, and photos of your past work." },
+             { n: "02", t: "Add $10", d: "Load $10 into your wallet using Mobile Money (MoMo), M-Pesa, or Card." },
+             { n: "03", t: "Show Services", d: "List what you do, like building houses, wiring, plumbing, or drawing plans." },
+             { n: "04", t: "Get Calls", d: "Get phone calls and messages directly from customers who need your services." },
+             { n: "05", t: "Pay for Results", d: "We only charge a small fee when a real client actually contacts you." },
            ].map((step, i) => (
              <div key={i} className="p-8 bg-white rounded-[3rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:border-brand-yellow transition-all">
                 <span className="text-5xl font-black text-slate-50 mb-6 block italic group-hover:text-brand-yellow/10 transition-colors">{step.n}</span>
@@ -119,8 +119,8 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto">
             <header className="mb-24 flex flex-col md:flex-row justify-between items-end gap-6 border-b border-white/5 pb-12">
                 <div className="max-w-2xl">
-                    <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-4 italic leading-tight">More than a Marketplace.</h2>
-                    <p className="text-slate-400 font-medium text-lg">A complete operating system for modern construction companies.</p>
+                    <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-4 italic leading-tight">Everything You Need to Run Your Business.</h2>
+                    <p className="text-slate-400 font-medium text-lg">Powerful and simple tools built specifically for construction companies.</p>
                 </div>
                 <ShieldCheck size={80} className="text-brand-yellow opacity-20" />
             </header>
@@ -129,38 +129,38 @@ const Landing = () => {
                 <FeatureCard 
                     icon={FileText} 
                     color="bg-brand-yellow/80" 
-                    title="Professional Receipts" 
-                    desc="Describe work and auto-generate receipts with Logo, QR verification, and Branding in seconds." 
+                    title="Quick Receipts" 
+                    desc="Type in your work details and make clean, printed receipts with your logo in just a few clicks." 
                 />
                 <FeatureCard 
                     icon={Calculator} 
                     color="bg-rose-500" 
-                    title="Faster BOQs" 
-                    desc="Generate Bills of Quantities, calculate material/labour costs, and track project expenses instantly." 
+                    title="Cost Estimator (BOQs)" 
+                    desc="Make list of materials and labor costs, and see your profits instantly." 
                 />
                 <FeatureCard 
                     icon={Search} 
                     color="bg-sky-500" 
-                    title="Job Discovery" 
-                    desc="Automatically search for Tenders, Building Contracts, and Procurement requests without searching." 
+                    title="Find Projects" 
+                    desc="See public tenders, government building contracts, and job requests in your area." 
                 />
                 <FeatureCard 
                     icon={LayoutDashboard} 
                     color="bg-brand-yellow" 
-                    title="Project Monitor" 
-                    desc="Monitor progress, budgets, site activities, and team performance from one central dashboard." 
+                    title="Track Your Site" 
+                    desc="Keep track of work progress, project budgets, and what your team does each day." 
                 />
                 <FeatureCard 
                     icon={Users} 
                     color="bg-emerald-600" 
-                    title="Worker HR" 
-                    desc="Track workers, assign tasks, and monitor attendance to keep operations running smoothly." 
+                    title="Manage Workers" 
+                    desc="Keep a list of your workers, assign tasks, and check their daily attendance." 
                 />
                 <FeatureCard 
                     icon={BrainCircuit} 
                     color="bg-indigo-600" 
-                    title="Construction AI" 
-                    desc="Expert assistant for material estimation, structural recommendations, and documentation prep." 
+                    title="AI Assistant" 
+                    desc="Ask our helper to calculate how much cement/sand you need or write business letters." 
                 />
             </div>
 
@@ -169,11 +169,11 @@ const Landing = () => {
                 <div className="max-w-lg">
                     <div className="flex items-center gap-3 mb-6">
                         <Package className="text-brand-yellow" />
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-yellow">Inventory Stream</h4>
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-yellow">Sell Building Materials</h4>
                     </div>
                     <h3 className="text-3xl font-black mb-4">Sell Materials Directly.</h3>
                     <p className="text-slate-400 font-medium text-sm leading-relaxed">
-                        List products like Cement, Sand, Gravel, and Iron Rods on Cprohub. Generate an additional revenue stream from buyers looking for supplies.
+                        Sell items like Cement, Sand, Gravel, and Iron rods. Get extra customers who are already planning construction projects.
                     </p>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
@@ -188,12 +188,12 @@ const Landing = () => {
       {/* 5. CHECKLIST SECTION */}
       <section className="py-32 px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20">
          <div>
-            <h2 className="text-5xl font-black tracking-tighter mb-10 leading-[0.9]">Why Professionals Choose <br/> <span className="text-brand-yellow italic">Cprohub.</span></h2>
+            <h2 className="text-5xl font-black tracking-tighter mb-10 leading-[0.9]">Why Professionals Choose <br/> <span className="text-brand-yellow italic">Cpromark.</span></h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                    "More Client Inquiries", "Better Visibility", "Faster BOQ Creation", 
-                    "AI Site Assistant", "Project Opportunities", "Pay Only for Results",
-                    "Attendance Tracking", "QR Verified Receipts", "Material Marketplace"
+                    "More Customer Calls", "Get Found Online", "Easy Cost Estimates", 
+                    "Smart Site Assistant", "Access to Government Tenders", "Pay Only When Contacted",
+                    "Worker Attendance Tracking", "Receipts with QR Codes", "Sell Sand & Cement"
                 ].map(item => (
                     <div key={item} className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
                         <CheckCircle2 size={18} className="text-emerald-500" />
@@ -206,25 +206,25 @@ const Landing = () => {
              <div className="w-20 h-20 bg-brand-yellow rounded-3xl flex items-center justify-center text-brand-navy mx-auto mb-8 shadow-yellow">
                  <Landmark size={40} />
              </div>
-             <h3 className="text-4xl font-black text-brand-navy mb-6 tracking-tighter italic">Risk-Free Growth.</h3>
+             <h3 className="text-4xl font-black text-brand-navy mb-6 tracking-tighter italic">No Risk For You.</h3>
              <p className="text-slate-600 font-medium text-lg leading-relaxed mb-10">
-                Unlike traditional advertising, you are only charged when someone contacts your business. No contacts. No charges. Simple.
+                Unlike radio or poster ads, you only pay when a customer actually contacts you. If nobody calls, you pay nothing. Simple as that.
              </p>
-             <button className="bg-brand-navy text-white px-10 py-5 rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-xl hover:bg-slate-800">Explore Pricing Logic</button>
+             <button className="bg-brand-navy text-white px-10 py-5 rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-xl hover:bg-slate-800">How Pricing Works</button>
          </div>
       </section>
 
       {/* 6. FINAL CTA */}
       <section className="py-40 text-center px-6">
         <h2 className="text-5xl md:text-8xl font-black tracking-[-0.05em] mb-12 leading-none">
-            Grow Your Business <br/> with <span className="text-brand-yellow underline decoration-8 underline-offset-[12px]">Confidence.</span>
+            Start Getting More <br/> Construction <span className="text-brand-yellow underline decoration-8 underline-offset-[12px]">Work Today.</span>
         </h2>
         <div className="flex flex-col items-center gap-8">
             <Link to="/register" className="bg-brand-yellow text-brand-navy px-16 py-7 rounded-[2.5rem] font-black text-sm uppercase tracking-[0.3em] shadow-yellow hover:scale-105 transition-all">
                 Create Your Account Now
             </Link>
             <p className="text-slate-400 font-black text-[10px] uppercase tracking-widest">
-                Start with just $10 • Pay Only for Results
+                Start with only $10 • Pay only when clients call you
             </p>
         </div>
       </section>

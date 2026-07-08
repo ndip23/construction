@@ -5,13 +5,13 @@ export const PublicFooter = () => (
     <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-4 gap-10">
       <div>
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-black text-brand-navy text-xs italic">CP</div>
+          <img src="/cpromark-logo.png" alt="Cpromark Logo" className="w-8 h-8 object-contain rounded-lg" />
           <span className="font-black text-foreground text-base">Cpromark</span>
         </div>
-        <p className="text-foreground/40 text-sm leading-relaxed">The operating system for Africa's construction industry.</p>
+        <p className="text-foreground/40 text-sm leading-relaxed">The all-in-one platform for Africa's construction industry.</p>
       </div>
       {[
-        { title: 'Platform', links: [['Directory','/directory'],['Marketplace','/marketplace'],['Post Tender','/post-project']] },
+        { title: 'Platform', links: [['Find Builders','/directory'],['Cost Estimator','/estimator'],['Buy Materials','/marketplace'],['Post a Job','/post-project']] },
         { title: 'Account',  links: [['Register','/register'],['Login','/login']] },
         { title: 'Company',  links: [['About Us','/about'],['Contact','/contact'],['Privacy','#'],['Terms','#']] },
       ].map(col => (

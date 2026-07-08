@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useDebounce } from '../hooks/useDebounce';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 import { PublicFooter } from '../components/layout/PublicFooter';
@@ -87,8 +87,9 @@ const CompanyCard = ({ company }: { company: any }) => {
 };
 
 const PublicDirectory = () => {
-  const [service, setService] = useState('');
-  const [city, setCity] = useState('');
+  const [searchParams] = useSearchParams();
+  const [service, setService] = useState(searchParams.get('service') || searchParams.get('category') || '');
+  const [city, setCity] = useState(searchParams.get('city') || searchParams.get('location') || '');
   const debouncedService = useDebounce(service, 400);
   const debouncedCity = useDebounce(city, 400);
 

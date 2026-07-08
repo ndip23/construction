@@ -29,6 +29,7 @@ const WorkerLogin = () => {
       // Worker portal token ONLY — never touch the manager session's 'token'.
       localStorage.setItem('workerToken', token);
       localStorage.setItem('workerProfile', JSON.stringify(worker || {}));
+      sessionStorage.setItem('justLoggedIn', 'true');
 
       navigate('/worker/home');
     } catch (err: any) {

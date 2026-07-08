@@ -3,6 +3,7 @@ import { Sidebar } from './Sidebar';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../api/client';
+import { usePWA } from '../PWAProvider';
 
 import {
   Search,
@@ -10,7 +11,9 @@ import {
   Menu,
   X,
   Mail,
-  Loader2
+  Loader2,
+  Smartphone,
+  Monitor
 } from 'lucide-react';
 
 import {
@@ -35,6 +38,9 @@ export const DashboardShell = ({
   children,
 }: DashboardShellProps) => {
   const { user } = useAuthStore();
+  const { isStandalone, setShowPopup } = usePWA();
+
+  const isMobile = typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] =
     useState(false);
@@ -207,6 +213,31 @@ export const DashboardShell = ({
                   </span>
                 )}
               </button>
+
+              {/* PWA INSTALL */}
+              {!isStandalone && (
+                <button
+                  type="button"
+                  onClick={() => setShowPopup(true)}
+                  className="p-2 sm:p-2.5 text-muted-foreground hover:bg-muted hover:text-black rounded-xl transition-all relative flex items-center justify-center cursor-pointer"
+                  aria-label="Download App"
+                  title="Download App"
+                >
+                  {isMobile ? (
+                    <Smartphone
+                      size={18}
+                      className="sm:w-5 sm:h-5 text-black animate-bounce"
+                      style={{ animationDuration: '3s' }}
+                    />
+                  ) : (
+                    <Monitor
+                      size={18}
+                      className="sm:w-5 sm:h-5 text-black animate-bounce"
+                      style={{ animationDuration: '3s' }}
+                    />
+                  )}
+                </button>
+              )}
 
               {/* NOTIFICATIONS */}
               <div className="relative">

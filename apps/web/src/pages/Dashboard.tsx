@@ -180,7 +180,7 @@ const Dashboard = () => {
               {getGreeting()}, {user?.name?.split(' ')[0] || 'Member'} 👋
             </h1>
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-2">
-              {user?.company || 'Cprohub Workspace'} • Premium Tier
+              {user?.company || 'Cpromark Workspace'} • Premium Tier
             </p>
           </motion.div>
 

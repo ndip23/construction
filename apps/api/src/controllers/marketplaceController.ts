@@ -18,12 +18,14 @@ export const getProducts = async (req: Request, res: Response) => {
       })
       .lean();
     
-    // Ensure all products have the owner's whatsapp number
+    // Ensure all products have the owner's whatsapp number and location
     const enrichedProducts = products.map((p: any) => {
       if (p.ownerId) {
         const company = p.ownerId;
         const userPhone = company.owner?.phone || '';
         p.whatsappNumber = p.whatsappNumber || company.receiptSettings?.whatsappNumber || company.phone || userPhone || '';
+        p.city = company.city || '';
+        p.country = company.country || '';
         p.ownerId = company._id; // Flatten back to ID string to prevent frontend issues
       }
       return p;

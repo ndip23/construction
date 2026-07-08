@@ -8,17 +8,18 @@ export const PublicNavbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between bg-background/80 backdrop-blur-xl border border-border rounded-2xl px-6 py-3 shadow-card">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-black text-brand-navy text-xs italic">CP</div>
+        <Link to="/directory" className="flex items-center gap-2">
+          <img src="/cpromark-logo.png" alt="Cpromark Logo" className="w-8 h-8 object-contain rounded-lg" />
           <span className="font-black text-foreground text-base tracking-tight">Cpromark</span>
         </Link>
 
         {/* Desktop links */}
         <div className="hidden md:flex items-center gap-8">
           {[
-            { label: 'Directory', to: '/directory' },
-            { label: 'Marketplace', to: '/marketplace' },
-            { label: 'Post Tender', to: '/post-project' },
+            { label: 'Find Builders', to: '/directory' },
+            { label: 'Cost Estimator', to: '/estimator' },
+            { label: 'Buy Materials', to: '/marketplace' },
+            { label: 'Post a Job', to: '/post-project' },
           ].map(l => (
             <Link key={l.to} to={l.to} className="text-foreground/60 hover:text-primary text-sm font-semibold transition-colors">
               {l.label}
@@ -45,9 +46,10 @@ export const PublicNavbar = () => {
       {open && (
         <div className="md:hidden mt-2 bg-card border border-border rounded-2xl p-4 shadow-card mx-0">
           {[
-            { label: 'Directory', to: '/directory' },
-            { label: 'Marketplace', to: '/marketplace' },
-            { label: 'Post Tender', to: '/post-project' },
+            { label: 'Find Builders', to: '/directory' },
+            { label: 'Cost Estimator', to: '/estimator' },
+            { label: 'Buy Materials', to: '/marketplace' },
+            { label: 'Post a Job', to: '/post-project' },
             { label: 'Log In', to: '/login' },
           ].map(l => (
             <Link key={l.to} to={l.to} onClick={() => setOpen(false)}
