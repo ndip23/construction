@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useDebounce } from '../hooks/useDebounce';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 import { PublicFooter } from '../components/layout/PublicFooter';
+import { PublicBottomNav } from '../components/layout/PublicBottomNav';
 import apiClient from '../api/client';
 import { ShieldCheck, MapPin, Star, Search, Loader2, Inbox, UserCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -104,7 +105,7 @@ const PublicDirectory = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground pb-20 md:pb-0">
       <PublicNavbar />
 
       {/* CTA BANNER */}
@@ -199,6 +200,7 @@ const PublicDirectory = () => {
       </main>
 
       <PublicFooter />
+      <PublicBottomNav />
     </div>
   );
 };

@@ -12,8 +12,8 @@ export const getCompanies = async (req: Request, res: Response) => {
   try {
     const { service, city } = req.query;
 
-    // 1. Base Filter: Show all companies (verified and pending)
-    let filter: any = { }; 
+    // 1. Base Filter: Show all companies
+    let filter: any = {}; 
 
     // 2. SEARCH LOGIC: company name, sector, or linked public services
     if (service) {
@@ -29,14 +29,60 @@ export const getCompanies = async (req: Request, res: Response) => {
       ];
     }
 
-    // 3. LOCATION LOGIC: Search by City
+    // 3. LOCATION LOGIC: Smart matching & vicinity fallback
+    const vicinityCitiesLower = new Set<string>();
+    const vicinityCountriesLower = new Set<string>();
+
     if (city) {
-      filter.city = { $regex: city as string, $options: 'i' };
+      const locQuery = (city as string).trim();
+      const locRegex = { $regex: locQuery, $options: 'i' };
+
+      // Query database for direct location matches to find vicinity cities/countries
+      const directMatches = await Company.find({
+        $or: [
+          { city: locRegex },
+          { country: locRegex },
+          { address: locRegex }
+        ]
+      }).select('city country address').lean();
+
+      directMatches.forEach((c: any) => {
+        if (c.city) vicinityCitiesLower.add(c.city.trim().toLowerCase());
+        if (c.country) vicinityCountriesLower.add(c.country.trim().toLowerCase());
+      });
+
+      // Construct a broader query that includes direct matches OR vicinity matches
+      const locationOr: any[] = [
+        { city: locRegex },
+        { country: locRegex },
+        { address: locRegex }
+      ];
+
+      if (vicinityCitiesLower.size > 0) {
+        locationOr.push({ city: { $in: Array.from(vicinityCitiesLower).map(c => new RegExp(`^${c}$`, 'i')) } });
+      }
+      
+      // If we don't have specific city vicinity matches, fallback to country vicinity matches
+      if (vicinityCitiesLower.size === 0 && vicinityCountriesLower.size > 0) {
+        locationOr.push({ country: { $in: Array.from(vicinityCountriesLower).map(c => new RegExp(`^${c}$`, 'i')) } });
+      }
+
+      if (filter.$or) {
+        // If we already have service filters, we need to AND the service filter with the location filter
+        const originalOr = filter.$or;
+        delete filter.$or;
+        filter.$and = [
+          { $or: originalOr },
+          { $or: locationOr }
+        ];
+      } else {
+        filter.$or = locationOr;
+      }
     }
 
     // 4. DATABASE QUERY
     const companies = await Company.find(filter)
-      .select('name slug city country logo services rating status createdAt portfolio phone') // Kept logo and added portfolio and phone
+      .select('name slug city country logo services rating status createdAt portfolio phone address')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -53,10 +99,51 @@ export const getCompanies = async (req: Request, res: Response) => {
       return acc;
     }, {});
 
-    const enrichedCompanies = companies.map((company: any) => ({
-      ...company,
-      offeredServices: servicesByCompany[company._id.toString()] || []
-    }));
+    // 5. ENRICH AND SCORE BY LOCATION MATCH QUALITY
+    let enrichedCompanies = companies.map((company: any) => {
+      let locationScore = 0;
+      if (city) {
+        const q = (city as string).toLowerCase().trim();
+        const cCity = (company.city || '').toLowerCase().trim();
+        const cCountry = (company.country || '').toLowerCase().trim();
+        const cAddress = (company.address || '').toLowerCase().trim();
+
+        if (cCity === q) {
+          locationScore += 100; // Perfect city match
+        } else if (cCity.includes(q)) {
+          locationScore += 80;  // Partial city match
+        }
+
+        if (cAddress.includes(q)) {
+          locationScore += 60;  // Address landmark match (e.g., Ikotun in address)
+        }
+
+        if (cCountry === q || cCountry.includes(q)) {
+          locationScore += 20;  // Country match
+        }
+
+        // Vicinity matching: is in same city as a direct match
+        if (locationScore === 0 && vicinityCitiesLower.has(cCity)) {
+          locationScore += 10;
+        }
+      }
+
+      return {
+        ...company,
+        locationScore,
+        offeredServices: servicesByCompany[company._id.toString()] || []
+      };
+    });
+
+    // 6. SORT BY LOCATION SCORE FIRST, THEN CREATED AT
+    if (city) {
+      enrichedCompanies.sort((a: any, b: any) => {
+        if (b.locationScore !== a.locationScore) {
+          return b.locationScore - a.locationScore;
+        }
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+    }
 
     res.status(200).json(enrichedCompanies);
 
