@@ -51,7 +51,7 @@ export default function Landing() {
 
           {/* Right Hamburger */}
           <button className="text-brand-navy">
-            <Menu size={24} />
+            <Menu size={23} />
           </button>
         </div>
       </nav>
@@ -164,19 +164,19 @@ export default function Landing() {
             <form onSubmit={handleSearch} className="flex items-center bg-white border border-slate-200 rounded-full p-1.5 w-full shadow-sm max-w-2xl mx-auto">
               <div className="flex items-center gap-2 pl-3 flex-1 min-w-0">
                 <Search className="text-slate-400 shrink-0 hidden sm:block" size={16} />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="What are you looking for?"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   className="w-full bg-transparent border-none outline-none text-brand-navy font-semibold placeholder:text-slate-400 text-xs sm:text-sm"
                 />
               </div>
-              
+
               <div className="flex items-center gap-1 px-3 border-l border-slate-200 shrink-0">
                 <MapPin className="text-slate-400 shrink-0" size={14} />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Near me"
                   value={locationQuery}
                   onChange={e => setLocationQuery(e.target.value)}
@@ -184,7 +184,7 @@ export default function Landing() {
                 />
               </div>
 
-              <button 
+              <button
                 type="submit"
                 className="w-9 h-9 sm:w-11 sm:h-11 bg-brand-navy hover:bg-slate-800 text-white rounded-full flex items-center justify-center shrink-0 transition-all shadow-sm"
               >
@@ -197,7 +197,7 @@ export default function Landing() {
         {/* ─── VALUE BADGES ─── */}
         <section className="px-4 sm:px-6 max-w-7xl mx-auto mb-10">
           <div className="grid grid-cols-4 gap-2 sm:gap-6 max-w-5xl mx-auto">
-            
+
             <div className="flex flex-col items-center">
               <div className="w-11 h-11 sm:w-14 sm:h-14 bg-[#F5F8FF] border border-[#E1E8F5] rounded-full flex items-center justify-center mb-2 shadow-[0_4px_12px_rgba(0,0,0,0.01)] shrink-0">
                 <ShieldCheck size={18} className="text-brand-navy sm:w-5 sm:h-5" />
@@ -241,7 +241,7 @@ export default function Landing() {
         <section className="px-4 sm:px-6 max-w-7xl mx-auto mb-10">
           <div className="bg-brand-navy rounded-[2rem] p-4 sm:p-8 text-white max-w-5xl mx-auto shadow-lg">
             <div className="grid grid-cols-4 divide-x divide-white/10">
-              
+
               {/* Stat 1 */}
               <div className="flex items-center gap-1.5 sm:gap-4 justify-center px-1 sm:px-4">
                 <Users size={16} className="text-[#E2B93B] sm:w-6 sm:h-6 shrink-0" />
@@ -330,8 +330,8 @@ export default function Landing() {
                 text: 'Listing our cement and steel products on Cprohub Marketplace has boosted our sales. Builders find us directly online, place their orders, and pay securely. Highly recommend it.'
               }
             ].map((rev, i) => (
-              <div 
-                key={i} 
+              <div
+                key={i}
                 className="snap-center shrink-0 w-[280px] sm:w-auto bg-white border border-slate-100 rounded-[2rem] p-6 hover:shadow-md transition-all duration-300 flex flex-col justify-between"
               >
                 <div>
@@ -346,7 +346,7 @@ export default function Landing() {
                     "{rev.text}"
                   </p>
                 </div>
-                
+
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 ${rev.color} rounded-full flex items-center justify-center font-black text-sm shrink-0`}>
                     {rev.initials}
