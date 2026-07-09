@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 import { PublicFooter } from '../components/layout/PublicFooter';
+import { PublicBottomNav } from '../components/layout/PublicBottomNav';
 import apiClient from '../api/client';
 import { 
   Calculator, 
@@ -615,6 +616,7 @@ export default function Estimator() {
       </main>
 
       <PublicFooter />
+      <PublicBottomNav />
     </div>
   );
 }

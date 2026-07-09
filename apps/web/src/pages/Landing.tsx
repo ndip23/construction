@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Calculator, User, Search, MapPin, ShieldCheck, Award, Tag, Smile,
-  Star, ChevronRight, Menu, Home, FileText, Users, ShoppingCart
+  Calculator, Search, MapPin, ShieldCheck, Award, Tag, Smile,
+  Star, ChevronRight, Menu, FileText, Users, ShoppingCart
 } from 'lucide-react';
-import { useAuthStore } from '../store/useAuthStore';
 import { PublicFooter } from '../components/layout/PublicFooter';
+import { PublicBottomNav } from '../components/layout/PublicBottomNav';
 
 export default function Landing() {
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuthStore();
+
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,13 +37,6 @@ export default function Landing() {
     }
   };
 
-  const getHomePath = () => {
-    if (!isAuthenticated) return '/login';
-    if (user?.role === 'superadmin') return '/superadmin';
-    if (user?.role === 'admin') return '/admin';
-    if (user?.role === 'staff') return '/staff/dashboard';
-    return '/dashboard';
-  };
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-brand-navy font-inter pb-20 md:pb-0">
@@ -372,35 +365,7 @@ export default function Landing() {
         <PublicFooter />
       </div>
 
-      {/* ─── MOBILE STICKY BOTTOM NAVIGATION (looks like native app) ─── */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-3 px-6 flex justify-between items-center z-50 shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
-
-        <Link to="/" className="flex flex-col items-center gap-1 text-primary">
-          <Home size={20} />
-          <span className="text-[9px] font-black uppercase">Home</span>
-        </Link>
-
-        <Link to="/estimator" className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary">
-          <FileText size={20} />
-          <span className="text-[9px] font-black uppercase">Estimates</span>
-        </Link>
-
-        <Link to="/directory" className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary">
-          <Users size={20} />
-          <span className="text-[9px] font-black uppercase">Contractors</span>
-        </Link>
-
-        <Link to="/marketplace" className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary">
-          <ShoppingCart size={20} />
-          <span className="text-[9px] font-black uppercase">Materials</span>
-        </Link>
-
-        <Link to={getHomePath()} className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary">
-          <User size={20} />
-          <span className="text-[9px] font-black uppercase">Profile</span>
-        </Link>
-
-      </div>
+      <PublicBottomNav />
 
     </div>
   );

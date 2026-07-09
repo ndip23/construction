@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
+import { PublicBottomNav } from '../components/layout/PublicBottomNav';
 import apiClient from '../api/client';
 import { 
   ShoppingBag, 
@@ -40,7 +41,7 @@ const PublicMarketplace = () => {
   });
 
   return (
-    <div className="min-h-screen bg-card relative overflow-hidden">
+    <div className="min-h-screen bg-card relative overflow-hidden pb-20 md:pb-0">
       <PublicNavbar />
       
       <main className="pt-32 px-6 max-w-7xl mx-auto pb-40 relative z-10">
@@ -225,6 +226,7 @@ const PublicMarketplace = () => {
         </section>
       </main>
        <PublicFooter />
+       <PublicBottomNav />
     </div>
   );
 };
