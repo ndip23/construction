@@ -80,6 +80,7 @@ import CommunityPostDetail from './pages/community/CommunityPostDetail';
 import PublicMarketplace from './pages/PublicMarketPlace';
 import MarketplaceProduct from './pages/MarketPlaceProduct';
 import PublicPostTender from './pages/PublicPostTender';
+import Landing from './pages/Landing';
 
 const OwnerRoute = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute allowedRoles={['owner']}>
@@ -117,7 +118,7 @@ function App() {
           <Route path="/worker/home" element={<WorkerHome />} />
 
           {/* ── GUEST ROUTES ── */}
-          <Route path="/" element={isAuthenticated ? <Navigate to={getHomePath()} /> : <Navigate to="/directory" />} />
+          <Route path="/" element={isAuthenticated ? <Navigate to={getHomePath()} /> : <Landing />} />
           <Route path="/login" element={isAuthenticated ? <Navigate to={getHomePath()} /> : <Login />} />
           <Route path="/register" element={isAuthenticated ? <Navigate to={getHomePath()} /> : <Register />} />
           <Route path="/directory" element={<PublicDirectory />} />

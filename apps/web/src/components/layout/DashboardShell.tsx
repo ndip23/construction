@@ -13,7 +13,8 @@ import {
   Mail,
   Loader2,
   Smartphone,
-  Monitor
+  Monitor,
+  ArrowLeft
 } from 'lucide-react';
 
 import {
@@ -21,7 +22,7 @@ import {
   AnimatePresence,
 } from 'framer-motion';
 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 interface DashboardSummary {
   msgCount?: number;
@@ -39,6 +40,11 @@ export const DashboardShell = ({
 }: DashboardShellProps) => {
   const { user } = useAuthStore();
   const { isStandalone, setShowPopup } = usePWA();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Show back button on all dashboard sub-pages, not on the main /dashboard landing
+  const isSubPage = /^\/(dashboard|staff|admin|superadmin)\/.+/.test(location.pathname);
 
   const isMobile = typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -394,6 +400,18 @@ export const DashboardShell = ({
 
         {/* PAGE CONTENT */}
         <section className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-8 custom-scrollbar">
+          {/* BACK BUTTON (sub-pages only, placed before page title) */}
+          {isSubPage && (
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="mb-4 inline-flex items-center gap-2 px-4 py-2 bg-muted hover:bg-primary/10 rounded-xl text-foreground transition-colors"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={16} />
+              <span className="text-xs font-black uppercase tracking-widest">Back</span>
+            </button>
+          )}
           {children}
         </section>
       </main>

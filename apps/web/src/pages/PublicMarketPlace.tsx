@@ -29,10 +29,12 @@ const PublicMarketplace = () => {
     }
   });
 
-  // 2. CLIENT-SIDE SEARCH FILTER
+  // 2. CLIENT-SIDE SEARCH FILTER (supports multi-keyword searches from Estimator)
   const filteredProducts = products?.filter((p: any) => {
-    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          p.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const keywords = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
+    const nameLC = p.name.toLowerCase();
+    const catLC = p.category.toLowerCase();
+    const matchesSearch = keywords.length === 0 || keywords.some((kw: string) => nameLC.includes(kw) || catLC.includes(kw));
     const matchesCity = !cityTerm || (p.city && p.city.toLowerCase().includes(cityTerm.toLowerCase()));
     return matchesSearch && matchesCity;
   });

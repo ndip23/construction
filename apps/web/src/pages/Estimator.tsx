@@ -20,6 +20,26 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+// Compact number formatter for large African currency values
+const formatCompact = (value: number): string => {
+  if (value == null || isNaN(value)) return '0';
+  const abs = Math.abs(value);
+  const sign = value < 0 ? '-' : '';
+  if (abs >= 1_000_000_000) {
+    const v = abs / 1_000_000_000;
+    return sign + (v % 1 === 0 ? v.toFixed(0) : v.toFixed(1).replace(/\.0$/, '')) + 'B';
+  }
+  if (abs >= 1_000_000) {
+    const v = abs / 1_000_000;
+    return sign + (v % 1 === 0 ? v.toFixed(0) : v.toFixed(1).replace(/\.0$/, '')) + 'M';
+  }
+  if (abs >= 1_000) {
+    const v = abs / 1_000;
+    return sign + (v % 1 === 0 ? v.toFixed(0) : v.toFixed(1).replace(/\.0$/, '')) + 'K';
+  }
+  return sign + abs.toLocaleString();
+};
+
 interface Material {
   name: string;
   quantity: string;
@@ -44,9 +64,14 @@ interface Estimate {
   location: string;
 }
 
+interface FollowUpQuestion {
+  question: string;
+  suggestions: string[];
+}
+
 interface EstimateResponse {
   needsMoreInfo: boolean;
-  followUpQuestions: string[];
+  followUpQuestions: FollowUpQuestion[];
   estimate: Estimate | null;
 }
 
@@ -65,12 +90,37 @@ export default function Estimator() {
   const [statusMessage, setStatusMessage] = useState('');
   
   // Follow-up state
-  const [followUps, setFollowUps] = useState<string[]>([]);
+  const [followUps, setFollowUps] = useState<FollowUpQuestion[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
   
   // Result state
   const [estimate, setEstimate] = useState<Estimate | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // ── RESTORE STATE FROM SESSION (so estimate survives navigation) ──
+  React.useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem('cpromark-estimate-session');
+      if (saved) {
+        const s = JSON.parse(saved);
+        if (s.estimate) setEstimate(s.estimate);
+        if (s.description) setDescription(s.description);
+        if (s.location) setLocation(s.location);
+        if (s.quality) setQuality(s.quality);
+        if (s.history) setHistory(s.history);
+      }
+    } catch (_) { /* ignore parse errors */ }
+  }, []);
+
+  // ── SAVE STATE TO SESSION before navigating away ──
+  const saveAndNavigate = (path: string) => {
+    try {
+      sessionStorage.setItem('cpromark-estimate-session', JSON.stringify({
+        estimate, description, location, quality, history
+      }));
+    } catch (_) { /* storage full — proceed anyway */ }
+    navigate(path);
+  };
 
   const startEstimation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,10 +170,10 @@ export default function Estimator() {
     setStatusMessage('Reviewing details and recalculating costs...');
 
     // Append the questions and answers to history
-    const followUpText = followUps.map((q, i) => `Question: ${q}\nAnswer: ${answers[i]}`).join('\n');
+    const followUpText = followUps.map((q, i) => `Question: ${q.question}\nAnswer: ${answers[i]}`).join('\n');
     const updatedHistory: ChatMessage[] = [
       ...history,
-      { role: 'assistant', content: `I need some more details to give you an accurate estimate:\n${followUps.join('\n')}` },
+      { role: 'assistant', content: `I need some more details to give you an accurate estimate:\n${followUps.map(q => q.question).join('\n')}` },
       { role: 'user', content: followUpText }
     ];
     setHistory(updatedHistory);
@@ -161,6 +211,7 @@ export default function Estimator() {
     setAnswers([]);
     setEstimate(null);
     setError(null);
+    sessionStorage.removeItem('cpromark-estimate-session');
   };
 
   return (
@@ -308,13 +359,39 @@ export default function Estimator() {
               >
                 <div className="bg-primary/5 border border-primary/10 p-6 rounded-3xl mb-4">
                   <h4 className="text-lg font-black text-foreground mb-1">Almost there!</h4>
-                  <p className="text-muted-foreground text-sm font-medium">Please answer these details so the AI can compute pricing accurately based on local markets.</p>
+                  <p className="text-muted-foreground text-sm font-medium">Just pick the options below or type your own answer — the AI will handle the rest.</p>
                 </div>
 
                 {followUps.map((q, idx) => (
-                  <div key={idx} className="space-y-2">
+                  <div key={idx} className="space-y-3">
                     <label className="text-xs font-black uppercase tracking-[0.2em] text-foreground/50">Question {idx + 1}</label>
-                    <p className="text-foreground font-bold text-base mb-2">{q}</p>
+                    <p className="text-foreground font-bold text-base">{q.question}</p>
+                    
+                    {/* Suggestion Chips */}
+                    {q.suggestions && q.suggestions.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {q.suggestions.map((suggestion, sIdx) => (
+                          <button
+                            key={sIdx}
+                            type="button"
+                            onClick={() => {
+                              const newAns = [...answers];
+                              newAns[idx] = suggestion;
+                              setAnswers(newAns);
+                            }}
+                            className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all border ${
+                              answers[idx] === suggestion
+                                ? 'bg-primary text-brand-navy border-primary shadow-yellow'
+                                : 'bg-muted text-foreground border-border hover:border-primary/30 hover:bg-primary/5'
+                            }`}
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Text input as fallback */}
                     <input 
                       type="text"
                       value={answers[idx] || ''}
@@ -324,7 +401,7 @@ export default function Estimator() {
                         setAnswers(newAns);
                       }}
                       required
-                      placeholder="Your answer..."
+                      placeholder="Or type your own answer..."
                       className="w-full bg-background border border-border rounded-2xl py-4 px-4 outline-none text-foreground font-semibold placeholder:text-foreground/20 focus:border-primary transition-all"
                     />
                   </div>
@@ -365,10 +442,13 @@ export default function Estimator() {
                     <div className="absolute right-[-20px] top-[-20px] w-24 h-24 bg-primary/5 rounded-full pointer-events-none" />
                     <div>
                       <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 block mb-2">Total Estimated Cost</span>
-                      <h2 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">
-                        <span className="text-primary text-2xl mr-1.5 font-extrabold italic uppercase">{estimate.currency}</span>
-                        {estimate.totalCost?.toLocaleString()}
+                      <h2 className="text-3xl md:text-4xl font-black tracking-tight text-foreground">
+                        <span className="text-primary text-lg mr-1.5 font-extrabold italic uppercase">{estimate.currency}</span>
+                        {formatCompact(estimate.totalCost)}
                       </h2>
+                      <p className="text-xs text-muted-foreground font-semibold mt-1">
+                        {estimate.totalCost?.toLocaleString()} {estimate.currency}
+                      </p>
                     </div>
                     <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground font-semibold">
                       <DollarSign size={14} className="text-primary" /> Regional market rates applied
@@ -380,9 +460,12 @@ export default function Estimator() {
                     <div>
                       <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 block mb-2">Estimated Labor Cost</span>
                       <h3 className="text-3xl font-black tracking-tight">
-                        <span className="text-primary text-xl mr-1.5 font-bold italic uppercase">{estimate.currency}</span>
-                        {estimate.laborCost?.toLocaleString()}
+                        <span className="text-primary text-lg mr-1.5 font-bold italic uppercase">{estimate.currency}</span>
+                        {formatCompact(estimate.laborCost)}
                       </h3>
+                      <p className="text-xs text-muted-foreground font-semibold mt-1">
+                        {estimate.laborCost?.toLocaleString()} {estimate.currency}
+                      </p>
                     </div>
                     <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground font-semibold">
                       <Wrench size={14} className="text-primary" /> Estimated contractor & site work
@@ -412,16 +495,17 @@ export default function Estimator() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {estimate.stages?.map((st, i) => (
                       <div key={i} className="bg-background border border-border p-6 rounded-2xl relative shadow-sm hover:border-primary/20 transition-all">
-                        <span className="absolute top-4 right-4 text-xs font-black text-foreground/20">0{i+1}</span>
-                        <h4 className="font-black text-foreground text-lg mb-2 capitalize">{st.stage}</h4>
-                        <div className="mt-4 pt-4 border-t border-border flex justify-between items-end">
+                        <span className="absolute top-4 right-4 text-xs font-black text-foreground/20">{String(i + 1).padStart(2, '0')}</span>
+                        <h4 className="font-black text-foreground text-lg mb-2 capitalize pr-8">{st.stage}</h4>
+                        <div className="mt-4 pt-4 border-t border-border space-y-3">
                           <div>
                             <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1">Cost</p>
-                            <span className="font-extrabold text-foreground text-sm">{estimate.currency} {st.cost?.toLocaleString()}</span>
+                            <span className="font-extrabold text-foreground text-sm block">{estimate.currency} {formatCompact(st.cost)}</span>
+                            <span className="text-[10px] text-muted-foreground font-medium">{st.cost?.toLocaleString()}</span>
                           </div>
                           <div>
                             <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1">Duration</p>
-                            <span className="font-extrabold text-foreground text-sm">{st.duration}</span>
+                            <span className="font-extrabold text-foreground text-sm block">{st.duration}</span>
                           </div>
                         </div>
                       </div>
@@ -484,29 +568,28 @@ export default function Estimator() {
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto shrink-0">
                       
-                      {/* Hire Professionals Button */}
+                      {/* Hire Professionals Button — filter by location only, not category */}
                       <button
                         onClick={() => {
-                          const cat = encodeURIComponent(estimate.category || '');
                           const loc = encodeURIComponent(estimate.location || '');
-                          navigate(`/directory?category=${cat}&location=${loc}`);
+                          saveAndNavigate(`/directory?location=${loc}`);
                         }}
                         className="bg-primary text-brand-navy px-8 py-4.5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all flex items-center justify-center gap-2"
                       >
-                        <UserCheck size={16} /> Hire Professionals
+                        <UserCheck size={16} /> Hire Professionals for This Project
                       </button>
 
-                      {/* Buy Materials Button */}
+                      {/* Buy Materials Button — use first material for a focused search */}
                       <button
                         onClick={() => {
-                          const matKeywords = estimate.materials?.[0]?.name || '';
-                          const search = encodeURIComponent(matKeywords);
+                          const firstMaterial = estimate.materials?.[0]?.name || '';
+                          const search = encodeURIComponent(firstMaterial);
                           const loc = encodeURIComponent(estimate.location || '');
-                          navigate(`/marketplace?search=${search}&location=${loc}`);
+                          saveAndNavigate(`/marketplace?search=${search}&location=${loc}`);
                         }}
                         className="bg-foreground text-background px-8 py-4.5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-foreground/90 transition-all flex items-center justify-center gap-2"
                       >
-                        <ShoppingBag size={16} /> Find Materials
+                        <ShoppingBag size={16} /> Find Building Materials Near Me
                       </button>
 
                     </div>

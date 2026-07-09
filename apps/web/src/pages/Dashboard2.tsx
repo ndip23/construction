@@ -113,7 +113,7 @@ const Dashboard = () => {
                 Good morning, {user?.name?.split(' ')[0] || 'Member'} 👋
             </h1>
             <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-1 italic">
-                {user?.company || "Cpromark Workspace"} • Premium Tier
+                {user?.company || "Cprohub Workspace"} • Premium Tier
             </p>
           </motion.div>
           

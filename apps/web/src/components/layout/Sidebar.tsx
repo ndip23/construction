@@ -118,13 +118,13 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
   return (
     <aside className="w-[min(280px,85vw)] sm:w-[260px] h-[100dvh] bg-background text-foreground flex flex-col p-4 overflow-y-auto no-scrollbar border-r border-border/5">
       {/* LOGO */}
-      <Link 
-        to="/directory" 
+      <Link
+        to="/directory"
         onClick={onNavigate}
         className="flex items-center gap-3 mb-8 px-2 hover:opacity-85 transition-opacity"
       >
         <img src="/cpromark-logo.png" alt="Cpromark Logo" className="w-8 h-8 rounded-lg bg-white p-0.5 object-contain shadow-sm" />
-        <h2 className="text-lg font-black tracking-tighter text-foreground italic">Cpromark</h2>
+        <h2 className="text-lg font-black tracking-tighter text-foreground italic">Cprohub</h2>
       </Link>
 
       <nav className="flex-1">
