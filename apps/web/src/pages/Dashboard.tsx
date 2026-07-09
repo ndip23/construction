@@ -211,7 +211,6 @@ const Dashboard = () => {
             path="/dashboard/inquiries"
             delay={0.05}
             isPrimary={true}
-            className="sm:col-span-2 lg:col-span-2 xl:col-span-2"
             locked={isWalletZero} 
             onLockedClick={handleLockedClick}
           />
@@ -227,21 +226,21 @@ const Dashboard = () => {
           />
 
           <DashboardCard
-            icon={Calculator}
-            title="BOQ Tool"
-            desc="Generate professional Bills of Quantities."
-            path="/dashboard/boq"
-            delay={0.1}
-            locked={isWalletZero} 
-            onLockedClick={handleLockedClick}
-          />
-
-          <DashboardCard
             icon={Radar}
             title="Scraper"
             desc="Discover new leads and business tenders."
             path="/dashboard/opportunities"
             delay={0.15}
+            locked={isWalletZero} 
+            onLockedClick={handleLockedClick}
+          />
+
+          <DashboardCard
+            icon={Calculator}
+            title="BOQ Tool"
+            desc="Generate professional Bills of Quantities."
+            path="/dashboard/boq"
+            delay={0.1}
             locked={isWalletZero} 
             onLockedClick={handleLockedClick}
           />
@@ -263,7 +262,6 @@ const Dashboard = () => {
             path="/dashboard/ai"
             delay={0.2}
             isPrimary={true}
-            className="sm:col-span-2 lg:col-span-2"
             locked={isWalletZero} 
             onLockedClick={handleLockedClick}
           />

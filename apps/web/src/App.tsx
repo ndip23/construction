@@ -5,10 +5,10 @@ import { useAuthStore } from './store/useAuthStore';
 import { Toaster } from 'react-hot-toast';
 
 // --- PUBLIC PAGES ---
-import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import PublicDirectory from './pages/PublicDirectory';
+import Estimator from './pages/Estimator';
 import PublicCompanyProfile from './pages/PublicCompanyProfile';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -80,6 +80,7 @@ import CommunityPostDetail from './pages/community/CommunityPostDetail';
 import PublicMarketplace from './pages/PublicMarketPlace';
 import MarketplaceProduct from './pages/MarketPlaceProduct';
 import PublicPostTender from './pages/PublicPostTender';
+import Landing from './pages/Landing';
 
 const OwnerRoute = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute allowedRoles={['owner']}>
@@ -121,6 +122,7 @@ function App() {
           <Route path="/login" element={isAuthenticated ? <Navigate to={getHomePath()} /> : <Login />} />
           <Route path="/register" element={isAuthenticated ? <Navigate to={getHomePath()} /> : <Register />} />
           <Route path="/directory" element={<PublicDirectory />} />
+          <Route path="/estimator" element={<Estimator />} />
           <Route path="/marketplace" element={<PublicMarketplace />} />
           <Route path="/product/:id" element={<MarketplaceProduct />} />
           <Route path="/company/:id" element={<PublicCompanyProfile />} />

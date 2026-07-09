@@ -23,6 +23,7 @@ const Login = () => {
       const response = await apiClient.post('/auth/login', { email, password });
       const { user, token } = response.data;
       setAuth(user, token);
+      sessionStorage.setItem('justLoggedIn', 'true');
       if (user.role === 'admin') navigate('/admin');
       else if (user.role === 'staff') navigate('/staff/dashboard');
       else navigate('/dashboard');
@@ -46,7 +47,11 @@ const Login = () => {
       >
         {/* Logo */}
         <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center font-black text-brand-navy text-2xl italic mx-auto mb-6 shadow-lg">CP</div>
+          <img 
+            src="/cpromark-logo.png" 
+            alt="Cpromark" 
+            className="w-16 h-16 rounded-2xl shadow-xl object-contain bg-white p-1 mx-auto mb-6" 
+          />
           <h2 className="text-3xl font-black text-foreground mb-2 tracking-tighter">Welcome to Cpromark</h2>
           <p className="text-foreground/40 text-sm font-medium">Access your professional workspace.</p>
         </div>

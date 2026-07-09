@@ -82,11 +82,11 @@ const Register = () => {
           <div className="relative z-10">
             <div className="mb-12 flex items-center gap-3">
               <img 
-                src="/cprohub-logo.jpeg" 
-                alt="Cprohub" 
+                src="/cpromark-logo.png" 
+                alt="Cpromark" 
                 className="w-12 h-12 rounded-xl shadow-xl object-contain bg-white p-1" 
               />
-              <div className="text-2xl font-black italic tracking-tighter">Cprohub</div>
+              <div className="text-2xl font-black italic tracking-tighter">Cpromark</div>
             </div>
             <div className="space-y-10">
               {steps.map((item) => (
@@ -210,7 +210,7 @@ const Register = () => {
             {step === 3 && (
               <motion.div key="step3" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
                 <h2 className="text-3xl font-black text-foreground mb-2 tracking-tight">Select Specialty</h2>
-                <p className="text-muted-foreground mb-8 text-sm font-medium leading-relaxed">Choose how you will engage with the Cprohub ecosystem.</p>
+                <p className="text-muted-foreground mb-8 text-sm font-medium leading-relaxed">Choose how you will engage with the Cpromark platform.</p>
                 <div className="grid grid-cols-1 gap-3">
                   {[
                     { id: 'owner', title: 'Builder / Contractor', icon: HardHat, desc: 'Manage projects, workers, and BOQs.', disabled: false },
