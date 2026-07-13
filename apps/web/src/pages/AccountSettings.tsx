@@ -66,7 +66,7 @@ const AccountSettings = () => {
           <div className="flex-1">
             <h2 className="text-2xl font-black text-brand-navy">{user?.name}</h2>
             <p className="text-sm text-muted-foreground font-medium capitalize">
-                {user?.role} • Cpromark Workspace User
+                {user?.role} • Cprohub Workspace User
             </p>
             <div className="flex items-center gap-2 mt-3">
                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useDebounce } from '../hooks/useDebounce';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 import { PublicFooter } from '../components/layout/PublicFooter';
+import { PublicBottomNav } from '../components/layout/PublicBottomNav';
 import apiClient from '../api/client';
 import { ShieldCheck, MapPin, Star, Search, Loader2, Inbox, UserCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -87,8 +88,9 @@ const CompanyCard = ({ company }: { company: any }) => {
 };
 
 const PublicDirectory = () => {
-  const [service, setService] = useState('');
-  const [city, setCity] = useState('');
+  const [searchParams] = useSearchParams();
+  const [service, setService] = useState(searchParams.get('service') || searchParams.get('category') || '');
+  const [city, setCity] = useState(searchParams.get('city') || searchParams.get('location') || '');
   const debouncedService = useDebounce(service, 400);
   const debouncedCity = useDebounce(city, 400);
 
@@ -103,7 +105,7 @@ const PublicDirectory = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground pb-20 md:pb-0">
       <PublicNavbar />
 
       {/* CTA BANNER */}
@@ -198,6 +200,7 @@ const PublicDirectory = () => {
       </main>
 
       <PublicFooter />
+      <PublicBottomNav />
     </div>
   );
 };

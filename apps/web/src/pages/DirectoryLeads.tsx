@@ -79,7 +79,7 @@ const DirectoryLeads = () => {
 
   useEffect(() => {
     if (!companyLoading && company) {
-      const isComplete = !!(company.phone || company.address || company.city);
+      const isComplete = !!(company.logo || company.phone || company.address || company.city);
       if (!isComplete && !showCompletionModal) {
         setShowCompletionModal(true);
       }
