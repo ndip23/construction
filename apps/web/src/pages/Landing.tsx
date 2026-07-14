@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Calculator, Search, MapPin, ShieldCheck, Award, Tag, Smile,
@@ -6,10 +6,20 @@ import {
 } from 'lucide-react';
 import { PublicFooter } from '../components/layout/PublicFooter';
 import { PublicBottomNav } from '../components/layout/PublicBottomNav';
+import { usePWA } from '../components/PWAProvider';
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { isInstallable, setShowPopup } = usePWA();
 
+  useEffect(() => {
+    if (isInstallable) {
+      const timer = setTimeout(() => {
+        setShowPopup(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isInstallable, setShowPopup]);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
