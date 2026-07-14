@@ -212,3 +212,4 @@ export default App;
 // Retry with more memory
 // Test automated build
 // Skip TypeScript check
+// Skip backend tsc
