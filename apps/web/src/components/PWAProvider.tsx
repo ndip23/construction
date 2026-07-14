@@ -193,19 +193,19 @@ export const PWAProvider = ({ children }: { children: React.ReactNode }) => {
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200px] h-[200px] bg-primary/10 blur-[50px] rounded-full pointer-events-none" />
 
               {/* Logo / Badge */}
-              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center font-black text-brand-navy text-2xl italic mb-6 shadow-lg shadow-primary/20">
-                BH
+              <div className="w-16 h-16 bg-white border border-border rounded-2xl flex items-center justify-center mb-6 shadow-lg overflow-hidden shrink-0">
+                <img src="/cpromark-logo.png" alt="CproHub Logo" className="w-12 h-12 object-contain" />
               </div>
 
               {isIOS ? (
                 /* iOS Safari instructions */
                 <div>
                   <h3 className="text-2xl font-black tracking-tight mb-2">
-                    Install BuildHub on iOS
+                    Install CproHub on iOS
                   </h3>
                   
                   <p className="text-muted-foreground text-sm font-medium mb-6">
-                    Add BuildHub to your Home Screen for a premium app-like experience with quick access and full-screen workspace.
+                    Add CproHub to your Home Screen for a premium app-like experience with quick access and full-screen workspace.
                   </p>
 
                   <div className="space-y-4 bg-muted/50 border border-border/60 rounded-3xl p-5 mb-6">
@@ -245,11 +245,11 @@ export const PWAProvider = ({ children }: { children: React.ReactNode }) => {
                 /* Desktop/Android manual instructions fallback */
                 <div>
                   <h3 className="text-2xl font-black tracking-tight mb-2">
-                    How to Install BuildHub
+                    How to Install CproHub
                   </h3>
 
                   <p className="text-muted-foreground text-sm font-medium mb-6">
-                    Add BuildHub to your desktop or mobile device for quick launch and offline capabilities.
+                    Add CproHub to your desktop or mobile device for quick launch and offline capabilities.
                   </p>
 
                   <div className="space-y-4 bg-muted/50 border border-border/60 rounded-3xl p-5 mb-6">
@@ -260,7 +260,7 @@ export const PWAProvider = ({ children }: { children: React.ReactNode }) => {
                       <div>
                         <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">On Desktop (Chrome/Edge)</p>
                         <p className="text-sm font-bold text-foreground">
-                          Look for the <span className="font-extrabold text-primary">Install</span> icon in the right side of the address bar, or click the browser menu (three dots) and select <span className="font-extrabold text-primary">"Install BuildHub"</span>.
+                          Look for the <span className="font-extrabold text-primary">Install</span> icon in the right side of the address bar, or click the browser menu (three dots) and select <span className="font-extrabold text-primary">"Install CproHub"</span>.
                         </p>
                       </div>
                     </div>
@@ -297,7 +297,7 @@ export const PWAProvider = ({ children }: { children: React.ReactNode }) => {
                 /* Android / Desktop Install Prompt */
                 <div>
                   <h3 className="text-2xl font-black tracking-tight mb-2">
-                    Download BuildHub App
+                    Download CproHub App
                   </h3>
 
                   <p className="text-muted-foreground text-sm font-medium mb-6">

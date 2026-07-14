@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'BuildHub — Construction OS',
-        short_name: 'BuildHub',
+        name: 'CproHub — Construction OS',
+        short_name: 'CproHub',
         description: 'Projects, BOQs, workforce, payroll, tenders and AI — the construction operating system.',
         theme_color: '#001529',
         background_color: '#001529',
