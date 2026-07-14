@@ -211,3 +211,4 @@ export default App;
 // Test deployment
 // Retry with more memory
 // Test automated build
+// Skip TypeScript check
