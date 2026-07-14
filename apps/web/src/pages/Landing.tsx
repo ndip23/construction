@@ -10,16 +10,14 @@ import { usePWA } from '../components/PWAProvider';
 
 export default function Landing() {
   const navigate = useNavigate();
-  const { isInstallable, setShowPopup } = usePWA();
+  const { setShowPopup } = usePWA();
 
   useEffect(() => {
-    if (isInstallable) {
-      const timer = setTimeout(() => {
-        setShowPopup(true);
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [isInstallable, setShowPopup]);
+    const timer = setTimeout(() => {
+      setShowPopup(true);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [setShowPopup]);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
